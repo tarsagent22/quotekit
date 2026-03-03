@@ -214,41 +214,57 @@ export default function Home() {
 
               <div className="mb-6">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Scope of Work</p>
-                <table className="w-full text-sm">
+
+                {/* Desktop table */}
+                <table className="w-full text-sm hidden md:table">
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-2 font-medium text-gray-700">Description</th>
-                      <th className="text-right py-2 font-medium text-gray-700">Qty</th>
-                      <th className="text-right py-2 font-medium text-gray-700">Unit Price</th>
-                      <th className="text-right py-2 font-medium text-gray-700">Total</th>
+                      <th className="text-right py-2 font-medium text-gray-700 w-20">Qty</th>
+                      <th className="text-right py-2 font-medium text-gray-700 w-24">Unit Price</th>
+                      <th className="text-right py-2 font-medium text-gray-700 w-24">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {quote.lineItems?.map((item: any, i: number) => (
                       <tr key={i} className="border-b border-gray-100">
                         <td className="py-3 text-gray-700">{item.description}</td>
-                        <td className="py-3 text-right text-gray-700">{item.qty}</td>
-                        <td className="py-3 text-right text-gray-700">${item.unitPrice}</td>
-                        <td className="py-3 text-right text-gray-700">${item.total}</td>
+                        <td className="py-3 text-right text-gray-500">{item.qty}</td>
+                        <td className="py-3 text-right text-gray-500">${item.unitPrice}</td>
+                        <td className="py-3 text-right font-medium text-gray-900">${item.total}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+
+                {/* Mobile card layout */}
+                <div className="md:hidden space-y-3">
+                  {quote.lineItems?.map((item: any, i: number) => (
+                    <div key={i} className="border border-gray-100 rounded-lg p-3">
+                      <p className="text-sm text-gray-800 font-medium mb-2">{item.description}</p>
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>Qty: {item.qty}</span>
+                        <span>@ ${item.unitPrice}</span>
+                        <span className="font-semibold text-gray-900">${item.total}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="flex justify-end">
-                <div className="w-64 space-y-2 text-sm">
-                  <div className="flex justify-between text-gray-600">
+                <div className="w-full max-w-xs space-y-2 text-sm">
+                  <div className="flex justify-between text-gray-600 py-1">
                     <span>Subtotal</span>
-                    <span>${quote.subtotal}</span>
+                    <span className="font-medium">${quote.subtotal}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-gray-600 py-1">
                     <span>Tax (est.)</span>
-                    <span>${quote.tax}</span>
+                    <span className="font-medium">${quote.tax}</span>
                   </div>
-                  <div className="flex justify-between font-bold text-gray-900 text-base border-t border-gray-200 pt-2">
+                  <div className="flex justify-between font-bold text-gray-900 text-base border-t border-gray-200 pt-3 mt-1">
                     <span>Total</span>
-                    <span>${quote.total}</span>
+                    <span className="text-blue-600">${quote.total}</span>
                   </div>
                 </div>
               </div>
