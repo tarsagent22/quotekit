@@ -166,12 +166,24 @@ export default function Home() {
     doc.setFillColor(37, 99, 235)
     doc.rect(0, 0, pageW, 72, 'F')
     doc.setTextColor(255, 255, 255)
+
+    // Logo (if available) — render left side, push text right
+    const logoDataUrl = profile?.logoDataUrl
+    let textLeft = margin
+    if (logoDataUrl) {
+      try {
+        const fmt = logoDataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG'
+        doc.addImage(logoDataUrl, fmt, margin, 10, 52, 52)
+        textLeft = margin + 62
+      } catch {}
+    }
+
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(20)
-    doc.text(biz, margin, 36)
+    doc.text(biz, textLeft, 36)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(11)
-    doc.text(trade ? trade.charAt(0).toUpperCase() + trade.slice(1) + ' Services' : '', margin, 54)
+    doc.text(trade ? trade.charAt(0).toUpperCase() + trade.slice(1) + ' Services' : '', textLeft, 54)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(13)
     doc.text(`Quote ${quote.quoteNumber}`, pageW - margin, 32, { align: 'right' })

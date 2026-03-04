@@ -34,6 +34,7 @@ export interface ContractorProfile {
   paymentTerms?: string    // e.g. '50-deposit', 'net-30'
   quoteValidityDays?: number
   introMessage?: string
+  logoDataUrl?: string   // base64 data URL, stored in Clerk metadata
 }
 
 export async function getProfile(userId: string): Promise<ContractorProfile | null> {

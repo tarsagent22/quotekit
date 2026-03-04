@@ -139,7 +139,6 @@ Return ONLY valid JSON, no markdown:
       quoteData.isOverLimit = count > 3
 
       // Save to history (fire-and-forget, don't block response)
-      const body = await req.clone().json().catch(() => ({}))
       saveQuoteToHistory(userId, {
         id: quoteData.quoteNumber || `Q-${Date.now()}`,
         createdAt: new Date().toISOString(),

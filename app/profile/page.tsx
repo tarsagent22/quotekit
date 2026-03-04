@@ -65,6 +65,9 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [savedOk, setSavedOk] = useState(false)
   const [isNew, setIsNew] = useState(false)
+  const [logo, setLogo] = useState<string | null>(null)
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [logoDragOver, setLogoDragOver] = useState(false)
   const [form, setForm] = useState({
     // Core
     businessName: '',
@@ -95,6 +98,7 @@ export default function ProfilePage() {
       .then(data => {
         if (data.profile) {
           const p = data.profile
+          if (p.logoDataUrl) setLogo(p.logoDataUrl)
           setForm({
             businessName: p.businessName || '',
             trade: p.trade || 'general',
@@ -123,6 +127,40 @@ export default function ProfilePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const processLogoFile = (file: File) => {
+    if (!file.type.startsWith('image/')) return
+    const reader = new FileReader()
+    reader.onload = async (ev) => {
+      const raw = ev.target?.result as string
+      // Resize client-side to max 200x200, keep aspect ratio
+      const img = new window.Image()
+      img.onload = async () => {
+        const canvas = document.createElement('canvas')
+        const MAX = 200
+        const ratio = Math.min(MAX / img.width, MAX / img.height, 1)
+        canvas.width = Math.round(img.width * ratio)
+        canvas.height = Math.round(img.height * ratio)
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
+        const dataUrl = canvas.toDataURL('image/png', 0.85)
+        setLogo(dataUrl)
+        setLogoUploading(true)
+        await fetch('/api/logo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ logoDataUrl: dataUrl }),
+        })
+        setLogoUploading(false)
+      }
+      img.src = raw
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleLogoRemove = async () => {
+    setLogo(null)
+    await fetch('/api/logo', { method: 'DELETE' })
   }
 
   const handleSave = async () => {
@@ -190,6 +228,45 @@ export default function ProfilePage() {
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Business Identity</p>
             <p className="text-sm text-gray-400 mt-1">Appears on every quote you send.</p>
+          </div>
+
+          {/* Logo upload */}
+          <div>
+            <label className={labelCls}>Business Logo <span className="text-gray-400 font-normal">(optional — shown on PDF quotes)</span></label>
+            {logo ? (
+              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <img src={logo} alt="Business logo" className="h-14 w-auto max-w-[120px] object-contain rounded" />
+                <div className="flex-1">
+                  <p className="text-xs text-gray-500 font-medium mb-1">Logo saved ✓</p>
+                  <p className="text-xs text-gray-400">Will appear on all PDF quotes</p>
+                </div>
+                {logoUploading ? (
+                  <span className="text-xs text-gray-400">Saving…</span>
+                ) : (
+                  <button type="button" onClick={handleLogoRemove}
+                    className="text-xs text-red-400 hover:text-red-600 transition-colors font-medium">
+                    Remove
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div
+                onDragOver={e => { e.preventDefault(); setLogoDragOver(true) }}
+                onDragLeave={() => setLogoDragOver(false)}
+                onDrop={e => { e.preventDefault(); setLogoDragOver(false); const f = e.dataTransfer.files[0]; if (f) processLogoFile(f) }}
+                onClick={() => document.getElementById('logo-input')?.click()}
+                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                  logoDragOver ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}>
+                <svg className="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <p className="text-sm text-gray-400 font-medium">Drop your logo here</p>
+                <p className="text-xs text-gray-300 mt-1">or click to browse · PNG, JPG, SVG</p>
+                <input id="logo-input" type="file" accept="image/*" className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) processLogoFile(f) }} />
+              </div>
+            )}
           </div>
 
           <div>
