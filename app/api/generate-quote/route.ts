@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // Try to get profile for logged-in users
     const { userId } = await auth()
-    let profile = userId ? getProfile(userId) : null
+    let profile = userId ? await getProfile(userId) : null
 
     // Fall back to form-provided values if no profile
     const businessName = profile?.businessName || body.businessName || 'My Business'
@@ -113,7 +113,7 @@ Return ONLY valid JSON, no markdown:
 
     // Track quote count for paywall
     if (userId) {
-      const count = incrementQuoteCount(userId)
+      const count = await incrementQuoteCount(userId)
       quoteData.quoteCount = count
       quoteData.isOverLimit = count > 3
     }
