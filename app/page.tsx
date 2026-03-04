@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser, UserButton, SignInButton } from '@clerk/nextjs'
+import { useUser, UserButton, SignInButton, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
 const TRADE_CHIPS = [
@@ -19,10 +19,15 @@ const EXAMPLE_PROMPTS = [
   'Wire 3 new outlets in garage and install a 20-amp circuit',
 ]
 
+const FREE_QUOTA = 3
+
 export default function Home() {
   const { user, isLoaded } = useUser()
+  const { openSignIn } = useClerk()
   const router = useRouter()
   const [profile, setProfile] = useState<any>(null)
+  const [quotesUsed, setQuotesUsed] = useState(0)
+  const [showPaywall, setShowPaywall] = useState(false)
   const [form, setForm] = useState({
     businessName: '',
     trade: '',
@@ -45,6 +50,7 @@ export default function Home() {
         .then(data => {
           if (data.profile) {
             setProfile(data.profile)
+            setQuotesUsed(data.profile.quoteCount || 0)
             setForm(f => ({ ...f, businessName: data.profile.businessName, trade: data.profile.trade }))
           } else {
             router.push('/profile')
@@ -60,6 +66,19 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Gate 1: guests must sign in — no identity = no tracking = no free quotes
+    if (!user) {
+      openSignIn({ forceRedirectUrl: '/profile' })
+      return
+    }
+
+    // Gate 2: over free quota — show paywall
+    if (quotesUsed >= FREE_QUOTA) {
+      setShowPaywall(true)
+      return
+    }
+
     setLoading(true)
     setError('')
     setQuote(null)
@@ -72,6 +91,8 @@ export default function Home() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to generate quote')
       setQuote(data)
+      // Update local count from server response
+      if (data.quoteCount !== undefined) setQuotesUsed(data.quoteCount)
     } catch (err: any) {
       setError('Couldn\'t generate the quote. Try describing the job with more detail.')
     } finally {
@@ -261,9 +282,21 @@ export default function Home() {
               <span className="hidden sm:inline text-blue-300 text-xs">·</span>
               <span className="hidden sm:inline text-xs text-blue-500">${profile.hourlyRate}/hr · {profile.materialTier} materials · {profile.region}</span>
             </div>
-            <button onClick={() => router.push('/profile')} className="text-xs text-blue-600 hover:text-blue-800 font-medium whitespace-nowrap transition-colors">
-              Edit profile →
-            </button>
+            <div className="flex items-center gap-3">
+              {/* Quota pill */}
+              <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
+                quotesUsed >= FREE_QUOTA
+                  ? 'bg-red-100 text-red-600'
+                  : quotesUsed >= FREE_QUOTA - 1
+                  ? 'bg-orange-100 text-orange-600'
+                  : 'bg-blue-100 text-blue-600'
+              }`}>
+                {quotesUsed >= FREE_QUOTA ? 'Free limit reached' : `${FREE_QUOTA - quotesUsed} free quote${FREE_QUOTA - quotesUsed !== 1 ? 's' : ''} left`}
+              </span>
+              <button onClick={() => router.push('/profile')} className="text-xs text-blue-600 hover:text-blue-800 font-medium whitespace-nowrap transition-colors">
+                Edit profile →
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -293,7 +326,7 @@ export default function Home() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 3l5 4-5 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             </SignInButton>
-            <p className="text-xs text-gray-400 mt-3">No credit card required · 3 free quotes</p>
+            <p className="text-xs text-gray-400 mt-3">Free account · 3 quotes included · No credit card</p>
 
             {/* How it works */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-14 text-left">
@@ -461,6 +494,17 @@ export default function Home() {
                       </svg>
                       Building your quote…
                     </>
+                  ) : !user ? (
+                    <>
+                      <svg width="14" height="14" fill="none" stroke="white" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                      Sign in to Generate
+                    </>
+                  ) : quotesUsed >= FREE_QUOTA ? (
+                    <>
+                      🔒 Upgrade to Continue
+                    </>
                   ) : (
                     <>
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -471,13 +515,17 @@ export default function Home() {
                   )}
                 </button>
 
-                {!user && (
-                  <p className="text-center text-xs text-gray-400">
-                    <SignInButton mode="modal" forceRedirectUrl="/profile">
-                      <span className="text-[#2563EB] hover:underline cursor-pointer font-medium">Sign in free</span>
-                    </SignInButton>
-                    {' '}to save your rates and get accurate quotes every time
-                  </p>
+                {/* Quota bar for signed-in users */}
+                {user && quotesUsed < FREE_QUOTA && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${quotesUsed >= FREE_QUOTA - 1 ? 'bg-orange-400' : 'bg-[#2563EB]'}`}
+                        style={{ width: `${(quotesUsed / FREE_QUOTA) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-400 whitespace-nowrap">{quotesUsed}/{FREE_QUOTA} free quotes used</span>
+                  </div>
                 )}
               </form>
             </div>
@@ -682,17 +730,71 @@ export default function Home() {
               </button>
             </div>
 
-            {!user && (
-              <p className="text-center text-xs text-gray-400 mt-4">
-                <SignInButton mode="modal" forceRedirectUrl="/profile">
-                  <span className="text-[#2563EB] hover:underline cursor-pointer font-medium">Sign in free</span>
-                </SignInButton>
-                {' '}to calibrate quotes to your exact rates every time
-              </p>
-            )}
           </div>
         )}
       </div>
+
+      {/* ── PAYWALL MODAL ────────────────────────────────────────────────────── */}
+      {showPaywall && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowPaywall(false)} />
+
+          {/* Card */}
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-fade-in-up">
+            {/* Close */}
+            <button onClick={() => setShowPaywall(false)}
+              className="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition-colors">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+
+            {/* Icon */}
+            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-5 mx-auto">
+              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                <path d="M14 2L4 14h8l-2 10 14-16H14V2z" fill="#2563EB"/>
+              </svg>
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900 text-center mb-2">You've used your 3 free quotes</h2>
+            <p className="text-gray-500 text-sm text-center leading-relaxed mb-6">
+              SnapBid Pro is launching soon at <span className="font-semibold text-gray-800">$19/mo</span> — unlimited quotes, PDF downloads, and client management.
+            </p>
+
+            {/* What's included */}
+            <div className="bg-gray-50 rounded-xl p-4 mb-6 space-y-2">
+              {[
+                'Unlimited quotes',
+                'Branded PDF downloads',
+                'Calibrated to your rates',
+                'Quote history & tracking',
+              ].map(f => (
+                <div key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
+                  </svg>
+                  {f}
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setShowPaywall(false)
+                // TODO: replace with Stripe checkout URL when wired
+                alert('Stripe coming soon — you\'re on the early access list!')
+              }}
+              className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors shadow-md shadow-blue-200 text-sm mb-3">
+              Get Early Access — $19/mo
+            </button>
+            <button onClick={() => setShowPaywall(false)}
+              className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors py-1">
+              Maybe later
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
