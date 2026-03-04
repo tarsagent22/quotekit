@@ -41,6 +41,22 @@ export async function POST(req: NextRequest) {
     const regionMultiplier = REGION_MULTIPLIERS[region] || 1.0
     const materialMultiplier = MATERIAL_MULTIPLIERS[materialTier] || 1.0
     const adjustedRate = Math.round(hourlyRate * regionMultiplier)
+    const taxRate = profile?.taxRate ?? 8.5
+    const paymentTerms = profile?.paymentTerms || '50-deposit'
+    const quoteValidityDays = profile?.quoteValidityDays || 30
+    const yearsInBusiness = profile?.yearsInBusiness || ''
+    const specialties = profile?.specialties || ''
+    const introMessage = profile?.introMessage || ''
+
+    const PAYMENT_TERMS_LABELS: Record<string, string> = {
+      '50-deposit': '50% deposit required to begin, balance due on completion',
+      '30-deposit': '30% deposit required to begin, balance due on completion',
+      'on-completion': 'Full payment due on completion of work',
+      'net-15': 'Payment due within 15 days of invoice',
+      'net-30': 'Payment due within 30 days of invoice',
+      'full-upfront': 'Full payment required prior to work beginning',
+      'custom': 'Payment terms as discussed',
+    }
 
     const quoteNum = `SB-${Math.floor(1000 + Math.random() * 9000)}`
 
@@ -48,6 +64,8 @@ export async function POST(req: NextRequest) {
 
 Business: ${businessName}
 Trade: ${trade}
+${specialties ? `Specialties: ${specialties}` : ''}
+${yearsInBusiness ? `Experience: ${yearsInBusiness} years in business` : ''}
 Client: ${clientName}
 Address: ${clientAddress}
 Job Description: ${jobDescription}
@@ -57,15 +75,19 @@ Contractor's actual numbers:
 - Crew size: ${crewSize} person(s)
 - Material quality tier: ${materialTier} (multiplier: ${materialMultiplier}x standard pricing)
 - Markup on materials: ${markup}%
+- Tax rate: ${taxRate}% (materials only)
+- Payment terms: ${PAYMENT_TERMS_LABELS[paymentTerms] || paymentTerms}
+- Quote valid for: ${quoteValidityDays} days
 
 Instructions:
 - Break the job into 2-6 specific line items (labor hours, materials by type, etc.)
 - Use the contractor's ACTUAL hourly rate for all labor — do not substitute generic rates
 - Apply the material tier multiplier to all material costs
 - Add markup percentage on top of material costs
-- Keep totals mathematically accurate (subtotal + tax = total)
-- Tax: apply only to materials (not labor), use ~8% rate
-- Notes: 1-2 sentences on payment terms or warranty, professional tone
+- Keep totals mathematically accurate
+- Tax: apply only to materials at ${taxRate}% rate
+- Notes: mention payment terms (${PAYMENT_TERMS_LABELS[paymentTerms]}), quote validity (${quoteValidityDays} days)${yearsInBusiness ? `, reference experience if relevant` : ''}. Professional tone, 2-3 sentences max.
+${introMessage ? `- The contractor has a custom intro message to incorporate naturally: "${introMessage}"` : ''}
 
 Return ONLY valid JSON, no markdown:
 {

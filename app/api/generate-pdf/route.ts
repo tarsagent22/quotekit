@@ -8,6 +8,20 @@ export async function POST(req: NextRequest) {
     const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
     // Build HTML for PDF-like rendering (browser print / puppeteer-friendly)
+    const { phone, email, businessAddress, licenseNumber, paymentTerms, quoteValidityDays, introMessage } = data
+
+    const PAYMENT_LABELS: Record<string, string> = {
+      '50-deposit': '50% deposit to begin, balance on completion',
+      '30-deposit': '30% deposit to begin, balance on completion',
+      'on-completion': 'Full payment due on completion',
+      'net-15': 'Net 15',
+      'net-30': 'Net 30',
+      'full-upfront': 'Full payment required upfront',
+      'custom': 'As discussed',
+    }
+    const paymentLabel = PAYMENT_LABELS[paymentTerms] || paymentTerms || 'Net 30'
+    const validDays = quoteValidityDays || 30
+
     const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -16,11 +30,13 @@ export async function POST(req: NextRequest) {
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111; padding: 48px; max-width: 800px; margin: 0 auto; }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid #1d4ed8; }
-  .logo { font-size: 22px; font-weight: 700; color: #1d4ed8; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid #2563eb; }
+  .logo { font-size: 22px; font-weight: 700; color: #2563eb; }
   .logo-sub { font-size: 13px; color: #6b7280; margin-top: 2px; text-transform: capitalize; }
+  .logo-contact { font-size: 12px; color: #6b7280; margin-top: 6px; line-height: 1.6; }
   .meta { text-align: right; font-size: 13px; color: #6b7280; }
   .meta strong { display: block; font-size: 16px; color: #111; font-weight: 700; }
+  .intro { background: #f0f9ff; border-left: 3px solid #2563eb; padding: 12px 16px; margin-bottom: 24px; font-size: 13px; color: #1e40af; border-radius: 0 6px 6px 0; }
   .bill-to { background: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 32px; }
   .bill-to label { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
   .bill-to p { font-size: 14px; color: #111; margin-top: 4px; }
@@ -33,9 +49,12 @@ export async function POST(req: NextRequest) {
   .totals-box { width: 240px; }
   .totals-row { display: flex; justify-content: space-between; font-size: 14px; color: #6b7280; padding: 4px 0; }
   .totals-row.grand { font-size: 16px; font-weight: 700; color: #111; border-top: 1px solid #e5e7eb; padding-top: 10px; margin-top: 6px; }
-  .notes { background: #eff6ff; border-radius: 8px; padding: 16px; margin-bottom: 32px; }
+  .notes { background: #eff6ff; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
   .notes label { font-size: 11px; font-weight: 600; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.05em; }
   .notes p { font-size: 13px; color: #1e40af; margin-top: 4px; }
+  .terms { display: flex; gap: 24px; margin-bottom: 32px; font-size: 12px; color: #6b7280; }
+  .terms div { display: flex; flex-direction: column; gap: 2px; }
+  .terms strong { color: #374151; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
   .footer { text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 16px; }
   .badge { display: inline-block; background: #dbeafe; color: #1d4ed8; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
 </style>
@@ -45,13 +64,19 @@ export async function POST(req: NextRequest) {
     <div>
       <div class="logo">${businessName}</div>
       <div class="logo-sub">${trade} Services</div>
+      <div class="logo-contact">
+        ${phone ? `📞 ${phone}` : ''}${phone && email ? ' &nbsp;·&nbsp; ' : ''}${email ? `✉ ${email}` : ''}<br>
+        ${businessAddress ? businessAddress : ''}${businessAddress && licenseNumber ? ' &nbsp;·&nbsp; ' : ''}${licenseNumber ? `Lic. ${licenseNumber}` : ''}
+      </div>
     </div>
     <div class="meta">
       <strong>Quote ${quoteNumber}</strong>
       <span>${date}</span><br>
-      <span>Valid for 30 days</span>
+      <span>Valid for ${validDays} days</span>
     </div>
   </div>
+
+  ${introMessage ? `<div class="intro">${introMessage}</div>` : ''}
 
   <div class="bill-to">
     <label>Prepared For</label>
@@ -88,6 +113,11 @@ export async function POST(req: NextRequest) {
   </div>
 
   ${notes ? `<div class="notes"><label>Notes</label><p>${notes}</p></div>` : ''}
+
+  <div class="terms">
+    <div><strong>Payment Terms</strong>${paymentLabel}</div>
+    <div><strong>Quote Valid Until</strong>${new Date(Date.now() + validDays * 86400000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+  </div>
 
   <div class="footer">
     Generated by <span class="badge">SnapBid</span> · AI-powered quotes for contractors

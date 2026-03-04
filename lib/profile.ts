@@ -19,6 +19,17 @@ export interface ContractorProfile {
   quoteCount: number
   createdAt: string
   updatedAt: string
+  // Extended profile fields
+  phone?: string
+  email?: string
+  businessAddress?: string
+  licenseNumber?: string
+  yearsInBusiness?: string
+  specialties?: string // comma-separated
+  taxRate?: number // percentage e.g. 8.5
+  paymentTerms?: string // e.g. '50-deposit', 'net-30', 'on-completion', 'full-upfront'
+  quoteValidityDays?: number // default 30
+  introMessage?: string // custom opening line on quotes
 }
 
 function ensureDir() {

@@ -29,6 +29,17 @@ export async function POST(req: NextRequest) {
     quoteCount: existing?.quoteCount || 0,
     createdAt: existing?.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    // Extended fields
+    phone: body.phone || '',
+    email: body.email || '',
+    businessAddress: body.businessAddress || '',
+    licenseNumber: body.licenseNumber || '',
+    yearsInBusiness: body.yearsInBusiness || '1-3',
+    specialties: body.specialties || '',
+    taxRate: parseFloat(body.taxRate) || 8.5,
+    paymentTerms: body.paymentTerms || '50-deposit',
+    quoteValidityDays: parseInt(body.quoteValidityDays) || 30,
+    introMessage: body.introMessage || '',
   }
 
   saveProfile(profile)
