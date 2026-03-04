@@ -81,6 +81,18 @@ export default function Home() {
     a.click()
   }
 
+  const MAX_DESC = 500
+  const descCount = form.jobDescription.length
+
+  const examplePrompts = [
+    'Install bathroom vanity',
+    'Repair roof shingles',
+    'Wire 3 new outlets',
+  ]
+
+  // Step: 1=form, 2=quote shown, 3=downloaded (we just track 1 and 2 here)
+  const step = quote ? 2 : 1
+
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -129,6 +141,37 @@ export default function Home() {
       )}
 
       <div className="max-w-4xl mx-auto px-6 py-10">
+        {/* Step indicator */}
+        <div className="flex items-center justify-center mb-8 gap-0">
+          {[
+            { n: 1, label: 'Describe Job' },
+            { n: 2, label: 'Review Quote' },
+            { n: 3, label: 'Download' },
+          ].map(({ n, label }, idx) => {
+            const active = step === n
+            const done = step > n
+            return (
+              <div key={n} className="flex items-center">
+                {idx > 0 && (
+                  <div className={`w-12 h-0.5 ${done ? 'bg-blue-500' : 'bg-gray-200'}`} />
+                )}
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-colors ${
+                    active ? 'border-blue-600 bg-blue-600 text-white' :
+                    done  ? 'border-blue-500 bg-blue-500 text-white' :
+                            'border-gray-300 bg-white text-gray-400'
+                  }`}>
+                    {done ? '✓' : n}
+                  </div>
+                  <span className={`text-xs mt-1 font-medium ${active ? 'text-blue-600' : done ? 'text-blue-500' : 'text-gray-400'}`}>
+                    {label}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
         {!quote ? (
           <>
             <div className="mb-8 text-center">
@@ -205,9 +248,27 @@ export default function Home() {
                   onChange={handleChange}
                   placeholder="e.g. Replace kitchen faucet and fix slow drain under sink. Customer wants new shut-off valves too."
                   required
+                  maxLength={MAX_DESC}
                   rows={4}
                   className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
+                <div className="flex items-center justify-between mt-1.5">
+                  <div className="flex flex-wrap gap-2">
+                    {examplePrompts.map(prompt => (
+                      <button
+                        key={prompt}
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, jobDescription: prompt }))}
+                        className="text-xs px-2.5 py-1 rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
+                  <span className={`text-xs tabular-nums shrink-0 ml-2 ${descCount >= MAX_DESC ? 'text-red-500' : 'text-gray-400'}`}>
+                    {descCount} / {MAX_DESC}
+                  </span>
+                </div>
               </div>
 
               {/* Material tier override (quick tap) */}
@@ -249,9 +310,21 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-4 px-6 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
               >
-                {loading ? '✨ Generating your quote...' : '⚡ Generate Quote'}
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Generating your quote...
+                  </>
+                ) : (
+                  <>
+                    ⚡ Generate Quote <span aria-hidden="true">→</span>
+                  </>
+                )}
               </button>
 
               {!user && (
