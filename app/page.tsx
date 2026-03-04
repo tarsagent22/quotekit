@@ -8,6 +8,7 @@ export default function Home() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
   const [profile, setProfile] = useState<any>(null)
+  const [bannerExpanded, setBannerExpanded] = useState(false)
   const [form, setForm] = useState({
     businessName: '',
     trade: '',
@@ -85,20 +86,20 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
               <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="font-semibold text-gray-900 text-lg">SnapBid</span>
+            <span className="font-semibold text-gray-900 text-base sm:text-lg">SnapBid</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {isLoaded && (
               user ? (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <button
                     onClick={() => router.push('/profile')}
-                    className="text-sm text-gray-500 hover:text-gray-700"
+                    className="text-sm text-gray-500 hover:text-gray-700 min-h-[44px] flex items-center max-w-[120px] sm:max-w-none truncate"
                   >
                     {profile?.businessName || 'My Profile'}
                   </button>
@@ -106,7 +107,7 @@ export default function Home() {
                 </div>
               ) : (
                 <SignInButton mode="modal" forceRedirectUrl="/profile">
-                  <button className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                  <button className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors min-h-[44px]">
                     Sign In
                   </button>
                 </SignInButton>
@@ -116,33 +117,58 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Profile summary bar (logged in users) */}
+      {/* Profile calibration banner (logged in users) */}
       {profile && (
         <div className="bg-blue-50 border-b border-blue-100">
-          <div className="max-w-4xl mx-auto px-6 py-2 flex items-center justify-between">
-            <p className="text-xs text-blue-700">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-1.5 flex items-center gap-2">
+            {/* Mobile: compact with expand toggle */}
+            <div className="flex-1 min-w-0 sm:hidden">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-blue-700 font-medium truncate">
+                  ⚡ {profile.businessName}
+                </p>
+                <button
+                  onClick={() => setBannerExpanded(v => !v)}
+                  className="text-xs text-blue-600 whitespace-nowrap min-h-[44px] flex items-center shrink-0"
+                >
+                  {bannerExpanded ? 'Hide ▲' : 'Details ▼'}
+                </button>
+              </div>
+              {bannerExpanded && (
+                <p className="text-xs text-blue-600 mt-0.5">
+                  ${profile.hourlyRate}/hr · {profile.materialTier} materials · {profile.region}
+                </p>
+              )}
+            </div>
+            {/* Desktop: always full */}
+            <p className="hidden sm:block text-xs text-blue-700 flex-1 min-w-0">
               ⚡ Quotes calibrated to <strong>{profile.businessName}</strong> · ${profile.hourlyRate}/hr · {profile.materialTier} materials · {profile.region} region
             </p>
-            <button onClick={() => router.push('/profile')} className="text-xs text-blue-600 underline">Edit</button>
+            <button
+              onClick={() => router.push('/profile')}
+              className="text-xs text-blue-600 underline min-h-[44px] flex items-center shrink-0"
+            >
+              Edit
+            </button>
           </div>
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {!quote ? (
           <>
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Generate a Professional Quote</h1>
-              <p className="text-gray-500">
+            <div className="mb-6 sm:mb-8 text-center">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Generate a Professional Quote</h1>
+              <p className="text-sm text-gray-500">
                 {profile ? 'Calibrated to your rates — describe the job and go.' : 'Describe the job — we\'ll handle the rest'}
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8 space-y-6">
 
               {/* Only show business/trade fields if no profile */}
               {!profile && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Your Business Name</label>
                     <input
@@ -172,7 +198,7 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Client Name</label>
                   <input
@@ -210,23 +236,23 @@ export default function Home() {
                 />
               </div>
 
-              {/* Material tier override (quick tap) */}
+              {/* Material tier override — flex-wrap for mobile */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Material Quality for This Job
                   {profile && <span className="text-gray-400 font-normal ml-1">(default: {profile.materialTier})</span>}
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="flex flex-wrap gap-2">
                   {[
-                    { value: 'budget', label: '💰 Budget', sub: 'Lower cost materials' },
-                    { value: 'standard', label: '⚡ Standard', sub: 'Mid-range (most jobs)' },
-                    { value: 'premium', label: '💎 Premium', sub: 'High-end materials' },
+                    { value: 'budget', label: '💰 Budget', sub: 'Lower cost' },
+                    { value: 'standard', label: '⚡ Standard', sub: 'Mid-range' },
+                    { value: 'premium', label: '💎 Premium', sub: 'High-end' },
                   ].map(tier => (
                     <button
                       key={tier.value}
                       type="button"
                       onClick={() => setForm(f => ({ ...f, materialTierOverride: f.materialTierOverride === tier.value ? '' : tier.value }))}
-                      className={`p-3 rounded-xl border-2 text-left transition-all ${
+                      className={`flex-1 min-w-[90px] min-h-[44px] p-3 rounded-xl border-2 text-left transition-all ${
                         (form.materialTierOverride === tier.value) ||
                         (!form.materialTierOverride && profile?.materialTier === tier.value)
                           ? 'border-blue-500 bg-blue-50'
@@ -249,7 +275,7 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm min-h-[44px]"
               >
                 {loading ? '✨ Generating your quote...' : '⚡ Generate Quote'}
               </button>
@@ -265,19 +291,24 @@ export default function Home() {
             </form>
           </>
         ) : (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Your Quote is Ready</h2>
-              <button onClick={() => setQuote(null)} className="text-sm text-gray-500 hover:text-gray-700 underline">← New quote</button>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Your Quote is Ready</h2>
+              <button
+                onClick={() => setQuote(null)}
+                className="text-sm text-gray-500 hover:text-gray-700 underline min-h-[44px] flex items-center shrink-0"
+              >
+                ← New quote
+              </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <div className="flex justify-between items-start mb-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6 sm:mb-8">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{profile?.businessName || form.businessName}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">{profile?.businessName || form.businessName}</h3>
                   <p className="text-gray-500 text-sm mt-1 capitalize">{profile?.trade || form.trade} Services</p>
                 </div>
-                <div className="text-right">
+                <div className="sm:text-right">
                   <p className="text-sm text-gray-500">Quote #{quote.quoteNumber}</p>
                   <p className="text-sm text-gray-500">{new Date().toLocaleDateString()}</p>
                   <p className="text-xs text-gray-400 mt-1">Valid for 30 days</p>
@@ -348,11 +379,17 @@ export default function Home() {
               )}
             </div>
 
-            <div className="flex gap-4">
-              <button onClick={handleDownloadPDF} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
+            <div className="flex gap-3 sm:gap-4">
+              <button
+                onClick={handleDownloadPDF}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 sm:px-6 rounded-xl transition-colors text-sm min-h-[44px]"
+              >
                 📄 Download Quote
               </button>
-              <button onClick={() => setQuote(null)} className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
+              <button
+                onClick={() => setQuote(null)}
+                className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 sm:px-6 rounded-xl transition-colors text-sm min-h-[44px]"
+              >
                 New Quote
               </button>
             </div>

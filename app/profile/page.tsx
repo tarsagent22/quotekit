@@ -90,25 +90,25 @@ export default function ProfilePage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-sm">S</span>
           </div>
-          <span className="font-semibold text-gray-900 text-lg">SnapBid</span>
+          <span className="font-semibold text-gray-900 text-base sm:text-lg">SnapBid</span>
           <span className="text-gray-400">·</span>
           <span className="text-gray-500 text-sm">Your Profile</span>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-6 py-10">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {isNew && (
-          <div className="mb-6 bg-blue-50 border border-blue-100 rounded-xl px-5 py-4">
+          <div className="mb-6 bg-blue-50 border border-blue-100 rounded-xl px-4 sm:px-5 py-4">
             <p className="text-blue-800 font-medium text-sm">👋 Welcome to SnapBid!</p>
             <p className="text-blue-600 text-sm mt-1">Set up your profile once and every quote will be calibrated to your business — your rates, your materials, your region.</p>
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8 space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">Your Business</h2>
             <p className="text-sm text-gray-400 mb-5">This information anchors every quote to your real numbers.</p>
@@ -125,7 +125,7 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Your Trade</label>
                   <select
@@ -156,7 +156,7 @@ export default function ProfilePage() {
             <h2 className="text-lg font-semibold text-gray-900 mb-1">Pricing Defaults</h2>
             <p className="text-sm text-gray-400 mb-5">Used to calculate labor and markup on every quote. You can override per job.</p>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Your Hourly Rate ($/hr)</label>
                 <input
@@ -214,7 +214,7 @@ export default function ProfilePage() {
         <button
           onClick={handleSave}
           disabled={saving || !form.businessName}
-          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
+          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm min-h-[44px]"
         >
           {saving ? 'Saving...' : isNew ? 'Save Profile & Start Quoting →' : 'Update Profile'}
         </button>
