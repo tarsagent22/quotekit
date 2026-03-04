@@ -28,10 +28,25 @@ const REGIONS = [
   { value: 'national', label: 'Other / National average' },
 ]
 
+function Spinner() {
+  return (
+    <svg
+      className="animate-spin h-4 w-4 mr-2 inline"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  )
+}
+
 export default function ProfilePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [savedOk, setSavedOk] = useState(false)
   const [isNew, setIsNew] = useState(false)
   const [form, setForm] = useState({
     businessName: '',
@@ -76,7 +91,11 @@ export default function ProfilePage() {
       body: JSON.stringify(form),
     })
     setSaving(false)
-    router.push('/')
+    setSavedOk(true)
+    setTimeout(() => {
+      setSavedOk(false)
+      router.push('/')
+    }, 2000)
   }
 
   if (loading) {
@@ -102,13 +121,13 @@ export default function ProfilePage() {
 
       <div className="max-w-2xl mx-auto px-6 py-10">
         {isNew && (
-          <div className="mb-6 bg-blue-50 border border-blue-100 rounded-xl px-5 py-4">
+          <div className="mb-6 bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 transition-all duration-200">
             <p className="text-blue-800 font-medium text-sm">👋 Welcome to SnapBid!</p>
             <p className="text-blue-600 text-sm mt-1">Set up your profile once and every quote will be calibrated to your business — your rates, your materials, your region.</p>
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6 transition-all duration-200">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">Your Business</h2>
             <p className="text-sm text-gray-400 mb-5">This information anchors every quote to your real numbers.</p>
@@ -121,7 +140,7 @@ export default function ProfilePage() {
                   value={form.businessName}
                   onChange={handleChange}
                   placeholder="e.g. Mike's Plumbing LLC"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                 />
               </div>
 
@@ -132,7 +151,7 @@ export default function ProfilePage() {
                     name="trade"
                     value={form.trade}
                     onChange={handleChange}
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                   >
                     {TRADES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
@@ -143,7 +162,7 @@ export default function ProfilePage() {
                     name="region"
                     value={form.region}
                     onChange={handleChange}
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                   >
                     {REGIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                   </select>
@@ -165,7 +184,7 @@ export default function ProfilePage() {
                   value={form.hourlyRate}
                   onChange={handleChange}
                   placeholder="75"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                 />
               </div>
               <div>
@@ -176,7 +195,7 @@ export default function ProfilePage() {
                   value={form.markup}
                   onChange={handleChange}
                   placeholder="20"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                 />
                 <p className="text-xs text-gray-400 mt-1">Added on top of materials cost</p>
               </div>
@@ -186,7 +205,7 @@ export default function ProfilePage() {
                   name="crewSize"
                   value={form.crewSize}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                 >
                   <option value="1">Solo (1 person)</option>
                   <option value="2">2-person crew</option>
@@ -200,7 +219,7 @@ export default function ProfilePage() {
                   name="materialTier"
                   value={form.materialTier}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                 >
                   <option value="budget">Budget — lowest cost materials</option>
                   <option value="standard">Standard — mid-range (recommended)</option>
@@ -213,10 +232,22 @@ export default function ProfilePage() {
 
         <button
           onClick={handleSave}
-          disabled={saving || !form.businessName}
-          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
+          disabled={saving || savedOk || !form.businessName}
+          className={`mt-6 w-full font-semibold py-3 px-6 rounded-xl transition-all duration-200 text-sm flex items-center justify-center ${
+            savedOk
+              ? 'bg-green-500 text-white'
+              : 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white'
+          }`}
         >
-          {saving ? 'Saving...' : isNew ? 'Save Profile & Start Quoting →' : 'Update Profile'}
+          {savedOk ? (
+            '✓ Saved!'
+          ) : saving ? (
+            <><Spinner />Saving...</>
+          ) : isNew ? (
+            'Save Profile & Start Quoting →'
+          ) : (
+            'Update Profile'
+          )}
         </button>
       </div>
     </main>
