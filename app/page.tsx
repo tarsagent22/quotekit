@@ -102,10 +102,10 @@ export default function Home() {
                   >
                     {profile?.businessName || 'My Profile'}
                   </button>
-                  <UserButton afterSignOutUrl="/" />
+                  <UserButton />
                 </div>
               ) : (
-                <SignInButton mode="modal" afterSignInUrl="/profile">
+                <SignInButton mode="modal" forceRedirectUrl="/profile">
                   <button className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                     Sign In
                   </button>
@@ -256,7 +256,7 @@ export default function Home() {
 
               {!user && (
                 <p className="text-center text-xs text-gray-400">
-                  <SignInButton mode="modal" afterSignInUrl="/profile">
+                  <SignInButton mode="modal" forceRedirectUrl="/profile">
                     <span className="text-blue-600 underline cursor-pointer">Sign in free</span>
                   </SignInButton>
                   {' '}to save your rates and get accurate quotes every time
@@ -359,7 +359,7 @@ export default function Home() {
 
             {!user && (
               <p className="text-center text-xs text-gray-400">
-                <SignInButton mode="modal" afterSignInUrl="/profile">
+                <SignInButton mode="modal" forceRedirectUrl="/profile">
                   <span className="text-blue-600 underline cursor-pointer">Sign in free</span>
                 </SignInButton>
                 {' '}to save your rates — quotes calibrated to your business every time

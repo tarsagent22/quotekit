@@ -19,8 +19,7 @@ export default function SignInPage() {
             card: 'shadow-sm border border-gray-100 rounded-2xl',
           }
         }}
-        afterSignInUrl="/profile"
-        afterSignUpUrl="/profile"
+        forceRedirectUrl="/profile"
       />
     </main>
   )
