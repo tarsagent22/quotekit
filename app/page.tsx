@@ -87,7 +87,7 @@ export default function Home() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#2563EB] rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">S</span>
             </div>
             <span className="font-semibold text-gray-900 text-lg">SnapBid</span>
@@ -106,7 +106,7 @@ export default function Home() {
                 </div>
               ) : (
                 <SignInButton mode="modal" forceRedirectUrl="/profile">
-                  <button className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                  <button className="text-sm bg-[#2563EB] hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium transition-colors duration-200">
                     Sign In
                   </button>
                 </SignInButton>
@@ -132,7 +132,7 @@ export default function Home() {
         {!quote ? (
           <>
             <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Generate a Professional Quote</h1>
+              <h1 className="font-bold text-5xl text-gray-900 mb-2">Generate a Professional Quote</h1>
               <p className="text-gray-500">
                 {profile ? 'Calibrated to your rates — describe the job and go.' : 'Describe the job — we\'ll handle the rest'}
               </p>
@@ -249,7 +249,7 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
+                className="w-full bg-[#2563EB] hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 text-sm"
               >
                 {loading ? '✨ Generating your quote...' : '⚡ Generate Quote'}
               </button>
@@ -349,10 +349,10 @@ export default function Home() {
             </div>
 
             <div className="flex gap-4">
-              <button onClick={handleDownloadPDF} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
+              <button onClick={handleDownloadPDF} className="flex-1 bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 text-sm">
                 📄 Download Quote
               </button>
-              <button onClick={() => setQuote(null)} className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
+              <button onClick={() => setQuote(null)} className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors duration-200 text-sm">
                 New Quote
               </button>
             </div>

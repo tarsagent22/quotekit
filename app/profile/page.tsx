@@ -91,7 +91,7 @@ export default function ProfilePage() {
     <main className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#2563EB] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">S</span>
           </div>
           <span className="font-semibold text-gray-900 text-lg">SnapBid</span>
@@ -214,7 +214,7 @@ export default function ProfilePage() {
         <button
           onClick={handleSave}
           disabled={saving || !form.businessName}
-          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
+          className="mt-6 w-full bg-[#2563EB] hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 text-sm"
         >
           {saving ? 'Saving...' : isNew ? 'Save Profile & Start Quoting →' : 'Update Profile'}
         </button>
