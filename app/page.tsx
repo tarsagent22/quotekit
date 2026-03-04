@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react'
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
+const TRADE_CHIPS = [
+  { label: 'Plumber', value: 'plumbing' },
+  { label: 'Electrician', value: 'electrical' },
+  { label: 'General Contractor', value: 'general' },
+  { label: 'Roofer', value: 'roofing' },
+  { label: 'Painter', value: 'painting' },
+  { label: 'HVAC', value: 'hvac' },
+]
+
 export default function Home() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
@@ -128,6 +137,23 @@ export default function Home() {
         </div>
       )}
 
+      {/* Guest welcome banner */}
+      {isLoaded && !user && !quote && (
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700">
+          <div className="max-w-4xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+              <p className="text-white font-semibold text-sm">SnapBid generates professional contractor quotes in seconds</p>
+              <p className="text-blue-200 text-xs mt-0.5">No account needed — or sign in to save your rates</p>
+            </div>
+            <SignInButton mode="modal" forceRedirectUrl="/profile">
+              <button className="whitespace-nowrap text-sm bg-white text-blue-700 hover:bg-blue-50 font-semibold px-4 py-2 rounded-lg transition-colors">
+                Sign in to calibrate quotes to your exact rates →
+              </button>
+            </SignInButton>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto px-6 py-10">
         {!quote ? (
           <>
@@ -168,6 +194,23 @@ export default function Home() {
                         <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
                       ))}
                     </select>
+                    {/* Trade quick-pick chips */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {TRADE_CHIPS.map(chip => (
+                        <button
+                          key={chip.value}
+                          type="button"
+                          onClick={() => setForm(f => ({ ...f, trade: chip.value }))}
+                          className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                            form.trade === chip.value
+                              ? 'bg-blue-600 border-blue-600 text-white'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                          }`}
+                        >
+                          {chip.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -263,6 +306,37 @@ export default function Home() {
                 </p>
               )}
             </form>
+
+            {/* Quote placeholder — shown before any quote is generated */}
+            <div className="mt-6 border-2 border-dashed border-gray-200 rounded-2xl p-10 flex flex-col items-center justify-center text-center">
+              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                <span className="text-2xl">📋</span>
+              </div>
+              <p className="text-gray-400 font-medium">Your professional quote will appear here</p>
+              <p className="text-gray-300 text-sm mt-1">Fill in the form above and hit Generate Quote</p>
+            </div>
+
+            {/* How it works */}
+            <div className="mt-10">
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-5">How it works</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { step: '1', title: 'Describe the job', desc: 'Enter the client info and a plain-language job description.' },
+                  { step: '2', title: 'AI builds your quote', desc: 'We generate itemized line items, materials, and pricing in seconds.' },
+                  { step: '3', title: 'Download or copy', desc: 'Get a PDF-ready quote to send directly to your client.' },
+                ].map(item => (
+                  <div key={item.step} className="flex items-start gap-3 bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm">
+                    <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-xs font-bold">{item.step}</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">{item.title}</p>
+                      <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </>
         ) : (
           <div className="space-y-6">
@@ -367,6 +441,24 @@ export default function Home() {
             )}
           </div>
         )}
+      </div>
+
+      {/* How it works */}
+      <div className="max-w-2xl mx-auto px-6 py-12">
+        <h3 className="text-center text-sm font-semibold text-gray-500 uppercase tracking-wide mb-8">How it works</h3>
+        <div className="grid grid-cols-3 gap-6 text-center">
+          {[
+            { n: '1', label: 'Describe the job', desc: 'Tell us what needs doing in plain English' },
+            { n: '2', label: 'AI builds your quote', desc: 'Line items, pricing, and totals generated instantly' },
+            { n: '3', label: 'Download or copy', desc: 'Send a professional quote to your client in seconds' },
+          ].map(step => (
+            <div key={step.n}>
+              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center mx-auto mb-3 text-lg">{step.n}</div>
+              <p className="font-semibold text-gray-900 text-sm mb-1">{step.label}</p>
+              <p className="text-xs text-gray-500">{step.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   )
