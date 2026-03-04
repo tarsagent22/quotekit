@@ -19,6 +19,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [quote, setQuote] = useState<any>(null)
   const [error, setError] = useState('')
+  const [lineItemOverrides, setLineItemOverrides] = useState<Record<number, string>>({})
+  const [editingIndex, setEditingIndex] = useState<number | null>(null)
+  const [copied, setCopied] = useState(false)
 
   // Load profile if logged in
   useEffect(() => {
@@ -67,6 +70,18 @@ export default function Home() {
     }
   }
 
+  const handleCopyQuote = () => {
+    if (!quote) return
+    const lines = quote.lineItems?.map((item: any, i: number) =>
+      `  ${item.description}: $${lineItemOverrides[i] ?? item.total}`
+    ).join('\n') ?? ''
+    const text = `QUOTE #${quote.quoteNumber}\nClient: ${form.clientName}\nAddress: ${form.clientAddress}\n\n${lines}\n\nSubtotal: $${quote.subtotal}\nTax: $${quote.tax}\nTOTAL: $${quote.total}\n\nPowered by SnapBid • snapbid.app`
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
   const handleDownloadPDF = async () => {
     const res = await fetch('/api/generate-pdf', {
       method: 'POST',
@@ -80,6 +95,18 @@ export default function Home() {
     a.download = `snapbid-quote-${form.clientName.replace(/\s+/g, '-')}.html`
     a.click()
   }
+
+  const MAX_DESC = 500
+  const descCount = form.jobDescription.length
+
+  const examplePrompts = [
+    'Install bathroom vanity',
+    'Repair roof shingles',
+    'Wire 3 new outlets',
+  ]
+
+  // Step: 1=form, 2=quote shown, 3=downloaded (we just track 1 and 2 here)
+  const step = quote ? 2 : 1
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -129,6 +156,37 @@ export default function Home() {
       )}
 
       <div className="max-w-4xl mx-auto px-6 py-10">
+        {/* Step indicator */}
+        <div className="flex items-center justify-center mb-8 gap-0">
+          {[
+            { n: 1, label: 'Describe Job' },
+            { n: 2, label: 'Review Quote' },
+            { n: 3, label: 'Download' },
+          ].map(({ n, label }, idx) => {
+            const active = step === n
+            const done = step > n
+            return (
+              <div key={n} className="flex items-center">
+                {idx > 0 && (
+                  <div className={`w-12 h-0.5 ${done ? 'bg-blue-500' : 'bg-gray-200'}`} />
+                )}
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-colors ${
+                    active ? 'border-blue-600 bg-blue-600 text-white' :
+                    done  ? 'border-blue-500 bg-blue-500 text-white' :
+                            'border-gray-300 bg-white text-gray-400'
+                  }`}>
+                    {done ? '✓' : n}
+                  </div>
+                  <span className={`text-xs mt-1 font-medium ${active ? 'text-blue-600' : done ? 'text-blue-500' : 'text-gray-400'}`}>
+                    {label}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
         {!quote ? (
           <>
             <div className="mb-8 text-center">
@@ -205,9 +263,27 @@ export default function Home() {
                   onChange={handleChange}
                   placeholder="e.g. Replace kitchen faucet and fix slow drain under sink. Customer wants new shut-off valves too."
                   required
+                  maxLength={MAX_DESC}
                   rows={4}
                   className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
+                <div className="flex items-center justify-between mt-1.5">
+                  <div className="flex flex-wrap gap-2">
+                    {examplePrompts.map(prompt => (
+                      <button
+                        key={prompt}
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, jobDescription: prompt }))}
+                        className="text-xs px-2.5 py-1 rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
+                  <span className={`text-xs tabular-nums shrink-0 ml-2 ${descCount >= MAX_DESC ? 'text-red-500' : 'text-gray-400'}`}>
+                    {descCount} / {MAX_DESC}
+                  </span>
+                </div>
               </div>
 
               {/* Material tier override (quick tap) */}
@@ -249,9 +325,21 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-4 px-6 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
               >
-                {loading ? '✨ Generating your quote...' : '⚡ Generate Quote'}
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Generating your quote...
+                  </>
+                ) : (
+                  <>
+                    ⚡ Generate Quote <span aria-hidden="true">→</span>
+                  </>
+                )}
               </button>
 
               {!user && (
@@ -266,6 +354,11 @@ export default function Home() {
           </>
         ) : (
           <div className="space-y-6">
+            {/* Success banner */}
+            <div className="bg-green-50 border border-green-200 rounded-xl px-5 py-3 flex items-center gap-3">
+              <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              <span className="text-green-800 font-medium text-sm">Quote Generated — Review and download below</span>
+            </div>
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900">Your Quote is Ready</h2>
               <button onClick={() => setQuote(null)} className="text-sm text-gray-500 hover:text-gray-700 underline">← New quote</button>
@@ -306,7 +399,19 @@ export default function Home() {
                       <td className="py-3 text-gray-700">{item.description}</td>
                       <td className="py-3 text-right text-gray-500">{item.qty}</td>
                       <td className="py-3 text-right text-gray-500">${item.unitPrice}</td>
-                      <td className="py-3 text-right font-medium text-gray-900">${item.total}</td>
+                      <td className="py-3 text-right font-medium text-gray-900 cursor-pointer" onClick={() => setEditingIndex(i)}>
+                        {editingIndex === i ? (
+                          <input
+                            type="text"
+                            className="w-20 border rounded px-1 text-right text-sm"
+                            defaultValue={lineItemOverrides[i] ?? item.total}
+                            onBlur={e => { setLineItemOverrides(prev => ({ ...prev, [i]: e.target.value })); setEditingIndex(null) }}
+                            autoFocus
+                          />
+                        ) : (
+                          <span>${lineItemOverrides[i] ?? item.total}</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -346,13 +451,17 @@ export default function Home() {
                   <p className="text-sm text-blue-800">{quote.notes}</p>
                 </div>
               )}
+              <p className="text-center text-xs text-gray-400 pt-2">Powered by SnapBid • snapbid.app</p>
             </div>
 
-            <div className="flex gap-4">
-              <button onClick={handleDownloadPDF} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
+            <div className="flex gap-3 flex-wrap">
+              <button onClick={handleDownloadPDF} className="flex-1 bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
                 📄 Download Quote
               </button>
-              <button onClick={() => setQuote(null)} className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
+              <button onClick={handleCopyQuote} className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
+                {copied ? '✓ Copied!' : '📋 Copy Summary'}
+              </button>
+              <button onClick={() => { setQuote(null); setLineItemOverrides({}) }} className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors text-sm">
                 New Quote
               </button>
             </div>
