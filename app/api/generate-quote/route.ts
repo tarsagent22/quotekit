@@ -111,6 +111,27 @@ Return ONLY valid JSON, no markdown:
     const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
     const quoteData = JSON.parse(cleaned)
 
+    // Round all money values to nearest $50 — contractors quote in round numbers,
+    // and clients trust "$1,400" more than "$1,402.30"
+    const round50 = (n: number) => Math.round(n / 50) * 50
+
+    if (Array.isArray(quoteData.lineItems)) {
+      quoteData.lineItems = quoteData.lineItems.map((item: any) => ({
+        ...item,
+        unitPrice: round50(parseFloat(item.unitPrice) || 0),
+        total: round50(parseFloat(item.total) || 0),
+      }))
+    }
+    // Recompute subtotal from rounded line items, then round tax and total
+    const subtotal = (quoteData.lineItems || []).reduce(
+      (sum: number, item: any) => sum + (parseFloat(item.total) || 0), 0
+    )
+    const quotedTaxRate = parseFloat(quoteData.taxRate) || taxRate || 0
+    const tax = round50(subtotal * (quotedTaxRate / 100))
+    quoteData.subtotal = subtotal
+    quoteData.tax = tax
+    quoteData.total = subtotal + tax
+
     // Track quote count for paywall
     if (userId) {
       const count = await incrementQuoteCount(userId)
