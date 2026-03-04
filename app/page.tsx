@@ -164,6 +164,30 @@ export default function Home() {
               </p>
             </div>
 
+            {/* How it works — shown ABOVE form for guests, hidden for signed-in users (shown below instead) */}
+            {!user && (
+              <div className="mb-8">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-5">How it works</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { step: '1', title: 'Describe the job', desc: 'Enter the client info and a plain-language job description.' },
+                    { step: '2', title: 'AI builds your quote', desc: 'We generate itemized line items, materials, and pricing in seconds.' },
+                    { step: '3', title: 'Download or copy', desc: 'Get a PDF-ready quote to send directly to your client.' },
+                  ].map(item => (
+                    <div key={item.step} className="flex items-start gap-3 bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm">
+                      <div className="w-7 h-7 rounded-full bg-[#2563EB] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-xs font-bold">{item.step}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-800">{item.title}</p>
+                        <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
 
               {/* Only show business/trade fields if no profile */}
@@ -316,27 +340,29 @@ export default function Home() {
               <p className="text-gray-300 text-sm mt-1">Fill in the form above and hit Generate Quote</p>
             </div>
 
-            {/* How it works */}
-            <div className="mt-10">
-              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-5">How it works</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  { step: '1', title: 'Describe the job', desc: 'Enter the client info and a plain-language job description.' },
-                  { step: '2', title: 'AI builds your quote', desc: 'We generate itemized line items, materials, and pricing in seconds.' },
-                  { step: '3', title: 'Download or copy', desc: 'Get a PDF-ready quote to send directly to your client.' },
-                ].map(item => (
-                  <div key={item.step} className="flex items-start gap-3 bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm">
-                    <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-white text-xs font-bold">{item.step}</span>
+            {/* Signed-in users: "How it works" goes below the form as a subtle reminder */}
+            {user && (
+              <div className="mt-10">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-5">How it works</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { step: '1', title: 'Describe the job', desc: 'Enter the client info and a plain-language job description.' },
+                    { step: '2', title: 'AI builds your quote', desc: 'We generate itemized line items, materials, and pricing in seconds.' },
+                    { step: '3', title: 'Download or copy', desc: 'Get a PDF-ready quote to send directly to your client.' },
+                  ].map(item => (
+                    <div key={item.step} className="flex items-start gap-3 bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm">
+                      <div className="w-7 h-7 rounded-full bg-[#2563EB] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-xs font-bold">{item.step}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-800">{item.title}</p>
+                        <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{item.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">{item.title}</p>
-                      <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </>
         ) : (
           <div className="space-y-6">
@@ -443,23 +469,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* How it works */}
-      <div className="max-w-2xl mx-auto px-6 py-12">
-        <h3 className="text-center text-sm font-semibold text-gray-500 uppercase tracking-wide mb-8">How it works</h3>
-        <div className="grid grid-cols-3 gap-6 text-center">
-          {[
-            { n: '1', label: 'Describe the job', desc: 'Tell us what needs doing in plain English' },
-            { n: '2', label: 'AI builds your quote', desc: 'Line items, pricing, and totals generated instantly' },
-            { n: '3', label: 'Download or copy', desc: 'Send a professional quote to your client in seconds' },
-          ].map(step => (
-            <div key={step.n}>
-              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center mx-auto mb-3 text-lg">{step.n}</div>
-              <p className="font-semibold text-gray-900 text-sm mb-1">{step.label}</p>
-              <p className="text-xs text-gray-500">{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
     </main>
   )
 }
