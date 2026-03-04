@@ -73,7 +73,7 @@ export default function ProfilePage() {
     // Pricing
     hourlyRate: '75',
     markup: '20',
-    taxRate: '8.5',
+
     crewSize: '1',
     materialTier: 'standard',
     // Contact & identity
@@ -101,7 +101,7 @@ export default function ProfilePage() {
             region: p.region || 'national',
             hourlyRate: String(p.hourlyRate || '75'),
             markup: String(p.markup || '20'),
-            taxRate: String(p.taxRate || '8.5'),
+
             crewSize: String(p.crewSize || '1'),
             materialTier: p.materialTier || 'standard',
             phone: p.phone || '',
@@ -268,11 +268,6 @@ export default function ProfilePage() {
               <label className={labelCls}>Markup on Materials (%)</label>
               <input name="markup" type="number" value={form.markup} onChange={handleChange} placeholder="20" className={inputCls} />
               <p className="text-xs text-gray-400 mt-1">Added on top of materials cost</p>
-            </div>
-            <div>
-              <label className={labelCls}>Local Tax Rate (%)</label>
-              <input name="taxRate" type="number" step="0.1" value={form.taxRate} onChange={handleChange} placeholder="8.5" className={inputCls} />
-              <p className="text-xs text-gray-400 mt-1">Applied to materials line items</p>
             </div>
             <div>
               <label className={labelCls}>Default Crew Size</label>
