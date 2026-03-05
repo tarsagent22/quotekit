@@ -115,7 +115,7 @@ export default function Home() {
   // Cycle loading step messages while AI is generating
   useEffect(() => {
     if (!loading) { setLoadingStep(0); return }
-    const id = setInterval(() => setLoadingStep(s => Math.min(s + 1, 3)), 2800)
+    const id = setInterval(() => setLoadingStep(s => Math.min(s + 1, 4)), 2800)
     return () => clearInterval(id)
   }, [loading])
 
@@ -1434,7 +1434,7 @@ ${biz}`
                   <div>
                     <textarea name="jobDescription" value={form.jobDescription} onChange={handleChange}
                       placeholder="Describe the job in plain English…"
-                      required rows={4}
+                      required rows={4} maxLength={500}
                       className={`${inp} resize-none`} />
                     <div className="flex items-center justify-between mt-1.5">
                       <div className="flex gap-1.5 flex-wrap">
@@ -1490,7 +1490,16 @@ ${biz}`
                     <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
-                    {error}
+                    <div className="flex-1">
+                      <span>{error}</span>
+                      <button
+                        type="button"
+                        onClick={() => setError('')}
+                        className="ml-2 text-red-500 hover:text-red-700 underline text-xs font-medium transition-colors"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -1559,11 +1568,11 @@ ${biz}`
                   </div>
                   <div className="space-y-3.5">
                     {['Reading job description…', 'Calculating your rates…', 'Building line items…', 'Finalizing totals…'].map((step, i) => (
-                      <div key={i} className={`flex items-center gap-3 transition-all duration-500 ${i <= loadingStep ? 'opacity-100' : 'opacity-25'}`}>
+                      <div key={i} className={`flex items-center gap-3 transition-all duration-500 ${i <= loadingStep && loadingStep <= 4 ? 'opacity-100' : 'opacity-25'}`}>
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          i < loadingStep ? 'bg-green-100' : i === loadingStep ? 'bg-blue-100' : 'bg-gray-100'
+                          i < loadingStep && loadingStep <= 4 ? 'bg-green-100' : i === loadingStep ? 'bg-blue-100' : 'bg-gray-100'
                         }`}>
-                          {i < loadingStep ? (
+                          {i < loadingStep && loadingStep <= 4 ? (
                             <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/>
                             </svg>
@@ -1577,7 +1586,7 @@ ${biz}`
                           )}
                         </div>
                         <span className={`text-xs transition-colors ${
-                          i < loadingStep ? 'text-gray-400 line-through' : i === loadingStep ? 'text-gray-800 font-medium' : 'text-gray-300'
+                          i < loadingStep && loadingStep <= 4 ? 'text-gray-400 line-through' : i === loadingStep ? 'text-gray-800 font-medium' : 'text-gray-300'
                         }`}>{step}</span>
                       </div>
                     ))}
@@ -2020,6 +2029,7 @@ ${biz}`
                 )}
               </button>
               <button onClick={handleCopyQuote}
+                aria-label="Copy quote to clipboard"
                 className="flex items-center justify-center gap-2 border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all text-sm">
                 {copied ? (
                   <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
@@ -2028,8 +2038,12 @@ ${biz}`
                 )}
               </button>
               <button onClick={() => setQuote(null)}
-                className="border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 font-medium py-3 px-4 rounded-xl transition-colors text-sm">
-                New
+                className="border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 font-medium py-3 px-4 rounded-xl transition-colors text-sm flex items-center gap-1.5"
+                title="Start a new quote">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/>
+                </svg>
+                New Quote
               </button>
             </div>
 
