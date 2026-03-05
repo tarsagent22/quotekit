@@ -48,8 +48,12 @@ export default function Home() {
   const [error, setError] = useState('')
   const [lineItemOverrides] = useState<Record<number, string>>({})
   const [copied, setCopied] = useState(false)
+  const [emailed, setEmailed] = useState(false)
   const [descCount, setDescCount] = useState(0)
   const [selectedTier, setSelectedTier] = useState<'budget' | 'standard' | 'premium'>('standard')
+  const [waitlistEmail, setWaitlistEmail] = useState('')
+  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false)
+  const [waitlistDone, setWaitlistDone] = useState(false)
 
   // Restore draft form from sessionStorage (survives sign-in redirect)
   useEffect(() => {
@@ -157,6 +161,66 @@ export default function Home() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
+  }
+
+  const handleEmailQuote = () => {
+    if (!quote) return
+    const activeItems = quote.tiered ? (quote.tiers?.[selectedTier]?.lineItems || []) : (quote.lineItems || [])
+    const activeTotals = quote.tiered ? quote.tiers?.[selectedTier] : quote
+    const tierLabel = quote.tiered ? ` — ${selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Option` : ''
+    const biz = profile?.businessName || form.businessName
+    const validDays = profile?.quoteValidityDays || 30
+    const validUntil = new Date(Date.now() + validDays * 86400000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+
+    const lineList = activeItems.map((item: any, i: number) =>
+      `• ${item.description} (${item.qty}) — $${lineItemOverrides[i] ?? item.total}`
+    ).join('\n')
+
+    const subject = encodeURIComponent(`Quote from ${biz} — ${quote.quoteNumber}`)
+    const body = encodeURIComponent(
+`Hi ${form.clientName},
+
+Please find your quote below.
+
+QUOTE #${quote.quoteNumber}${tierLabel}
+From: ${biz}
+Date: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+
+---
+${lineList}
+---
+
+Subtotal: $${activeTotals?.subtotal}
+Tax (est.): $${activeTotals?.tax}
+TOTAL: $${activeTotals?.total}
+
+${quote.notes ? `Notes: ${quote.notes}\n\n` : ''}This quote is valid until ${validUntil}.
+
+Please reply to this email to confirm or ask any questions.
+
+Thank you for the opportunity!
+${biz}`
+    )
+
+    const mailto = `mailto:?subject=${subject}&body=${body}`
+    window.location.href = mailto
+    setEmailed(true)
+    setTimeout(() => setEmailed(false), 3000)
+  }
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!waitlistEmail) return
+    setWaitlistSubmitting(true)
+    try {
+      await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: waitlistEmail }),
+      })
+    } catch {}
+    setWaitlistSubmitting(false)
+    setWaitlistDone(true)
   }
 
   const handleDownloadPDF = async () => {
@@ -873,7 +937,13 @@ export default function Home() {
                   <p className="text-blue-200 text-xs font-medium uppercase tracking-wide">Quote</p>
                   <p className="text-white font-bold text-lg mt-0.5">{quote.quoteNumber}</p>
                   <p className="text-blue-200 text-xs mt-1">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                  <p className="text-blue-200 text-xs">Valid {profile?.quoteValidityDays || 30} days</p>
+                  <div className="mt-1.5 flex items-center gap-1 justify-end">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="flex-shrink-0">
+                      <circle cx="5" cy="5" r="4" stroke="rgba(147,197,253,0.8)" strokeWidth="1"/>
+                      <path d="M5 2.5v2.5l1.5 1.5" stroke="rgba(147,197,253,0.8)" strokeWidth="1" strokeLinecap="round"/>
+                    </svg>
+                    <p className="text-blue-200 text-xs">Expires {new Date(Date.now() + (profile?.quoteValidityDays || 30) * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                  </div>
                 </div>
               </div>
 
@@ -965,20 +1035,28 @@ export default function Home() {
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               <button onClick={handleDownloadPDF}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3 px-5 rounded-xl transition-colors text-sm shadow-md shadow-blue-200">
+                className="flex-1 min-w-[130px] flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3 px-5 rounded-xl transition-colors text-sm shadow-md shadow-blue-200">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                 </svg>
                 Download PDF
               </button>
-              <button onClick={handleCopyQuote}
-                className="flex-1 flex items-center justify-center gap-2 border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-5 rounded-xl transition-all text-sm">
-                {copied ? (
-                  <><svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg> Copied!</>
+              <button onClick={handleEmailQuote}
+                className="flex-1 min-w-[130px] flex items-center justify-center gap-2 border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-5 rounded-xl transition-all text-sm">
+                {emailed ? (
+                  <><svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg> Email opened!</>
                 ) : (
-                  <><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" strokeWidth={2}/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" strokeWidth={2}/></svg> Copy Summary</>
+                  <><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg> Email Quote</>
+                )}
+              </button>
+              <button onClick={handleCopyQuote}
+                className="flex items-center justify-center gap-2 border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all text-sm">
+                {copied ? (
+                  <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                ) : (
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" strokeWidth={2}/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" strokeWidth={2}/></svg>
                 )}
               </button>
               <button onClick={() => setQuote(null)}
@@ -1036,15 +1114,37 @@ export default function Home() {
               ))}
             </div>
 
-            <button
-              onClick={() => {
-                setShowPaywall(false)
-                // TODO: replace with Stripe checkout URL when wired
-                alert('Stripe coming soon — you\'re on the early access list!')
-              }}
-              className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors shadow-md shadow-blue-200 text-sm mb-3">
-              Get Early Access — $19/mo
-            </button>
+            {waitlistDone ? (
+              <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-center mb-3">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <p className="text-sm font-semibold text-green-800">You're on the list!</p>
+                <p className="text-xs text-green-600 mt-1">We'll email you when SnapBid Pro launches.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleWaitlistSubmit} className="mb-3">
+                <p className="text-xs text-gray-500 text-center mb-2">Get notified when Pro launches:</p>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={waitlistEmail}
+                    onChange={e => setWaitlistEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    required
+                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    type="submit"
+                    disabled={waitlistSubmitting}
+                    className="bg-[#2563EB] hover:bg-blue-700 disabled:opacity-70 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors text-sm shadow-sm shadow-blue-200 whitespace-nowrap">
+                    {waitlistSubmitting ? '…' : 'Notify me'}
+                  </button>
+                </div>
+              </form>
+            )}
             <button onClick={() => setShowPaywall(false)}
               className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors py-1">
               Maybe later
