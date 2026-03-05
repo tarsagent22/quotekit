@@ -159,6 +159,8 @@ ${minimumJobCharge ? `- If total is under $${minimumJobCharge}, add a "Minimum s
 - Notes: payment terms, quote validity${yearsInBusiness ? ', reference experience if relevant' : ''}. Professional, 2-3 sentences max.
 ${introMessage ? `- Incorporate this contractor message naturally: "${introMessage}"` : ''}
 - scopeOfWork: Write 1-2 sentences describing what work will be performed and what the client receives. This is the "what you're getting" summary shown at the top of the quote. Be specific (mention key tasks/materials), professional, and client-facing. Do NOT repeat pricing or payment terms here.
+- inclusions: Array of 3-5 short strings (plain phrases, no bullet chars) stating exactly what IS included in this quote price. Be specific to this job (e.g. "All labor and materials", "Site cleanup and debris removal", "Drywall patching after rough-in"). These help clients understand what they're paying for and prevent scope disputes.
+- exclusions: Array of 2-4 short strings stating what is NOT included or what could change the price (e.g. "Permits not included — estimated $X if required", "Additional repairs if hidden damage found", "Paint or finish work unless specified"). Be specific to this trade and job type.
 
 ${offerTieredOptions ? `TIERED QUOTE MODE — Generate 3 complete option sets:
 - "budget": Lower-cost materials, essential work only, minimal extras
@@ -172,6 +174,8 @@ ${offerTieredOptions ? `{
   "quoteNumber": "${quoteNum}",
   "tiered": true,
   "scopeOfWork": "string",
+  "inclusions": ["string"],
+  "exclusions": ["string"],
   "tiers": {
     "budget": { "label": "Budget", "lineItems": [{ "description": "string", "qty": "string", "unitPrice": number, "total": number }], "subtotal": number, "tax": number, "total": number },
     "standard": { "label": "Standard", "lineItems": [{ "description": "string", "qty": "string", "unitPrice": number, "total": number }], "subtotal": number, "tax": number, "total": number },
@@ -181,6 +185,8 @@ ${offerTieredOptions ? `{
 }` : `{
   "quoteNumber": "${quoteNum}",
   "scopeOfWork": "string",
+  "inclusions": ["string"],
+  "exclusions": ["string"],
   "lineItems": [{ "description": "string", "qty": "string", "unitPrice": number, "total": number }],
   "subtotal": number,
   "tax": number,
@@ -190,7 +196,7 @@ ${offerTieredOptions ? `{
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5',
-      max_tokens: offerTieredOptions ? 2200 : 1200,
+      max_tokens: offerTieredOptions ? 2600 : 1500,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -258,6 +264,8 @@ ${offerTieredOptions ? `{
         notes: quoteData.notes || '',
         quoteNumber: quoteData.quoteNumber || '',
         scopeOfWork: quoteData.scopeOfWork || '',
+        inclusions: quoteData.inclusions || [],
+        exclusions: quoteData.exclusions || [],
       }).catch(console.error)
     }
 

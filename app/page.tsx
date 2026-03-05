@@ -194,6 +194,13 @@ export default function Home() {
       `• ${item.description} (${item.qty}) — $${lineItemOverrides[i] ?? item.total}`
     ).join('\n')
 
+    const inclList = quote.inclusions && quote.inclusions.length > 0
+      ? `\nWhat's Included:\n${quote.inclusions.map((s: string) => `✓ ${s}`).join('\n')}\n`
+      : ''
+    const exclList = quote.exclusions && quote.exclusions.length > 0
+      ? `\nNot Included:\n${quote.exclusions.map((s: string) => `✗ ${s}`).join('\n')}\n`
+      : ''
+
     const subject = encodeURIComponent(`Quote from ${biz} — ${quote.quoteNumber}`)
     const body = encodeURIComponent(
 `Hi ${form.clientName},
@@ -211,7 +218,7 @@ ${lineList}
 Subtotal: $${activeTotals?.subtotal}
 Tax (est.): $${activeTotals?.tax}
 TOTAL: $${activeTotals?.total}
-
+${inclList}${exclList}
 ${quote.notes ? `Notes: ${quote.notes}\n\n` : ''}This quote is valid until ${validUntil}.
 
 Please reply to this email to confirm or ask any questions.
@@ -396,6 +403,50 @@ ${biz}`
     doc.text(`$${pdfTotals?.total}`, pageW - margin, y + 52, { align: 'right' })
     y += 72
 
+    // Inclusions & Exclusions in PDF
+    const pdfInclusions: string[] = quote.inclusions || []
+    const pdfExclusions: string[] = quote.exclusions || []
+    if (pdfInclusions.length > 0 || pdfExclusions.length > 0) {
+      const halfW = (contentW - 8) / 2
+      const incLines = pdfInclusions.map((s: string) => `✓ ${s}`)
+      const excLines = pdfExclusions.map((s: string) => `✗ ${s}`)
+      const maxLines = Math.max(incLines.length, excLines.length)
+      const sectionH = maxLines * 14 + 32
+
+      if (pdfInclusions.length > 0) {
+        doc.setFillColor(240, 253, 244)
+        doc.roundedRect(margin, y, halfW, sectionH, 4, 4, 'F')
+        doc.setTextColor(22, 101, 52)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(8)
+        doc.text("WHAT'S INCLUDED", margin + 10, y + 14)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(9)
+        doc.setTextColor(20, 83, 45)
+        incLines.forEach((line: string, i: number) => {
+          const wrapped = doc.splitTextToSize(line, halfW - 20)
+          doc.text(wrapped, margin + 10, y + 26 + i * 14)
+        })
+      }
+      if (pdfExclusions.length > 0) {
+        const excX = margin + halfW + 8
+        doc.setFillColor(255, 251, 235)
+        doc.roundedRect(excX, y, halfW, sectionH, 4, 4, 'F')
+        doc.setTextColor(146, 64, 14)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(8)
+        doc.text('NOT INCLUDED', excX + 10, y + 14)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(9)
+        doc.setTextColor(120, 53, 15)
+        excLines.forEach((line: string, i: number) => {
+          const wrapped = doc.splitTextToSize(line, halfW - 20)
+          doc.text(wrapped, excX + 10, y + 26 + i * 14)
+        })
+      }
+      y += sectionH + 12
+    }
+
     if (quote.notes) {
       doc.setFillColor(239, 246, 255)
       const noteLines = doc.splitTextToSize(quote.notes, contentW - 24)
@@ -540,6 +591,50 @@ ${biz}`
       doc.text('TOTAL', totalsX, y + 52)
       doc.text(`$${q.total}`, pageW - margin, y + 52, { align: 'right' })
       y += 72
+
+      // Inclusions & Exclusions in history PDF
+      const histInclusions: string[] = q.inclusions || []
+      const histExclusions: string[] = q.exclusions || []
+      if (histInclusions.length > 0 || histExclusions.length > 0) {
+        const halfW = (contentW - 8) / 2
+        const incLines = histInclusions.map((s: string) => `✓ ${s}`)
+        const excLines = histExclusions.map((s: string) => `✗ ${s}`)
+        const maxLines = Math.max(incLines.length, excLines.length)
+        const sectionH = maxLines * 14 + 32
+
+        if (histInclusions.length > 0) {
+          doc.setFillColor(240, 253, 244)
+          doc.roundedRect(margin, y, halfW, sectionH, 4, 4, 'F')
+          doc.setTextColor(22, 101, 52)
+          doc.setFont('helvetica', 'bold')
+          doc.setFontSize(8)
+          doc.text("WHAT'S INCLUDED", margin + 10, y + 14)
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(9)
+          doc.setTextColor(20, 83, 45)
+          incLines.forEach((line: string, i: number) => {
+            const wrapped = doc.splitTextToSize(line, halfW - 20)
+            doc.text(wrapped, margin + 10, y + 26 + i * 14)
+          })
+        }
+        if (histExclusions.length > 0) {
+          const excX = margin + halfW + 8
+          doc.setFillColor(255, 251, 235)
+          doc.roundedRect(excX, y, halfW, sectionH, 4, 4, 'F')
+          doc.setTextColor(146, 64, 14)
+          doc.setFont('helvetica', 'bold')
+          doc.setFontSize(8)
+          doc.text('NOT INCLUDED', excX + 10, y + 14)
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(9)
+          doc.setTextColor(120, 53, 15)
+          excLines.forEach((line: string, i: number) => {
+            const wrapped = doc.splitTextToSize(line, halfW - 20)
+            doc.text(wrapped, excX + 10, y + 26 + i * 14)
+          })
+        }
+        y += sectionH + 12
+      }
 
       if (q.notes) {
         doc.setFillColor(239, 246, 255)
@@ -845,6 +940,42 @@ ${biz}`
                                   </div>
                                 </div>
                               </div>
+                            </div>
+                          )}
+
+                          {/* Inclusions & Exclusions in history */}
+                          {((q.inclusions && q.inclusions.length > 0) || (q.exclusions && q.exclusions.length > 0)) && (
+                            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {q.inclusions && q.inclusions.length > 0 && (
+                                <div className="bg-green-50 border border-green-100 rounded-xl p-3.5">
+                                  <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest mb-1.5">✓ Included</p>
+                                  <ul className="space-y-1">
+                                    {q.inclusions.map((item: string, i: number) => (
+                                      <li key={i} className="text-xs text-green-800 flex items-start gap-1.5">
+                                        <svg className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        {item}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {q.exclusions && q.exclusions.length > 0 && (
+                                <div className="bg-amber-50 border border-amber-100 rounded-xl p-3.5">
+                                  <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1.5">⚠ Not Included</p>
+                                  <ul className="space-y-1">
+                                    {q.exclusions.map((item: string, i: number) => (
+                                      <li key={i} className="text-xs text-amber-800 flex items-start gap-1.5">
+                                        <svg className="w-3 h-3 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                        {item}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -1455,6 +1586,42 @@ ${biz}`
                     </>
                   )
                 })()}
+
+                {/* Inclusions & Exclusions */}
+                {((quote.inclusions && quote.inclusions.length > 0) || (quote.exclusions && quote.exclusions.length > 0)) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {quote.inclusions && quote.inclusions.length > 0 && (
+                      <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+                        <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest mb-2">✓ What&apos;s Included</p>
+                        <ul className="space-y-1.5">
+                          {quote.inclusions.map((item: string, i: number) => (
+                            <li key={i} className="flex items-start gap-2 text-sm text-green-800">
+                              <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
+                              </svg>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {quote.exclusions && quote.exclusions.length > 0 && (
+                      <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2">⚠ Not Included</p>
+                        <ul className="space-y-1.5">
+                          {quote.exclusions.map((item: string, i: number) => (
+                            <li key={i} className="flex items-start gap-2 text-sm text-amber-800">
+                              <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                              </svg>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Notes */}
                 {quote.notes && (

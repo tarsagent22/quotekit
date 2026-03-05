@@ -99,6 +99,8 @@ export interface SavedQuote {
   notes?: string
   quoteNumber: string
   scopeOfWork?: string
+  inclusions?: string[]
+  exclusions?: string[]
 }
 
 export async function getQuoteHistory(userId: string): Promise<SavedQuote[]> {
