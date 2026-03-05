@@ -91,6 +91,7 @@ export interface SavedQuote {
   createdAt: string
   clientName: string
   clientAddress: string
+  clientEmail?: string
   jobDescription: string
   total: number
   lineItems: Array<{ description: string; qty: number; unitPrice: number; total: number }>

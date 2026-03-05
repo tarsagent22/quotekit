@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const {
-      jobDescription, clientName, clientAddress, materialTierOverride,
+      jobDescription, clientName, clientAddress, clientEmail, materialTierOverride,
       jobType, propertyType, accessDifficulty,
     } = body
 
@@ -256,6 +256,7 @@ ${offerTieredOptions ? `{
         createdAt: new Date().toISOString(),
         clientName: body.clientName || '',
         clientAddress: body.clientAddress || '',
+        clientEmail: body.clientEmail || '',
         jobDescription: body.jobDescription || '',
         total: quoteData.total,
         subtotal: quoteData.subtotal,

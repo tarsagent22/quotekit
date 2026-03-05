@@ -37,6 +37,7 @@ export default function Home() {
     trade: '',
     clientName: '',
     clientAddress: '',
+    clientEmail: '',
     jobDescription: '',
     materialTierOverride: '',
     jobType: '',
@@ -174,7 +175,7 @@ export default function Home() {
     const lines = activeItems.map((item: any, i: number) =>
       `  ${item.description}: $${lineItemOverrides[i] ?? item.total}`
     ).join('\n') ?? ''
-    const text = `QUOTE #${quote.quoteNumber}${tierLabel}\nClient: ${form.clientName}\nAddress: ${form.clientAddress}\n\n${lines}\n\nSubtotal: $${activeTotals?.subtotal}\nTax: $${activeTotals?.tax}\nTOTAL: $${activeTotals?.total}`
+    const text = `QUOTE #${quote.quoteNumber}${tierLabel}\nClient: ${form.clientName}\nAddress: ${form.clientAddress}${form.clientEmail ? `\nEmail: ${form.clientEmail}` : ''}\n\n${lines}\n\nSubtotal: $${activeTotals?.subtotal}\nTax: $${activeTotals?.tax}\nTOTAL: $${activeTotals?.total}`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -227,7 +228,7 @@ Thank you for the opportunity!
 ${biz}`
     )
 
-    const mailto = `mailto:?subject=${subject}&body=${body}`
+    const mailto = `mailto:${form.clientEmail ? encodeURIComponent(form.clientEmail) : ''}?subject=${subject}&body=${body}`
     window.location.href = mailto
     setEmailed(true)
     setTimeout(() => setEmailed(false), 3000)
@@ -322,8 +323,9 @@ ${biz}`
     doc.text(`Valid for ${profile?.quoteValidityDays || 30} days`, pageW - margin, 62, { align: 'right' })
     y = 96
 
+    const pdfClientBoxH = form.clientEmail ? 68 : 56
     doc.setFillColor(249, 250, 251)
-    doc.roundedRect(margin, y, contentW, 56, 4, 4, 'F')
+    doc.roundedRect(margin, y, contentW, pdfClientBoxH, 4, 4, 'F')
     doc.setTextColor(107, 114, 128)
     doc.setFontSize(9)
     doc.setFont('helvetica', 'bold')
@@ -335,7 +337,11 @@ ${biz}`
     doc.setFontSize(10)
     doc.setTextColor(107, 114, 128)
     doc.text(form.clientAddress, margin + 12, y + 46)
-    y += 72
+    if (form.clientEmail) {
+      doc.setFontSize(9)
+      doc.text(form.clientEmail, margin + 12, y + 60)
+    }
+    y += pdfClientBoxH + 16
 
     // Scope of work (if present)
     if (quote.scopeOfWork) {
@@ -512,8 +518,9 @@ ${biz}`
       doc.text(date, pageW - margin, 48, { align: 'right' })
       y = 96
 
+      const histClientBoxH = q.clientEmail ? 68 : 56
       doc.setFillColor(249, 250, 251)
-      doc.roundedRect(margin, y, contentW, 56, 4, 4, 'F')
+      doc.roundedRect(margin, y, contentW, histClientBoxH, 4, 4, 'F')
       doc.setTextColor(107, 114, 128)
       doc.setFontSize(9)
       doc.setFont('helvetica', 'bold')
@@ -525,7 +532,11 @@ ${biz}`
       doc.setFontSize(10)
       doc.setTextColor(107, 114, 128)
       doc.text(q.clientAddress || '', margin + 12, y + 46)
-      y += 72
+      if (q.clientEmail) {
+        doc.setFontSize(9)
+        doc.text(q.clientEmail, margin + 12, y + 60)
+      }
+      y += histClientBoxH + 16
 
       // Scope of work for history PDF (if present)
       if (q.scopeOfWork) {
@@ -870,6 +881,16 @@ ${biz}`
                       {/* Expanded detail panel */}
                       {isExpanded && (
                         <div className="border-t border-gray-100 px-5 pb-5">
+                          {/* Client email (if present) */}
+                          {q.clientEmail && (
+                            <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-400">
+                              <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                              </svg>
+                              <a href={`mailto:${q.clientEmail}`} className="hover:text-blue-500 transition-colors">{q.clientEmail}</a>
+                            </div>
+                          )}
+
                           {/* Scope of Work (if present) */}
                           {q.scopeOfWork && (
                             <div className="mt-4 mb-2 bg-blue-50 border border-blue-100 rounded-xl p-3.5">
@@ -1082,6 +1103,14 @@ ${biz}`
                       <input name="clientAddress" value={form.clientAddress} onChange={handleChange}
                         placeholder="123 Main St, Austin TX" required className={inp} />
                     </div>
+                  </div>
+                  <div>
+                    <label className={lbl}>
+                      Client Email
+                      <span className="ml-1.5 text-[10px] font-normal text-gray-400 normal-case">— pre-fills Email Quote button</span>
+                    </label>
+                    <input name="clientEmail" value={form.clientEmail} onChange={handleChange}
+                      type="email" placeholder="john@example.com (optional)" className={inp} />
                   </div>
                 </div>
 
@@ -1425,6 +1454,14 @@ ${biz}`
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Prepared For</p>
                   <p className="font-semibold text-gray-900">{form.clientName}</p>
                   <p className="text-sm text-gray-500 mt-0.5">{form.clientAddress}</p>
+                  {form.clientEmail && (
+                    <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                      <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                      </svg>
+                      {form.clientEmail}
+                    </p>
+                  )}
                 </div>
 
                 {/* Scope of Work */}
@@ -1652,7 +1689,13 @@ ${biz}`
                 {emailed ? (
                   <><svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg> Email opened!</>
                 ) : (
-                  <><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg> Email Quote</>
+                  <>
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    Email Quote
+                    {form.clientEmail && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" title={`Pre-addressed to ${form.clientEmail}`} />
+                    )}
+                  </>
                 )}
               </button>
               <button onClick={handleCopyQuote}
