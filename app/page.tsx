@@ -463,86 +463,58 @@ ${biz}`
     doc.text(`$${pdfTotals?.total}`, pageW - margin, y + 52, { align: 'right' })
     y += 72
 
-    // Scope of work — after totals, with arrow bullets
-    if (quote.scopeOfWork) {
-      const rawScopeParts = quote.scopeOfWork.split(/\n/).map((s: string) => s.trim()).filter(Boolean)
-      const scopeParts = rawScopeParts.length > 1
-        ? rawScopeParts
-        : quote.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
-      const bulletItems = scopeParts.map((s: string) => `\u2192 ${s}`)
-      let scopeTotalH = 24
-      const scopeWrapped = bulletItems.map((item: string) => {
-        const lines = doc.splitTextToSize(item, contentW - 24)
-        scopeTotalH += lines.length * 14 + 4
-        return lines
-      })
-      doc.setFillColor(239, 246, 255)
-      doc.roundedRect(margin, y, contentW, scopeTotalH, 4, 4, 'F')
-      doc.setTextColor(29, 78, 216)
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(9)
-      doc.text('SCOPE OF WORK', margin + 12, y + 14)
+    // Helper: render a labeled section box with bullet items
+    const renderSectionBox = (
+      label: string,
+      items: string[],
+      prefix: string,
+      bgColor: [number,number,number],
+      labelColor: [number,number,number],
+      textColor: [number,number,number],
+      lineH: number = 14
+    ) => {
+      if (items.length === 0) return
+      const LINE_SIZE = 10
       doc.setFont('helvetica', 'normal')
-      doc.setFontSize(10)
-      doc.setTextColor(55, 65, 81)
-      let scopeItemY = y + 26
-      scopeWrapped.forEach((lines: string[]) => {
-        doc.text(lines, margin + 12, scopeItemY)
-        scopeItemY += lines.length * 14 + 4
+      doc.setFontSize(LINE_SIZE)
+      const wrapped = items.map((s: string) => {
+        const bullet = `${prefix} ${s}`
+        return doc.splitTextToSize(bullet, contentW - 28)
       })
-      y += scopeTotalH + 12
+      let boxH = 22 // header height
+      wrapped.forEach((lines: string[]) => { boxH += lines.length * lineH + 3 })
+      boxH += 8 // bottom padding
+      doc.setFillColor(...bgColor)
+      doc.roundedRect(margin, y, contentW, boxH, 4, 4, 'F')
+      doc.setTextColor(...labelColor)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8)
+      doc.text(label, margin + 12, y + 14)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(LINE_SIZE)
+      doc.setTextColor(...textColor)
+      let itemY = y + 24
+      wrapped.forEach((lines: string[]) => {
+        doc.text(lines, margin + 12, itemY)
+        itemY += lines.length * lineH + 3
+      })
+      y += boxH + 10
+    }
+
+    // Scope of work — after totals
+    if (quote.scopeOfWork) {
+      const rawParts = quote.scopeOfWork.split(/\n/).map((s: string) => s.trim()).filter(Boolean)
+      const scopeParts = rawParts.length > 1
+        ? rawParts
+        : quote.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
+      renderSectionBox('SCOPE OF WORK', scopeParts, '-', [239,246,255], [29,78,216], [30,58,138])
     }
 
     // Inclusions & Exclusions — stacked vertically, full width
     const pdfInclusions: string[] = quote.inclusions || []
     const pdfExclusions: string[] = quote.exclusions || []
-    if (pdfInclusions.length > 0) {
-      let incTotalH = 24
-      const incWrapped = pdfInclusions.map((s: string) => {
-        const lines = doc.splitTextToSize(`\u2713 ${s}`, contentW - 24)
-        incTotalH += lines.length * 13 + 4
-        return lines
-      })
-      doc.setFillColor(240, 253, 244)
-      doc.roundedRect(margin, y, contentW, incTotalH, 4, 4, 'F')
-      doc.setTextColor(22, 101, 52)
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(8)
-      doc.text("WHAT'S INCLUDED", margin + 12, y + 14)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(9)
-      doc.setTextColor(20, 83, 45)
-      let incItemY = y + 24
-      incWrapped.forEach((lines: string[]) => {
-        doc.text(lines, margin + 12, incItemY)
-        incItemY += lines.length * 13 + 4
-      })
-      y += incTotalH + 8
-    }
-    if (pdfExclusions.length > 0) {
-      let excTotalH = 24
-      const excWrapped = pdfExclusions.map((s: string) => {
-        const lines = doc.splitTextToSize(`\u2717 ${s}`, contentW - 24)
-        excTotalH += lines.length * 13 + 4
-        return lines
-      })
-      doc.setFillColor(255, 251, 235)
-      doc.roundedRect(margin, y, contentW, excTotalH, 4, 4, 'F')
-      doc.setTextColor(146, 64, 14)
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(8)
-      doc.text('NOT INCLUDED', margin + 12, y + 14)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(9)
-      doc.setTextColor(120, 53, 15)
-      let excItemY = y + 24
-      excWrapped.forEach((lines: string[]) => {
-        doc.text(lines, margin + 12, excItemY)
-        excItemY += lines.length * 13 + 4
-      })
-      y += excTotalH + 8
-    }
-    if (pdfInclusions.length > 0 || pdfExclusions.length > 0) y += 4
+    renderSectionBox("WHAT'S INCLUDED", pdfInclusions, '-', [240,253,244], [22,101,52], [20,83,45])
+    renderSectionBox('NOT INCLUDED', pdfExclusions, '-', [255,251,235], [146,64,14], [120,53,15])
 
     if (quote.notes) {
       doc.setFillColor(239, 246, 255)
@@ -682,86 +654,54 @@ ${biz}`
       doc.text(`$${q.total}`, pageW - margin, y + 52, { align: 'right' })
       y += 72
 
-      // Scope of work — after totals, with arrow bullets
-      if (q.scopeOfWork) {
-        const rawHistScopeParts = q.scopeOfWork.split(/\n/).map((s: string) => s.trim()).filter(Boolean)
-        const histScopeParts = rawHistScopeParts.length > 1
-          ? rawHistScopeParts
-          : q.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
-        const histBulletItems = histScopeParts.map((s: string) => `\u2192 ${s}`)
-        let histScopeTotalH = 24
-        const histScopeWrapped = histBulletItems.map((item: string) => {
-          const lines = doc.splitTextToSize(item, contentW - 24)
-          histScopeTotalH += lines.length * 14 + 4
-          return lines
-        })
-        doc.setFillColor(239, 246, 255)
-        doc.roundedRect(margin, y, contentW, histScopeTotalH, 4, 4, 'F')
-        doc.setTextColor(29, 78, 216)
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(9)
-        doc.text('SCOPE OF WORK', margin + 12, y + 14)
+      // Reusable section renderer for history PDF
+      const renderHistSection = (
+        label: string,
+        items: string[],
+        bgColor: [number,number,number],
+        labelColor: [number,number,number],
+        textColor: [number,number,number]
+      ) => {
+        if (items.length === 0) return
+        const LINE_SIZE = 10
+        const LINE_H = 14
         doc.setFont('helvetica', 'normal')
-        doc.setFontSize(10)
-        doc.setTextColor(55, 65, 81)
-        let histScopeItemY = y + 26
-        histScopeWrapped.forEach((lines: string[]) => {
-          doc.text(lines, margin + 12, histScopeItemY)
-          histScopeItemY += lines.length * 14 + 4
+        doc.setFontSize(LINE_SIZE)
+        const wrapped = items.map((s: string) => doc.splitTextToSize(`- ${s}`, contentW - 28))
+        let boxH = 22
+        wrapped.forEach((lines: string[]) => { boxH += lines.length * LINE_H + 3 })
+        boxH += 8
+        doc.setFillColor(...bgColor)
+        doc.roundedRect(margin, y, contentW, boxH, 4, 4, 'F')
+        doc.setTextColor(...labelColor)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(8)
+        doc.text(label, margin + 12, y + 14)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(LINE_SIZE)
+        doc.setTextColor(...textColor)
+        let itemY = y + 24
+        wrapped.forEach((lines: string[]) => {
+          doc.text(lines, margin + 12, itemY)
+          itemY += lines.length * LINE_H + 3
         })
-        y += histScopeTotalH + 12
+        y += boxH + 10
+      }
+
+      // Scope of work — after totals
+      if (q.scopeOfWork) {
+        const rawParts = q.scopeOfWork.split(/\n/).map((s: string) => s.trim()).filter(Boolean)
+        const scopeParts = rawParts.length > 1
+          ? rawParts
+          : q.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
+        renderHistSection('SCOPE OF WORK', scopeParts, [239,246,255], [29,78,216], [30,58,138])
       }
 
       // Inclusions & Exclusions — stacked vertically, full width
       const histInclusions: string[] = q.inclusions || []
       const histExclusions: string[] = q.exclusions || []
-      if (histInclusions.length > 0) {
-        let histIncTotalH = 24
-        const histIncWrapped = histInclusions.map((s: string) => {
-          const lines = doc.splitTextToSize(`\u2713 ${s}`, contentW - 24)
-          histIncTotalH += lines.length * 13 + 4
-          return lines
-        })
-        doc.setFillColor(240, 253, 244)
-        doc.roundedRect(margin, y, contentW, histIncTotalH, 4, 4, 'F')
-        doc.setTextColor(22, 101, 52)
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(8)
-        doc.text("WHAT'S INCLUDED", margin + 12, y + 14)
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(9)
-        doc.setTextColor(20, 83, 45)
-        let histIncItemY = y + 24
-        histIncWrapped.forEach((lines: string[]) => {
-          doc.text(lines, margin + 12, histIncItemY)
-          histIncItemY += lines.length * 13 + 4
-        })
-        y += histIncTotalH + 8
-      }
-      if (histExclusions.length > 0) {
-        let histExcTotalH = 24
-        const histExcWrapped = histExclusions.map((s: string) => {
-          const lines = doc.splitTextToSize(`\u2717 ${s}`, contentW - 24)
-          histExcTotalH += lines.length * 13 + 4
-          return lines
-        })
-        doc.setFillColor(255, 251, 235)
-        doc.roundedRect(margin, y, contentW, histExcTotalH, 4, 4, 'F')
-        doc.setTextColor(146, 64, 14)
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(8)
-        doc.text('NOT INCLUDED', margin + 12, y + 14)
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(9)
-        doc.setTextColor(120, 53, 15)
-        let histExcItemY = y + 24
-        histExcWrapped.forEach((lines: string[]) => {
-          doc.text(lines, margin + 12, histExcItemY)
-          histExcItemY += lines.length * 13 + 4
-        })
-        y += histExcTotalH + 8
-      }
-      if (histInclusions.length > 0 || histExclusions.length > 0) y += 4
+      renderHistSection("WHAT'S INCLUDED", histInclusions, [240,253,244], [22,101,52], [20,83,45])
+      renderHistSection('NOT INCLUDED', histExclusions, [255,251,235], [146,64,14], [120,53,15])
 
       if (q.notes) {
         doc.setFillColor(239, 246, 255)
