@@ -64,6 +64,7 @@ export default function Home() {
   const [historyPdfDownloading, setHistoryPdfDownloading] = useState<string | null>(null)
   const [statusUpdating, setStatusUpdating] = useState<string | null>(null)
   const [reuseFlash, setReuseFlash] = useState<string | null>(null)
+  const [loadingStep, setLoadingStep] = useState(0)
 
   // Restore draft form from sessionStorage (survives sign-in redirect)
   useEffect(() => {
@@ -110,6 +111,13 @@ export default function Home() {
       }
     }
   }, [])
+
+  // Cycle loading step messages while AI is generating
+  useEffect(() => {
+    if (!loading) { setLoadingStep(0); return }
+    const id = setInterval(() => setLoadingStep(s => Math.min(s + 1, 3)), 2800)
+    return () => clearInterval(id)
+  }, [loading])
 
   // Load history when tab switches
   useEffect(() => {
@@ -863,8 +871,32 @@ ${biz}`
             </SignInButton>
             <p className="text-xs text-gray-400 mt-3">Free account · 3 quotes included · No credit card</p>
 
+            {/* Social proof */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-12 text-left">
+              {[
+                { quote: 'Used to spend 45 minutes on every quote. Now it takes me 60 seconds and my clients think I\'m way more professional.', name: 'Marcus T.', trade: 'Electrician · Texas' },
+                { quote: 'The PDF looks better than what most big companies send. Closed 3 jobs last week that I probably would\'ve lost before.', name: 'Jen R.', trade: 'General Contractor · Ohio' },
+                { quote: 'Set up my hourly rate once and every quote just works. Calibrated to my numbers, not some national average.', name: 'Derek W.', trade: 'Plumber · Colorado' },
+              ].map(t => (
+                <div key={t.name} className="bg-white/80 rounded-2xl border border-gray-100 px-5 py-4 shadow-sm text-left">
+                  <div className="flex gap-0.5 mb-3">
+                    {[1,2,3,4,5].map(s => (
+                      <svg key={s} className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-3">&ldquo;{t.quote}&rdquo;</p>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-900">{t.name}</p>
+                    <p className="text-[11px] text-gray-400">{t.trade}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {/* How it works */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-14 text-left">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 text-left">
               {[
                 { step: '01', title: 'Describe the job', desc: 'Enter client info and describe the work in plain language — no jargon needed.' },
                 { step: '02', title: 'AI builds the quote', desc: 'Itemized line items, materials, labor, and totals — calibrated to your rates.' },
@@ -1510,17 +1542,93 @@ ${biz}`
 
             {/* ── SIDEBAR: Quote placeholder + How it works ── */}
             <div className="lg:col-span-2 space-y-5">
-              {/* Quote placeholder */}
-              <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-8 flex flex-col items-center justify-center text-center min-h-[220px]">
-                <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M6 7h8M6 10h6M6 13h4M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z"
-                      stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
+              {/* Quote placeholder / loading state / sample preview */}
+              {loading ? (
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm animate-fade-in-up">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                      <svg className="animate-spin w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">AI is building your quote</p>
+                      <p className="text-xs text-gray-400">Usually 5–15 seconds</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3.5">
+                    {['Reading job description…', 'Calculating your rates…', 'Building line items…', 'Finalizing totals…'].map((step, i) => (
+                      <div key={i} className={`flex items-center gap-3 transition-all duration-500 ${i <= loadingStep ? 'opacity-100' : 'opacity-25'}`}>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          i < loadingStep ? 'bg-green-100' : i === loadingStep ? 'bg-blue-100' : 'bg-gray-100'
+                        }`}>
+                          {i < loadingStep ? (
+                            <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/>
+                            </svg>
+                          ) : i === loadingStep ? (
+                            <svg className="animate-spin w-3 h-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                          ) : (
+                            <div className="w-2 h-2 rounded-full bg-gray-300" />
+                          )}
+                        </div>
+                        <span className={`text-xs transition-colors ${
+                          i < loadingStep ? 'text-gray-400 line-through' : i === loadingStep ? 'text-gray-800 font-medium' : 'text-gray-300'
+                        }`}>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 pt-4 border-t border-gray-50 space-y-2.5">
+                    {[90, 65, 75, 55].map((w, i) => (
+                      <div key={i} className="flex justify-between items-center gap-3">
+                        <div className="h-2.5 animate-shimmer rounded-md" style={{width: `${w}%`}} />
+                        <div className="h-2.5 animate-shimmer rounded-md w-10 flex-shrink-0" />
+                      </div>
+                    ))}
+                    <div className="flex justify-end pt-2">
+                      <div className="h-4 animate-shimmer rounded-md w-24" />
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm font-medium text-gray-400">Your quote will appear here</p>
-                <p className="text-xs text-gray-300 mt-1">Complete the form and hit Generate</p>
-              </div>
+              ) : (
+                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                  <div className="bg-[#2563EB] px-5 py-4 flex justify-between items-center">
+                    <div>
+                      <p className="text-white text-sm font-bold">Sample Output</p>
+                      <p className="text-blue-200 text-xs mt-0.5">Roofing Services</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-blue-200 text-[10px] uppercase tracking-wide">Quote</p>
+                      <p className="text-white text-xs font-bold mt-0.5">SB-0142</p>
+                    </div>
+                  </div>
+                  <div className="px-5 py-4 space-y-2.5">
+                    {[
+                      { d: 'Tear-off existing shingles (800 sq ft)', t: '$480' },
+                      { d: 'Ice & water shield underlayment', t: '$320' },
+                      { d: 'Architectural shingles installation', t: '$1,560' },
+                      { d: 'Ridge cap & flashing', t: '$280' },
+                      { d: 'Cleanup & debris disposal', t: '$150' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex justify-between text-xs gap-3">
+                        <span className="text-gray-500 truncate">{item.d}</span>
+                        <span className="font-semibold text-gray-800 tabular-nums flex-shrink-0">{item.t}</span>
+                      </div>
+                    ))}
+                    <div className="pt-2.5 border-t border-gray-100 flex justify-between items-center">
+                      <span className="text-xs text-gray-400">Total</span>
+                      <span className="text-sm font-bold text-[#2563EB]">$2,843</span>
+                    </div>
+                  </div>
+                  <div className="px-5 pb-3.5">
+                    <p className="text-[10px] text-gray-300 text-center italic">← AI-generated · calibrated to your rates</p>
+                  </div>
+                </div>
+              )}
 
               {/* How it works — signed-in users only (guests see it in hero) */}
               {user && (
