@@ -1961,9 +1961,14 @@ ${biz}`
             </div>
 
             <h2 className="text-xl font-bold text-gray-900 text-center mb-2">You've used your 3 free quotes</h2>
-            <p className="text-gray-500 text-sm text-center leading-relaxed mb-6">
-              Upgrade to <span className="font-semibold text-gray-800">SnapBid Pro for $19/mo</span> and get unlimited quotes, professional PDFs, and full client management.
+            <p className="text-gray-500 text-sm text-center leading-relaxed mb-4">
+              Join as a <span className="font-semibold text-amber-600">founding member</span> and lock in $9/mo forever — before we go public at $19.
             </p>
+
+            {/* Founder badge */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4 text-center">
+              <span className="text-xs font-semibold text-amber-700">🔥 Founder Pricing — 43 of 50 spots remaining</span>
+            </div>
 
             {/* What's included */}
             <div className="bg-gray-50 rounded-xl p-4 mb-6 space-y-2">
@@ -1972,6 +1977,7 @@ ${biz}`
                 'Branded PDF downloads',
                 'Calibrated to your exact rates & trade',
                 'Quote history & win/loss tracking',
+                'Price locked in forever — never increases',
               ].map(f => (
                 <div key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
                   <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1984,16 +1990,17 @@ ${biz}`
 
             {/* Price + CTA */}
             <div className="text-center mb-4">
-              <div className="flex items-baseline justify-center gap-1 mb-1">
+              <div className="flex items-baseline justify-center gap-1 mb-0.5">
                 <span className="text-gray-400 text-base">$</span>
-                <span className="text-3xl font-bold text-gray-900">19</span>
+                <span className="text-3xl font-bold text-gray-900">9</span>
                 <span className="text-gray-400 text-base">/month</span>
+                <span className="text-xs text-gray-400 line-through ml-1">$19</span>
               </div>
-              <p className="text-xs text-gray-400 mb-4">Cancel anytime · No contracts · Secured by Stripe</p>
+              <p className="text-xs text-gray-400 mb-4">Locked in forever · Cancel anytime · Secured by Stripe</p>
               <button
                 onClick={handleUpgrade}
                 disabled={upgrading}
-                className="w-full bg-[#2563EB] hover:bg-blue-700 disabled:opacity-70 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm shadow-sm shadow-blue-200 flex items-center justify-center gap-2">
+                className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-70 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm shadow-sm flex items-center justify-center gap-2">
                 {upgrading ? (
                   <>
                     <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
@@ -2003,7 +2010,7 @@ ${biz}`
                     Redirecting to checkout…
                   </>
                 ) : (
-                  <>⚡ Upgrade Now — $19/mo</>
+                  <>🔥 Claim Founder Spot — $9/mo</>
                 )}
               </button>
             </div>

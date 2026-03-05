@@ -4,9 +4,10 @@ import { currentUser } from '@clerk/nextjs/server'
 
 // TODO: Create a Price in the Stripe Dashboard:
 // 1. Go to https://dashboard.stripe.com/products (use test mode)
-// 2. Create product "SnapBid Pro" → recurring price $19/month
+// 2. Create product "SnapBid Pro" → recurring price $9/month (Founder Pricing)
 // 3. Copy the Price ID (starts with price_...) → set env var STRIPE_PRICE_ID
 // Then set STRIPE_PRICE_ID in Vercel env vars.
+// Note: When founder spots fill (50 users), create a new $19/mo price and update STRIPE_PRICE_ID.
 
 function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY is not set')
