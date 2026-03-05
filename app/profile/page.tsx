@@ -50,15 +50,6 @@ const VALIDITY_OPTIONS = [
   { value: '90', label: '90 days' },
 ]
 
-const YEARS_OPTIONS = [
-  { value: 'less-1', label: 'Less than 1 year' },
-  { value: '1-3', label: '1–3 years' },
-  { value: '3-5', label: '3–5 years' },
-  { value: '5-10', label: '5–10 years' },
-  { value: '10-20', label: '10–20 years' },
-  { value: '20+', label: '20+ years' },
-]
-
 const TRADE_SPECIFIC = ['plumbing', 'electrical', 'painting', 'roofing', 'hvac']
 
 const MOCK_LINE_ITEMS: Record<string, { description: string; qty: string; unitPrice: number; total: number }[]> = {
@@ -171,12 +162,11 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [savedOk, setSavedOk] = useState(false)
   const [isNew, setIsNew] = useState(false)
-  const [logo, setLogo] = useState<string | null>(null)
-  const [logoUploading, setLogoUploading] = useState(false)
-  const [logoDragOver, setLogoDragOver] = useState(false)
   const [savedLineItems, setSavedLineItems] = useState<LineItem[]>([])
   const [newLineItem, setNewLineItem] = useState({ description: '', defaultQty: '1', defaultUnitPrice: '', category: 'labor' })
   const [showPreview, setShowPreview] = useState(false)
+  const [activeTab, setActiveTab] = useState<'profile' | 'saved-items'>('profile')
+  const [showAdvancedRates, setShowAdvancedRates] = useState(false)
 
   const [form, setForm] = useState({
     // Core
@@ -194,19 +184,16 @@ export default function ProfilePage() {
     businessAddress: '',
     licenseNumber: '',
     yearsInBusiness: '',
-    specialties: '',
     // Quote settings
     paymentTerms: '50-deposit',
     quoteValidityDays: '30',
     taxRate: '8.5',
-    introMessage: '',
     notesTemplate: '',
     // Business mechanics
     minimumJobCharge: '',
     tripCharge: '',
     pricingModel: 'time-and-materials',
     offerTieredOptions: false as boolean,
-    afterHoursRate: '',
     // Trade-specific
     fixtureRate: '',
     panelWorkRate: '',
@@ -226,7 +213,6 @@ export default function ProfilePage() {
       .then(data => {
         if (data.profile) {
           const p = data.profile
-          if (p.logoDataUrl) setLogo(p.logoDataUrl)
           if (p.savedLineItems) setSavedLineItems(p.savedLineItems)
           setForm({
             businessName: p.businessName || '',
@@ -241,17 +227,14 @@ export default function ProfilePage() {
             businessAddress: p.businessAddress || '',
             licenseNumber: p.licenseNumber || '',
             yearsInBusiness: p.yearsInBusiness || '',
-            specialties: p.specialties || '',
             paymentTerms: p.paymentTerms || '50-deposit',
             quoteValidityDays: String(p.quoteValidityDays || '30'),
             taxRate: String(p.taxRate || '8.5'),
-            introMessage: p.introMessage || '',
             notesTemplate: p.notesTemplate || '',
             minimumJobCharge: p.minimumJobCharge ? String(p.minimumJobCharge) : '',
             tripCharge: p.tripCharge ? String(p.tripCharge) : '',
             pricingModel: p.pricingModel || 'time-and-materials',
             offerTieredOptions: p.offerTieredOptions || false,
-            afterHoursRate: p.afterHoursRate ? String(p.afterHoursRate) : '',
             fixtureRate: p.fixtureRate ? String(p.fixtureRate) : '',
             panelWorkRate: p.panelWorkRate ? String(p.panelWorkRate) : '',
             permitFeeTypical: p.permitFeeTypical ? String(p.permitFeeTypical) : '',
@@ -271,39 +254,6 @@ export default function ProfilePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  const processLogoFile = (file: File) => {
-    if (!file.type.startsWith('image/')) return
-    const reader = new FileReader()
-    reader.onload = async (ev) => {
-      const raw = ev.target?.result as string
-      const img = new window.Image()
-      img.onload = async () => {
-        const canvas = document.createElement('canvas')
-        const MAX = 120
-        const ratio = Math.min(MAX / img.width, MAX / img.height, 1)
-        canvas.width = Math.round(img.width * ratio)
-        canvas.height = Math.round(img.height * ratio)
-        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.6)
-        setLogo(dataUrl)
-        setLogoUploading(true)
-        await fetch('/api/logo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ logoDataUrl: dataUrl }),
-        })
-        setLogoUploading(false)
-      }
-      img.src = raw
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleLogoRemove = async () => {
-    setLogo(null)
-    await fetch('/api/logo', { method: 'DELETE' })
   }
 
   const handleAddLineItem = () => {
@@ -409,569 +359,570 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
-        {isNew && (
-          <div className="bg-gradient-to-r from-[#2563EB] to-blue-700 rounded-2xl px-6 py-5 text-white">
-            <p className="font-semibold text-base">👋 Welcome to SnapBid!</p>
-            <p className="text-blue-100 text-sm mt-1 leading-relaxed">Set up your profile once and every quote will be calibrated to your business — your rates, your contact info, your terms.</p>
-          </div>
-        )}
-
-        {/* ── SECTION 1: Business Identity ── */}
-        <div className={sectionCls}>
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Business Identity</p>
-            <p className="text-sm text-gray-400 mt-1">Appears on every quote you send.</p>
-          </div>
-
-          {/* Logo */}
-          <div>
-            <label className={labelCls}>Business Logo <span className="text-gray-400 font-normal">(optional — shown on PDF quotes)</span></label>
-            {logo ? (
-              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <img src={logo} alt="Logo" className="h-14 w-auto max-w-[120px] object-contain rounded" />
-                <div className="flex-1">
-                  <p className="text-xs text-gray-500 font-medium mb-1">Logo saved ✓</p>
-                  <p className="text-xs text-gray-400">Will appear on all PDF quotes</p>
-                </div>
-                {logoUploading ? (
-                  <span className="text-xs text-gray-400">Saving…</span>
-                ) : (
-                  <button type="button" onClick={handleLogoRemove} className="text-xs text-red-400 hover:text-red-600 transition-colors font-medium">Remove</button>
-                )}
-              </div>
-            ) : (
-              <div
-                onDragOver={e => { e.preventDefault(); setLogoDragOver(true) }}
-                onDragLeave={() => setLogoDragOver(false)}
-                onDrop={e => { e.preventDefault(); setLogoDragOver(false); const f = e.dataTransfer.files[0]; if (f) processLogoFile(f) }}
-                onClick={() => document.getElementById('logo-input')?.click()}
-                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${logoDragOver ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}>
-                <svg className="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                <p className="text-sm text-gray-400 font-medium">Drop your logo here</p>
-                <p className="text-xs text-gray-300 mt-1">or click to browse · PNG or JPG</p>
-                <p className="text-xs text-gray-300 mt-0.5">Recommended: square image, at least 200×200px. JPG or PNG under 100KB.</p>
-                <input id="logo-input" type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) processLogoFile(f) }} />
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className={labelCls}>Business Name <span className="text-red-400">*</span></label>
-            <input name="businessName" value={form.businessName} onChange={handleChange} placeholder="e.g. Mike's Plumbing LLC" className={inputCls} />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Your Trade</label>
-              <select name="trade" value={form.trade} onChange={handleChange} className={selectCls}>
-                {TRADES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Years in Business</label>
-              <input name="yearsInBusiness" type="number" min="0" max="99" value={form.yearsInBusiness} onChange={handleChange} placeholder="e.g. 8" className={inputCls} />
-              <p className={helperCls}>Shown on quotes as "X years of experience" — be specific</p>
-            </div>
-          </div>
-
-          <div>
-            <label className={labelCls}>License / Contractor Number <span className="text-gray-400 font-normal">(optional)</span></label>
-            <input name="licenseNumber" value={form.licenseNumber} onChange={handleChange} placeholder="e.g. LIC #123456" className={inputCls} />
-            <p className={helperCls}>Shown on quotes — builds trust with clients</p>
-          </div>
-
-          <div>
-            <label className={labelCls}>Specialties <span className="text-gray-400 font-normal">(optional)</span></label>
-            <input name="specialties" value={form.specialties} onChange={handleChange} placeholder="e.g. residential remodels, bathroom renovations, emergency repairs" className={inputCls} />
-            <p className={helperCls}>Helps the AI write more targeted, accurate line items</p>
-          </div>
-        </div>
-
-        {/* ── SECTION 2: Contact Info ── */}
-        <div className={sectionCls}>
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Contact Information</p>
-            <p className="text-sm text-gray-400 mt-1">Printed on every quote so clients can reach you.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Phone Number</label>
-              <input name="phone" value={form.phone} onChange={handleChange} placeholder="(555) 555-5555" className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Business Email</label>
-              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@yourbusiness.com" className={inputCls} />
-            </div>
-          </div>
-
-          <div>
-            <label className={labelCls}>Business Address <span className="text-gray-400 font-normal">(optional)</span></label>
-            <input name="businessAddress" value={form.businessAddress} onChange={handleChange} placeholder="123 Main St, City, State ZIP" className={inputCls} />
-          </div>
-
-          <div>
-            <label className={labelCls}>Region</label>
-            <select name="region" value={form.region} onChange={handleChange} className={selectCls}>
-              {REGIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-            </select>
-            <p className={helperCls}>Calibrates material and labor costs to your local market</p>
-          </div>
-        </div>
-
-        {/* ── SECTION 3: Pricing Defaults ── */}
-        <div className={sectionCls}>
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Pricing Defaults</p>
-            <p className="text-sm text-gray-400 mt-1">Used to calculate every quote. You can override per job.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Your Hourly Rate ($/hr)</label>
-              <input name="hourlyRate" type="number" value={form.hourlyRate} onChange={handleChange} placeholder="75" className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Markup on Materials (%)</label>
-              <input name="markup" type="number" value={form.markup} onChange={handleChange} placeholder="20" className={inputCls} />
-              <p className={helperCls}>Added on top of material costs</p>
-              <div className="flex items-center gap-3 mt-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, showMarkupOnQuote: !form.showMarkupOnQuote })}
-                  className={`relative flex-shrink-0 w-9 h-5 rounded-full transition-colors duration-200 focus:outline-none ${
-                    form.showMarkupOnQuote ? 'bg-[#2563EB]' : 'bg-gray-300'
-                  }`}
-                  role="switch"
-                  aria-checked={form.showMarkupOnQuote}>
-                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
-                    form.showMarkupOnQuote ? 'translate-x-4' : 'translate-x-0'
-                  }`} />
-                </button>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Show material markup % on client quotes</p>
-                  <p className="text-xs text-gray-400 mt-0.5">When off, markup is applied to pricing but not shown to clients</p>
-                </div>
-              </div>
-            </div>
-            <div>
-              <label className={labelCls}>Tax Rate (%)</label>
-              <input name="taxRate" type="number" step="0.1" value={form.taxRate} onChange={handleChange} placeholder="8.5" className={inputCls} />
-              <p className={helperCls}>Applied to materials only. Set to 0 to exclude tax from quotes.</p>
-            </div>
-            <div>
-              <label className={labelCls}>Default Crew Size</label>
-              <select name="crewSize" value={form.crewSize} onChange={handleChange} className={selectCls}>
-                <option value="1">Solo (1 person)</option>
-                <option value="2">2-person crew</option>
-                <option value="3">3-person crew</option>
-                <option value="4">4+ person crew</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className={labelCls}>Default Material Quality</label>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { value: 'budget', label: 'Budget', desc: 'Lowest cost' },
-                { value: 'standard', label: 'Standard', desc: 'Mid-range' },
-                { value: 'premium', label: 'Premium', desc: 'High-end' },
-              ].map(tier => (
-                <button key={tier.value} type="button"
-                  onClick={() => setForm({ ...form, materialTier: tier.value })}
-                  className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-200 text-center ${
-                    form.materialTier === tier.value
-                      ? 'bg-[#2563EB] border-[#2563EB] text-white shadow-sm'
-                      : 'border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50'
-                  }`}>
-                  <div className="font-semibold">{tier.label}</div>
-                  <div className={`text-xs mt-0.5 ${form.materialTier === tier.value ? 'text-blue-100' : 'text-gray-400'}`}>{tier.desc}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── SECTION 4: Business Mechanics ── */}
-        <div className={sectionCls}>
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Business Mechanics</p>
-            <p className="text-sm text-gray-400 mt-1">Helps the AI price jobs the way you actually work.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Minimum Job Charge ($)</label>
-              <input name="minimumJobCharge" type="number" value={form.minimumJobCharge} onChange={handleChange} placeholder="e.g. 150" className={inputCls} />
-              <p className={helperCls}>AI won't quote below this — protects you from underpricing small jobs</p>
-            </div>
-            <div>
-              <label className={labelCls}>Service / Trip Charge ($)</label>
-              <input name="tripCharge" type="number" value={form.tripCharge} onChange={handleChange} placeholder="e.g. 75" className={inputCls} />
-              <p className={helperCls}>Added automatically when a service call or travel fee applies</p>
-            </div>
-            <div>
-              <label className={labelCls}>After-Hours Rate ($/hr)</label>
-              <input name="afterHoursRate" type="number" value={form.afterHoursRate} onChange={handleChange} placeholder="Leave blank to use standard rate" className={inputCls} />
-              <p className={helperCls}>Applied when job description mentions emergency or after-hours</p>
-            </div>
-            <div>
-              <label className={labelCls}>Preferred Quote Format</label>
-              <select name="pricingModel" value={form.pricingModel} onChange={handleChange} className={selectCls}>
-                <option value="time-and-materials">Time & Materials (labor + parts)</option>
-                <option value="flat-rate">Flat Rate (single price per item)</option>
-                <option value="cost-plus">Cost-Plus (cost + markup shown)</option>
-              </select>
-              <p className={helperCls}>Controls how AI structures your line items</p>
-            </div>
-          </div>
-
-          {/* Tiered options toggle */}
-          <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-            <button
-              type="button"
-              onClick={() => setForm({ ...form, offerTieredOptions: !form.offerTieredOptions })}
-              className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none mt-0.5 ${
-                form.offerTieredOptions ? 'bg-[#2563EB]' : 'bg-gray-300'
-              }`}
-              role="switch"
-              aria-checked={form.offerTieredOptions}>
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
-                form.offerTieredOptions ? 'translate-x-5' : 'translate-x-0'
-              }`} />
-            </button>
-            <div>
-              <p className="text-sm font-medium text-gray-900">Generate Good / Better / Best options</p>
-              <p className="text-xs text-gray-400 mt-0.5">AI outputs 3 tiered quote options at once — budget, standard, and premium. Great for upselling and giving clients a choice.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ── SECTION 5: Trade-Specific Rates (conditional) ── */}
-        {showTradeSpecific && (
-          <div className={sectionCls}>
-            <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Trade-Specific Rates</p>
-              <p className="text-sm text-gray-400 mt-1">Optional — fills in defaults the AI uses for common job types in your trade.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {form.trade === 'plumbing' && (
-                <div>
-                  <label className={labelCls}>Flat Rate Per Fixture ($)</label>
-                  <input name="fixtureRate" type="number" value={form.fixtureRate} onChange={handleChange} placeholder="e.g. 350" className={inputCls} />
-                  <p className={helperCls}>Per-unit rate for toilets, faucets, valves — AI uses this instead of hourly</p>
-                </div>
-              )}
-              {form.trade === 'electrical' && (
-                <>
-                  <div>
-                    <label className={labelCls}>Panel / Service Work Rate ($/hr)</label>
-                    <input name="panelWorkRate" type="number" value={form.panelWorkRate} onChange={handleChange} placeholder="e.g. 150" className={inputCls} />
-                    <p className={helperCls}>Higher rate for panel upgrades, service calls vs. standard outlet work</p>
-                  </div>
-                  <div>
-                    <label className={labelCls}>Typical Permit Fee ($)</label>
-                    <input name="permitFeeTypical" type="number" value={form.permitFeeTypical} onChange={handleChange} placeholder="e.g. 200" className={inputCls} />
-                    <p className={helperCls}>Average permit cost in your area — added when permits are needed</p>
-                  </div>
-                </>
-              )}
-              {form.trade === 'painting' && (
-                <>
-                  <div>
-                    <label className={labelCls}>Interior Rate ($/sq ft)</label>
-                    <input name="sqftRateInterior" type="number" step="0.01" value={form.sqftRateInterior} onChange={handleChange} placeholder="e.g. 3.50" className={inputCls} />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Exterior Rate ($/sq ft)</label>
-                    <input name="sqftRateExterior" type="number" step="0.01" value={form.sqftRateExterior} onChange={handleChange} placeholder="e.g. 4.50" className={inputCls} />
-                  </div>
-                </>
-              )}
-              {form.trade === 'roofing' && (
-                <>
-                  <div>
-                    <label className={labelCls}>Roofing Rate ($/sq ft)</label>
-                    <input name="sqftRateRoofing" type="number" step="0.01" value={form.sqftRateRoofing} onChange={handleChange} placeholder="e.g. 5.00" className={inputCls} />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Tear-Off Rate ($/sq ft)</label>
-                    <input name="tearOffRate" type="number" step="0.01" value={form.tearOffRate} onChange={handleChange} placeholder="e.g. 1.50" className={inputCls} />
-                    <p className={helperCls}>Additional charge for removing existing roofing</p>
-                  </div>
-                </>
-              )}
-              {form.trade === 'hvac' && (
-                <div>
-                  <label className={labelCls}>Service Call Rate ($)</label>
-                  <input name="serviceCallRate" type="number" value={form.serviceCallRate} onChange={handleChange} placeholder="e.g. 125" className={inputCls} />
-                  <p className={helperCls}>Flat fee for diagnostics / service visits before repair work</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── SECTION 6: Quote Settings ── */}
-        <div className={sectionCls}>
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Quote Settings</p>
-            <p className="text-sm text-gray-400 mt-1">Control how your quotes look and what terms they include.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Payment Terms</label>
-              <select name="paymentTerms" value={form.paymentTerms} onChange={handleChange} className={selectCls}>
-                {PAYMENT_TERMS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Quote Valid For</label>
-              <select name="quoteValidityDays" value={form.quoteValidityDays} onChange={handleChange} className={selectCls}>
-                {VALIDITY_OPTIONS.map(v => <option key={v.value} value={v.value}>{v.label}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className={labelCls}>Opening Message <span className="text-gray-400 font-normal">(optional)</span></label>
-            <textarea name="introMessage" value={form.introMessage} onChange={handleChange}
-              placeholder="e.g. Thank you for the opportunity to work on your project. We stand behind our work with a 1-year labor warranty."
-              rows={3} className={`${inputCls} resize-none`} />
-            <p className={helperCls}>Shown at the top of every quote — great for a brief pitch or warranty statement</p>
-          </div>
-
-          <div>
-            <label className={labelCls}>Default Quote Notes <span className="text-gray-400 font-normal">(optional)</span></label>
-            <textarea name="notesTemplate" value={form.notesTemplate} onChange={handleChange}
-              placeholder="e.g. All work is guaranteed for 1 year. Any unforeseen conditions (hidden damage, code upgrades) will be communicated before proceeding."
-              rows={3} className={`${inputCls} resize-none`} />
-            <p className={helperCls}>Appended to the notes on every quote — warranties, disclaimers, anything you always include. AI adds job-specific notes on top of this.</p>
-          </div>
-        </div>
-
-        {/* ── SECTION 7: Saved Line Items ── */}
-        <div className={sectionCls}>
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Saved Line Items</p>
-            <p className="text-sm text-gray-400 mt-1">Your personal library — describe a job once, reuse it forever. AI references these when generating quotes.</p>
-          </div>
-
-          {/* Existing items */}
-          {savedLineItems.length > 0 && (
-            <div className="space-y-2">
-              {savedLineItems.map(item => (
-                <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{item.description}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
-                        item.category === 'labor' ? 'bg-blue-100 text-blue-600' :
-                        item.category === 'material' ? 'bg-gray-200 text-gray-600' :
-                        'bg-purple-100 text-purple-600'
-                      }`}>{item.category}</span>
-                      <span className="text-xs text-gray-400">Qty {item.defaultQty} · ${item.defaultUnitPrice}</span>
-                    </div>
-                  </div>
-                  <button type="button" onClick={() => handleRemoveLineItem(item.id)}
-                    className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 text-lg leading-none">×</button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Add new item */}
-          <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-            <p className="text-xs font-medium text-gray-500">Add line item</p>
-            <input
-              value={newLineItem.description}
-              onChange={e => setNewLineItem({ ...newLineItem, description: e.target.value })}
-              placeholder="e.g. Replace toilet flapper, 1 hr labor"
-              className={inputCls} />
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">Qty</label>
-                <input type="text" value={newLineItem.defaultQty}
-                  onChange={e => setNewLineItem({ ...newLineItem, defaultQty: e.target.value })}
-                  placeholder="1" className={inputCls} />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">Unit Price ($)</label>
-                <input type="number" value={newLineItem.defaultUnitPrice}
-                  onChange={e => setNewLineItem({ ...newLineItem, defaultUnitPrice: e.target.value })}
-                  placeholder="0.00" className={inputCls} />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">Category</label>
-                <select value={newLineItem.category}
-                  onChange={e => setNewLineItem({ ...newLineItem, category: e.target.value })}
-                  className={selectCls}>
-                  <option value="labor">Labor</option>
-                  <option value="material">Material</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-            <button type="button" onClick={handleAddLineItem}
-              disabled={!newLineItem.description || !newLineItem.defaultUnitPrice}
-              className="w-full border border-[#2563EB] text-[#2563EB] hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium py-2 rounded-xl text-sm transition-colors">
-              + Add to Library
-            </button>
-          </div>
-        </div>
-
-        {/* ── Save + Preview buttons ── */}
-        <div className="flex gap-3">
-          <button onClick={handleSave} disabled={saving || !form.businessName}
-            className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-all duration-200 text-sm min-h-[44px] shadow-sm ${
-              savedOk
-                ? 'bg-green-500 text-white'
-                : 'bg-[#2563EB] hover:bg-blue-700 disabled:bg-blue-300 text-white shadow-blue-200'
+      {/* ── Tab Bar ── */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-4">
+        <div className="flex gap-1 bg-gray-100 rounded-xl p-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('profile')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all duration-150 ${
+              activeTab === 'profile'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
             }`}>
-            {savedOk ? '✓ Saved!' : saving ? 'Saving…' : isNew ? 'Save Profile & Start Quoting →' : 'Update Profile'}
+            Profile
           </button>
           <button
             type="button"
-            onClick={() => setShowPreview(v => !v)}
-            className="flex items-center gap-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 font-medium py-3 px-4 rounded-xl transition-colors text-sm">
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            {showPreview ? 'Hide' : 'Preview'}
+            onClick={() => setActiveTab('saved-items')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all duration-150 ${
+              activeTab === 'saved-items'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}>
+            Saved Items
+            {savedLineItems.length > 0 && (
+              <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
+                activeTab === 'saved-items' ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-500'
+              }`}>{savedLineItems.length}</span>
+            )}
           </button>
         </div>
+      </div>
 
-        {/* ── Preview Quote ── */}
-        {showPreview && (
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-            <div className="px-6 py-4 border-b border-gray-50">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Quote Preview</p>
-              <p className="text-xs text-gray-400 mt-0.5">Example quote using your current profile settings. Updates as you edit.</p>
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+        {activeTab === 'profile' && (
+          <>
+            {isNew && (
+              <div className="bg-gradient-to-r from-[#2563EB] to-blue-700 rounded-2xl px-6 py-5 text-white">
+                <p className="font-semibold text-base">👋 Welcome to SnapBid!</p>
+                <p className="text-blue-100 text-sm mt-1 leading-relaxed">Set up your profile once and every quote will be calibrated to your business — your rates, your contact info, your terms.</p>
+              </div>
+            )}
+
+            {/* ── SECTION 1: Business Identity ── */}
+            <div className={sectionCls}>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Business Identity</p>
+                <p className="text-sm text-gray-400 mt-1">Appears on every quote you send.</p>
+              </div>
+
+              <div>
+                <label className={labelCls}>Business Name <span className="text-red-400">*</span></label>
+                <input name="businessName" value={form.businessName} onChange={handleChange} placeholder="e.g. Mike's Plumbing LLC" className={inputCls} />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Your Trade</label>
+                  <select name="trade" value={form.trade} onChange={handleChange} className={selectCls}>
+                    {TRADES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Years in Business</label>
+                  <input name="yearsInBusiness" type="number" min="0" max="99" value={form.yearsInBusiness} onChange={handleChange} placeholder="e.g. 8" className={inputCls} />
+                  <p className={helperCls}>Shown on quotes as "X years of experience"</p>
+                </div>
+              </div>
+
+              <div>
+                <label className={labelCls}>License / Contractor Number <span className="text-gray-400 font-normal">(optional)</span></label>
+                <input name="licenseNumber" value={form.licenseNumber} onChange={handleChange} placeholder="e.g. LIC #123456" className={inputCls} />
+                <p className={helperCls}>Shown on quotes — builds trust with clients</p>
+              </div>
             </div>
 
-            {/* Quote card header */}
-            <div className="bg-[#2563EB] px-8 py-6 flex justify-between items-start">
+            {/* ── SECTION 2: Contact Info ── */}
+            <div className={sectionCls}>
               <div>
-                <h3 className="text-white font-bold text-xl tracking-tight">{mockQuote.businessName}</h3>
-                <p className="text-blue-200 text-sm mt-0.5">{mockQuote.tradeLabel} Services</p>
-                {(mockQuote.phone || mockQuote.email) && (
-                  <p className="text-blue-200 text-xs mt-2 space-x-3">
-                    {mockQuote.phone && <span>{mockQuote.phone}</span>}
-                    {mockQuote.email && <span>{mockQuote.email}</span>}
-                  </p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Contact Information</p>
+                <p className="text-sm text-gray-400 mt-1">Printed on every quote so clients can reach you.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Phone Number</label>
+                  <input name="phone" value={form.phone} onChange={handleChange} placeholder="(555) 555-5555" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Business Email</label>
+                  <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@yourbusiness.com" className={inputCls} />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelCls}>Business Address <span className="text-gray-400 font-normal">(optional)</span></label>
+                <input name="businessAddress" value={form.businessAddress} onChange={handleChange} placeholder="123 Main St, City, State ZIP" className={inputCls} />
+              </div>
+
+              <div>
+                <label className={labelCls}>Region</label>
+                <select name="region" value={form.region} onChange={handleChange} className={selectCls}>
+                  {REGIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                </select>
+                <p className={helperCls}>Calibrates material and labor costs to your local market</p>
+              </div>
+            </div>
+
+            {/* ── SECTION 3: Pricing Defaults ── */}
+            <div className={sectionCls}>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Pricing Defaults</p>
+                <p className="text-sm text-gray-400 mt-1">Used to calculate every quote. You can override per job.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Your Hourly Rate ($/hr)</label>
+                  <input name="hourlyRate" type="number" value={form.hourlyRate} onChange={handleChange} placeholder="75" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Markup on Materials (%)</label>
+                  <input name="markup" type="number" value={form.markup} onChange={handleChange} placeholder="20" className={inputCls} />
+                  <p className={helperCls}>Added on top of material costs</p>
+                  <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={form.showMarkupOnQuote}
+                      onChange={() => setForm({ ...form, showMarkupOnQuote: !form.showMarkupOnQuote })}
+                      className="w-3.5 h-3.5 rounded accent-[#2563EB]"
+                    />
+                    <span className="text-xs text-gray-500">Show on quote</span>
+                  </label>
+                </div>
+                <div>
+                  <label className={labelCls}>Tax Rate (%)</label>
+                  <input name="taxRate" type="number" step="0.1" value={form.taxRate} onChange={handleChange} placeholder="8.5" className={inputCls} />
+                  <p className={helperCls}>Applied to materials only. Set to 0 to exclude tax from quotes.</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Default Crew Size</label>
+                  <select name="crewSize" value={form.crewSize} onChange={handleChange} className={selectCls}>
+                    <option value="1">Solo (1 person)</option>
+                    <option value="2">2-person crew</option>
+                    <option value="3">3-person crew</option>
+                    <option value="4">4+ person crew</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className={labelCls}>Default Material Quality</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: 'budget', label: 'Budget', desc: 'Lowest cost' },
+                    { value: 'standard', label: 'Standard', desc: 'Mid-range' },
+                    { value: 'premium', label: 'Premium', desc: 'High-end' },
+                  ].map(tier => (
+                    <button key={tier.value} type="button"
+                      onClick={() => setForm({ ...form, materialTier: tier.value })}
+                      className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-200 text-center ${
+                        form.materialTier === tier.value
+                          ? 'bg-[#2563EB] border-[#2563EB] text-white shadow-sm'
+                          : 'border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50'
+                      }`}>
+                      <div className="font-semibold">{tier.label}</div>
+                      <div className={`text-xs mt-0.5 ${form.materialTier === tier.value ? 'text-blue-100' : 'text-gray-400'}`}>{tier.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ── SECTION 4: Business Mechanics ── */}
+            <div className={sectionCls}>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Business Mechanics</p>
+                <p className="text-sm text-gray-400 mt-1">Helps the AI price jobs the way you actually work.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Minimum Job Charge ($)</label>
+                  <input name="minimumJobCharge" type="number" value={form.minimumJobCharge} onChange={handleChange} placeholder="e.g. 150" className={inputCls} />
+                  <p className={helperCls}>AI won't quote below this — protects you from underpricing small jobs</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Service / Trip Charge ($)</label>
+                  <input name="tripCharge" type="number" value={form.tripCharge} onChange={handleChange} placeholder="e.g. 75" className={inputCls} />
+                  <p className={helperCls}>Added automatically when a service call or travel fee applies</p>
+                </div>
+                <div className="sm:col-span-2">
+                  <label className={labelCls}>Preferred Quote Format</label>
+                  <select name="pricingModel" value={form.pricingModel} onChange={handleChange} className={selectCls}>
+                    <option value="time-and-materials">Time & Materials (labor + parts)</option>
+                    <option value="flat-rate">Flat Rate (single price per item)</option>
+                    <option value="cost-plus">Cost-Plus (cost + markup shown)</option>
+                  </select>
+                  <p className={helperCls}>Controls how AI structures your line items</p>
+                </div>
+              </div>
+
+              {/* Tiered options toggle */}
+              <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, offerTieredOptions: !form.offerTieredOptions })}
+                  className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none mt-0.5 ${
+                    form.offerTieredOptions ? 'bg-[#2563EB]' : 'bg-gray-300'
+                  }`}
+                  role="switch"
+                  aria-checked={form.offerTieredOptions}>
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                    form.offerTieredOptions ? 'translate-x-5' : 'translate-x-0'
+                  }`} />
+                </button>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Generate Good / Better / Best options</p>
+                  <p className="text-xs text-gray-400 mt-0.5">AI outputs 3 tiered quote options at once — budget, standard, and premium. Great for upselling and giving clients a choice.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── SECTION 5: Trade-Specific Rates (accordion, conditional) ── */}
+            {showTradeSpecific && (
+              <div className={sectionCls}>
+                <button
+                  type="button"
+                  onClick={() => setShowAdvancedRates(v => !v)}
+                  className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors w-full text-left">
+                  <svg
+                    width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    className={`flex-shrink-0 transition-transform duration-200 ${showAdvancedRates ? 'rotate-90' : ''}`}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                  </svg>
+                  <span className="font-medium">Advanced rates <span className="text-gray-400 font-normal">(optional)</span></span>
+                </button>
+
+                {showAdvancedRates && (
+                  <div className="space-y-4 pt-1">
+                    <p className="text-xs text-gray-400">Trade-specific rate defaults the AI uses for common job types in your trade.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {form.trade === 'plumbing' && (
+                        <div>
+                          <label className={labelCls}>Flat Rate Per Fixture ($)</label>
+                          <input name="fixtureRate" type="number" value={form.fixtureRate} onChange={handleChange} placeholder="e.g. 350" className={inputCls} />
+                          <p className={helperCls}>Per-unit rate for toilets, faucets, valves — AI uses this instead of hourly</p>
+                        </div>
+                      )}
+                      {form.trade === 'electrical' && (
+                        <>
+                          <div>
+                            <label className={labelCls}>Panel / Service Work Rate ($/hr)</label>
+                            <input name="panelWorkRate" type="number" value={form.panelWorkRate} onChange={handleChange} placeholder="e.g. 150" className={inputCls} />
+                            <p className={helperCls}>Higher rate for panel upgrades, service calls vs. standard outlet work</p>
+                          </div>
+                          <div>
+                            <label className={labelCls}>Typical Permit Fee ($)</label>
+                            <input name="permitFeeTypical" type="number" value={form.permitFeeTypical} onChange={handleChange} placeholder="e.g. 200" className={inputCls} />
+                            <p className={helperCls}>Average permit cost in your area — added when permits are needed</p>
+                          </div>
+                        </>
+                      )}
+                      {form.trade === 'painting' && (
+                        <>
+                          <div>
+                            <label className={labelCls}>Interior Rate ($/sq ft)</label>
+                            <input name="sqftRateInterior" type="number" step="0.01" value={form.sqftRateInterior} onChange={handleChange} placeholder="e.g. 3.50" className={inputCls} />
+                          </div>
+                          <div>
+                            <label className={labelCls}>Exterior Rate ($/sq ft)</label>
+                            <input name="sqftRateExterior" type="number" step="0.01" value={form.sqftRateExterior} onChange={handleChange} placeholder="e.g. 4.50" className={inputCls} />
+                          </div>
+                        </>
+                      )}
+                      {form.trade === 'roofing' && (
+                        <>
+                          <div>
+                            <label className={labelCls}>Roofing Rate ($/sq ft)</label>
+                            <input name="sqftRateRoofing" type="number" step="0.01" value={form.sqftRateRoofing} onChange={handleChange} placeholder="e.g. 5.00" className={inputCls} />
+                          </div>
+                          <div>
+                            <label className={labelCls}>Tear-Off Rate ($/sq ft)</label>
+                            <input name="tearOffRate" type="number" step="0.01" value={form.tearOffRate} onChange={handleChange} placeholder="e.g. 1.50" className={inputCls} />
+                            <p className={helperCls}>Additional charge for removing existing roofing</p>
+                          </div>
+                        </>
+                      )}
+                      {form.trade === 'hvac' && (
+                        <div>
+                          <label className={labelCls}>Service Call Rate ($)</label>
+                          <input name="serviceCallRate" type="number" value={form.serviceCallRate} onChange={handleChange} placeholder="e.g. 125" className={inputCls} />
+                          <p className={helperCls}>Flat fee for diagnostics / service visits before repair work</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
-              <div className="text-right">
-                <p className="text-blue-200 text-xs font-medium uppercase tracking-wide">Quote</p>
-                <p className="text-white font-bold text-lg mt-0.5">{mockQuote.quoteNumber}</p>
-                <p className="text-blue-200 text-xs mt-1">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            )}
+
+            {/* ── SECTION 6: Quote Settings ── */}
+            <div className={sectionCls}>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Quote Settings</p>
+                <p className="text-sm text-gray-400 mt-1">Control how your quotes look and what terms they include.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Payment Terms</label>
+                  <select name="paymentTerms" value={form.paymentTerms} onChange={handleChange} className={selectCls}>
+                    {PAYMENT_TERMS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Quote Valid For</label>
+                  <select name="quoteValidityDays" value={form.quoteValidityDays} onChange={handleChange} className={selectCls}>
+                    {VALIDITY_OPTIONS.map(v => <option key={v.value} value={v.value}>{v.label}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className={labelCls}>Default Quote Notes <span className="text-gray-400 font-normal">(optional)</span></label>
+                <textarea name="notesTemplate" value={form.notesTemplate} onChange={handleChange}
+                  placeholder="e.g. All work is guaranteed for 1 year. Any unforeseen conditions (hidden damage, code upgrades) will be communicated before proceeding."
+                  rows={3} className={`${inputCls} resize-none`} />
+                <p className={helperCls}>Appended to the notes on every quote — warranties, disclaimers, anything you always include. AI adds job-specific notes on top of this.</p>
               </div>
             </div>
 
-            <div className="px-8 py-6 space-y-5">
-              {/* Prepared for */}
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Prepared For</p>
-                <p className="font-semibold text-gray-900">Sample Client</p>
-                <p className="text-sm text-gray-500 mt-0.5">123 Main St, Anytown, USA</p>
-              </div>
+            {/* ── Save + Preview buttons ── */}
+            <div className="flex gap-3">
+              <button onClick={handleSave} disabled={saving || !form.businessName}
+                className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-all duration-200 text-sm min-h-[44px] shadow-sm ${
+                  savedOk
+                    ? 'bg-green-500 text-white'
+                    : 'bg-[#2563EB] hover:bg-blue-700 disabled:bg-blue-300 text-white shadow-blue-200'
+                }`}>
+                {savedOk ? '✓ Saved!' : saving ? 'Saving…' : isNew ? 'Save Profile & Start Quoting →' : 'Update Profile'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPreview(v => !v)}
+                className="flex items-center gap-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 font-medium py-3 px-4 rounded-xl transition-colors text-sm">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                {showPreview ? 'Hide' : 'Preview'}
+              </button>
+            </div>
 
-              {/* Scope of work */}
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Scope of Work</p>
-                <p className="text-sm text-gray-700 leading-relaxed">{mockQuote.scopeOfWork}</p>
-              </div>
+            {/* ── Preview Quote ── */}
+            {showPreview && (
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-gray-50">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Quote Preview</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Example quote using your current profile settings. Updates as you edit.</p>
+                </div>
 
-              {/* Line items */}
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b-2 border-gray-100">
-                    <th className="text-left pb-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide">Description</th>
-                    <th className="text-right pb-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide w-16">Qty</th>
-                    <th className="text-right pb-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide w-24">Unit</th>
-                    <th className="text-right pb-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide w-24">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockQuote.lineItems.map((item, i) => (
-                    <tr key={i} className="border-b border-gray-50">
-                      <td className="py-3 text-gray-700 pr-4">{item.description}</td>
-                      <td className="py-3 text-right text-gray-400 tabular-nums">{item.qty}</td>
-                      <td className="py-3 text-right text-gray-400 tabular-nums">${item.unitPrice}</td>
-                      <td className="py-3 text-right font-semibold text-gray-900 tabular-nums">${item.total}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Totals */}
-              <div className="flex justify-end">
-                <div className="w-56 space-y-2 text-sm">
-                  <div className="flex justify-between text-gray-500">
-                    <span>Subtotal</span><span className="tabular-nums">${mockQuote.subtotal.toLocaleString()}</span>
+                {/* Quote card header */}
+                <div className="bg-[#2563EB] px-8 py-6 flex justify-between items-start">
+                  <div>
+                    <h3 className="text-white font-bold text-xl tracking-tight">{mockQuote.businessName}</h3>
+                    <p className="text-blue-200 text-sm mt-0.5">{mockQuote.tradeLabel} Services</p>
+                    {(mockQuote.phone || mockQuote.email) && (
+                      <p className="text-blue-200 text-xs mt-2 space-x-3">
+                        {mockQuote.phone && <span>{mockQuote.phone}</span>}
+                        {mockQuote.email && <span>{mockQuote.email}</span>}
+                      </p>
+                    )}
                   </div>
-                  {mockQuote.tax > 0 && (
-                    <div className="flex justify-between text-gray-500">
-                      <span>Tax ({mockQuote.taxRate}%)</span><span className="tabular-nums">${mockQuote.tax.toLocaleString()}</span>
+                  <div className="text-right">
+                    <p className="text-blue-200 text-xs font-medium uppercase tracking-wide">Quote</p>
+                    <p className="text-white font-bold text-lg mt-0.5">{mockQuote.quoteNumber}</p>
+                    <p className="text-blue-200 text-xs mt-1">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                  </div>
+                </div>
+
+                <div className="px-8 py-6 space-y-5">
+                  {/* Prepared for */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Prepared For</p>
+                    <p className="font-semibold text-gray-900">Sample Client</p>
+                    <p className="text-sm text-gray-500 mt-0.5">123 Main St, Anytown, USA</p>
+                  </div>
+
+                  {/* Scope of work */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Scope of Work</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">{mockQuote.scopeOfWork}</p>
+                  </div>
+
+                  {/* Line items */}
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b-2 border-gray-100">
+                        <th className="text-left pb-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide">Description</th>
+                        <th className="text-right pb-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide w-16">Qty</th>
+                        <th className="text-right pb-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide w-24">Unit</th>
+                        <th className="text-right pb-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide w-24">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mockQuote.lineItems.map((item, i) => (
+                        <tr key={i} className="border-b border-gray-50">
+                          <td className="py-3 text-gray-700 pr-4">{item.description}</td>
+                          <td className="py-3 text-right text-gray-400 tabular-nums">{item.qty}</td>
+                          <td className="py-3 text-right text-gray-400 tabular-nums">${item.unitPrice}</td>
+                          <td className="py-3 text-right font-semibold text-gray-900 tabular-nums">${item.total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Totals */}
+                  <div className="flex justify-end">
+                    <div className="w-56 space-y-2 text-sm">
+                      <div className="flex justify-between text-gray-500">
+                        <span>Subtotal</span><span className="tabular-nums">${mockQuote.subtotal.toLocaleString()}</span>
+                      </div>
+                      {mockQuote.tax > 0 && (
+                        <div className="flex justify-between text-gray-500">
+                          <span>Tax ({mockQuote.taxRate}%)</span><span className="tabular-nums">${mockQuote.tax.toLocaleString()}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between font-bold text-base pt-2.5 border-t-2 border-gray-100">
+                        <span>Total</span>
+                        <span className="text-[#2563EB] tabular-nums">${mockQuote.total.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Inclusions & Exclusions */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+                      <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest mb-2">✓ What&apos;s Included</p>
+                      <ul className="space-y-1.5">
+                        {mockQuote.inclusions.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-green-800">
+                            <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
+                            </svg>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                      <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2">⚠ Not Included</p>
+                      <ul className="space-y-1.5">
+                        {mockQuote.exclusions.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-amber-800">
+                            <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Notes */}
+                  {mockQuote.notes && (
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                      <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">Notes</p>
+                      <p className="text-sm text-blue-800 leading-relaxed">{mockQuote.notes}</p>
                     </div>
                   )}
-                  <div className="flex justify-between font-bold text-base pt-2.5 border-t-2 border-gray-100">
-                    <span>Total</span>
-                    <span className="text-[#2563EB] tabular-nums">${mockQuote.total.toLocaleString()}</span>
-                  </div>
+
+                  <p className="text-center text-xs text-gray-300 pt-2 border-t border-gray-50">
+                    {mockQuote.businessName} · Professional Estimate
+                  </p>
                 </div>
               </div>
+            )}
+          </>
+        )}
 
-              {/* Inclusions & Exclusions */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-                  <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest mb-2">✓ What&apos;s Included</p>
-                  <ul className="space-y-1.5">
-                    {mockQuote.inclusions.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-green-800">
-                        <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
-                        </svg>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                  <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2">⚠ Not Included</p>
-                  <ul className="space-y-1.5">
-                    {mockQuote.exclusions.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-amber-800">
-                        <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+        {activeTab === 'saved-items' && (
+          <>
+            {/* ── Saved Line Items ── */}
+            <div className={sectionCls}>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Saved Line Items</p>
+                <p className="text-sm text-gray-400 mt-1">Your personal library — describe a job once, reuse it forever. AI references these when generating quotes.</p>
               </div>
 
-              {/* Notes */}
-              {mockQuote.notes && (
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                  <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">Notes</p>
-                  <p className="text-sm text-blue-800 leading-relaxed">{mockQuote.notes}</p>
+              {/* Existing items */}
+              {savedLineItems.length > 0 && (
+                <div className="space-y-2">
+                  {savedLineItems.map(item => (
+                    <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">{item.description}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                            item.category === 'labor' ? 'bg-blue-100 text-blue-600' :
+                            item.category === 'material' ? 'bg-gray-200 text-gray-600' :
+                            'bg-purple-100 text-purple-600'
+                          }`}>{item.category}</span>
+                          <span className="text-xs text-gray-400">Qty {item.defaultQty} · ${item.defaultUnitPrice}</span>
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => handleRemoveLineItem(item.id)}
+                        className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 text-lg leading-none">×</button>
+                    </div>
+                  ))}
                 </div>
               )}
 
-              <p className="text-center text-xs text-gray-300 pt-2 border-t border-gray-50">
-                {mockQuote.businessName} · Professional Estimate
-              </p>
+              {/* Add new item */}
+              <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-medium text-gray-500">Add line item</p>
+                <input
+                  value={newLineItem.description}
+                  onChange={e => setNewLineItem({ ...newLineItem, description: e.target.value })}
+                  placeholder="e.g. Replace toilet flapper, 1 hr labor"
+                  className={inputCls} />
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">Qty</label>
+                    <input type="text" value={newLineItem.defaultQty}
+                      onChange={e => setNewLineItem({ ...newLineItem, defaultQty: e.target.value })}
+                      placeholder="1" className={inputCls} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">Unit Price ($)</label>
+                    <input type="number" value={newLineItem.defaultUnitPrice}
+                      onChange={e => setNewLineItem({ ...newLineItem, defaultUnitPrice: e.target.value })}
+                      placeholder="0.00" className={inputCls} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">Category</label>
+                    <select value={newLineItem.category}
+                      onChange={e => setNewLineItem({ ...newLineItem, category: e.target.value })}
+                      className={selectCls}>
+                      <option value="labor">Labor</option>
+                      <option value="material">Material</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="button" onClick={handleAddLineItem}
+                  disabled={!newLineItem.description || !newLineItem.defaultUnitPrice}
+                  className="w-full border border-[#2563EB] text-[#2563EB] hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium py-2 rounded-xl text-sm transition-colors">
+                  + Add to Library
+                </button>
+              </div>
             </div>
-          </div>
+
+            {/* Save button for saved items tab */}
+            <div className="flex gap-3">
+              <button onClick={handleSave} disabled={saving || !form.businessName}
+                className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-all duration-200 text-sm min-h-[44px] shadow-sm ${
+                  savedOk
+                    ? 'bg-green-500 text-white'
+                    : 'bg-[#2563EB] hover:bg-blue-700 disabled:bg-blue-300 text-white shadow-blue-200'
+                }`}>
+                {savedOk ? '✓ Saved!' : saving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
+          </>
         )}
       </div>
     </main>
