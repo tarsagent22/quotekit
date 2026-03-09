@@ -1,24 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 52" fill="none" role="img" aria-label="SnapBid">
-  <!-- Clipboard Icon: 44px wide × 50px tall, centered in 52px height -->
-  <!-- Clip tab (amber, top-center of body) -->
-  <rect x="16" y="2" width="11" height="7" rx="3" fill="#D97706"/>
-  <!-- Clipboard body (dark charcoal) -->
-  <rect x="5" y="7" width="33" height="42" rx="5" fill="#1C1917"/>
-  <!-- Clipboard face (amber, inset) -->
-  <rect x="10" y="14" width="23" height="31" rx="2" fill="#D97706"/>
-  <!-- Document lines (subtle) -->
-  <rect x="13" y="19" width="15" height="2" rx="1" fill="#1C1917" opacity="0.3"/>
-  <rect x="13" y="23" width="11" height="2" rx="1" fill="#1C1917" opacity="0.3"/>
-  <!-- Checkmark (white, fits inside face) -->
+  <!-- Clip tab -->
+  <rect x="16" y="2" width="11" height="7" rx="3" fill="#16a34a"/>
+  <!-- Clipboard body (dark green) -->
+  <rect x="5" y="7" width="33" height="42" rx="5" fill="#14532d"/>
+  <!-- Clipboard face (brand green) -->
+  <rect x="10" y="14" width="23" height="31" rx="2" fill="#16a34a"/>
+  <!-- Document lines -->
+  <rect x="13" y="19" width="15" height="2" rx="1" fill="#14532d" opacity="0.3"/>
+  <rect x="13" y="23" width="11" height="2" rx="1" fill="#14532d" opacity="0.3"/>
+  <!-- Checkmark -->
   <path d="M11 33 L17 40 L32 26" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-
-  <!-- Wordmark: single text flow so Snap and Bid have zero gap -->
-  <text
-    x="48" y="37"
+  <!-- Wordmark -->
+  <text x="48" y="37"
     font-family="'Inter', 'Helvetica Neue', Arial, sans-serif"
-    font-size="26"
-    font-weight="800"
-    letter-spacing="-0.8">
-    <tspan fill="#D97706">Snap</tspan><tspan fill="#1C1917">Bid</tspan>
+    font-size="26" font-weight="800" letter-spacing="-0.8">
+    <tspan fill="#16a34a">Snap</tspan><tspan fill="#14532d">Bid</tspan>
   </text>
 </svg>

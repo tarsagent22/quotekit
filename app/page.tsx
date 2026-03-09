@@ -820,7 +820,7 @@ ${biz}`
                 </div>
               ) : (
                 <SignInButton mode="modal" forceRedirectUrl="/profile">
-                  <button className="text-sm bg-[#D97706] hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm shadow-amber-200">
+                  <button className="text-sm bg-[#16a34a] hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm shadow-green-200">
                     Sign In
                   </button>
                 </SignInButton>
@@ -851,17 +851,17 @@ ${biz}`
 
       {/* ── PROFILE CALIBRATION BAR (signed-in) ────────────────────────────── */}
       {profile && (
-        <div className="bg-[#D97706]/5 border-b border-[#D97706]/10">
+        <div className="bg-[#16a34a]/5 border-b border-[#16a34a]/10">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-amber-700 font-medium">⚡ Calibrated to {profile.businessName}</span>
+              <span className="text-xs text-green-700 font-medium">⚡ Calibrated to {profile.businessName}</span>
               <span className="hidden sm:inline text-blue-300 text-xs">·</span>
-              <span className="hidden sm:inline text-xs text-amber-500">${profile.hourlyRate}/hr · {profile.materialTier} materials · {profile.region}</span>
+              <span className="hidden sm:inline text-xs text-green-500">${profile.hourlyRate}/hr · {profile.materialTier} materials · {profile.region}</span>
             </div>
             <div className="flex items-center gap-3">
               {/* Quota pill */}
               {isSubscribed ? (
-                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-100 text-green-700">
                   ⚡ Pro — Unlimited
                 </span>
               ) : (
@@ -870,14 +870,14 @@ ${biz}`
                     ? 'bg-red-100 text-red-600'
                     : quotesUsed >= FREE_QUOTA - 1
                     ? 'bg-orange-100 text-orange-600'
-                    : 'bg-amber-100 text-amber-600'
+                    : 'bg-green-100 text-green-600'
                 }`}>
                   {quotesUsed >= FREE_QUOTA
                     ? 'Free limit reached'
                     : `${FREE_QUOTA - quotesUsed} free quote${FREE_QUOTA - quotesUsed !== 1 ? 's' : ''} left`}
                 </span>
               )}
-              <button onClick={() => router.push('/profile')} className="text-xs text-amber-600 hover:text-amber-800 font-medium whitespace-nowrap transition-colors">
+              <button onClick={() => router.push('/profile')} className="text-xs text-green-600 hover:text-green-800 font-medium whitespace-nowrap transition-colors">
                 Edit profile →
               </button>
             </div>
@@ -889,21 +889,21 @@ ${biz}`
       {isLoaded && !user && !quote && (
         <div className="relative overflow-hidden border-b border-gray-100/60">
           <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20 text-center">
-            <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-amber-100">
+            <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-green-100">
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M5.5 0.5L1.5 5.5h3l-.5 4 4.5-6H5.5V0.5z" fill="#D97706"/>
+                <path d="M5.5 0.5L1.5 5.5h3l-.5 4 4.5-6H5.5V0.5z" fill="#16a34a"/>
               </svg>
               AI-powered · Built for tradespeople
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight mb-4 leading-[1.1]">
               Professional quotes<br />
-              <span className="text-[#D97706]">in 60 seconds</span>
+              <span className="text-[#16a34a]">in 60 seconds</span>
             </h1>
             <p className="text-gray-700 text-lg sm:text-xl max-w-xl mx-auto mb-8 leading-relaxed">
               Describe the job in plain English. SnapBid generates accurate, itemized quotes calibrated to your rates.
             </p>
             <SignInButton mode="modal" forceRedirectUrl="/profile">
-              <button className="inline-flex items-center gap-2 bg-[#D97706] hover:bg-amber-700 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-amber-200 text-sm">
+              <button className="inline-flex items-center gap-2 bg-[#16a34a] hover:bg-green-700 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-green-200 text-sm">
                 Get started free
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 3l5 4-5 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
@@ -918,7 +918,7 @@ ${biz}`
                 { step: '03', title: 'Download or copy', desc: 'Professional PDF ready to send. Impress clients, close more jobs.' },
               ].map(item => (
                 <div key={item.step} className="bg-white rounded-2xl border border-gray-100 px-6 py-5 shadow-md">
-                  <p className="text-[11px] font-bold text-[#D97706] tracking-widest mb-3">{item.step}</p>
+                  <p className="text-[11px] font-bold text-[#16a34a] tracking-widest mb-3">{item.step}</p>
                   <p className="text-sm font-semibold text-gray-900 mb-1.5">{item.title}</p>
                   <p className="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
                 </div>
@@ -936,7 +936,7 @@ ${biz}`
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className={`py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab
-                    ? 'border-[#D97706] text-[#D97706]'
+                    ? 'border-[#16a34a] text-[#16a34a]'
                     : 'border-transparent text-gray-400 hover:text-gray-600'
                 }`}>
                 {tab === 'new' ? 'New Quote' : 'Quote History'}
@@ -974,7 +974,7 @@ ${biz}`
                       <span className="text-gray-500">{pending} pending</span>
                     </div>
                     {winRate !== null && (
-                      <span className="bg-amber-50 text-amber-600 font-semibold px-2 py-0.5 rounded-full">
+                      <span className="bg-green-50 text-green-600 font-semibold px-2 py-0.5 rounded-full">
                         {winRate}% win rate
                       </span>
                     )}
@@ -999,7 +999,7 @@ ${biz}`
                 <p className="text-sm font-medium text-gray-400">No quotes yet</p>
                 <p className="text-xs text-gray-300 mt-1">Your generated quotes will appear here</p>
                 <button onClick={() => setActiveTab('new')}
-                  className="mt-4 text-sm text-[#D97706] hover:underline font-medium">
+                  className="mt-4 text-sm text-[#16a34a] hover:underline font-medium">
                   Generate your first quote →
                 </button>
               </div>
@@ -1008,7 +1008,7 @@ ${biz}`
                 {history.map((q: any) => {
                   const isExpanded = expandedHistoryId === q.id
                   return (
-                    <div key={q.id} className={`bg-white rounded-2xl border shadow-sm transition-all duration-200 ${isExpanded ? 'border-[#D97706]/30 shadow-amber-50' : 'border-gray-100 hover:border-gray-200'}`}>
+                    <div key={q.id} className={`bg-white rounded-2xl border shadow-sm transition-all duration-200 ${isExpanded ? 'border-[#16a34a]/30 shadow-green-50' : 'border-gray-100 hover:border-gray-200'}`}>
                       {/* Summary row — always visible, clickable to expand */}
                       <button
                         type="button"
@@ -1050,7 +1050,7 @@ ${biz}`
                               <p className="text-lg font-bold text-gray-900">${q.total?.toLocaleString()}</p>
                               <p className="text-xs text-gray-400">{q.lineItems?.length || 0} line items</p>
                             </div>
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isExpanded ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-400'}`}>
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isExpanded ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
                               <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7"/>
@@ -1069,15 +1069,15 @@ ${biz}`
                               <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                               </svg>
-                              <a href={`mailto:${q.clientEmail}`} className="hover:text-amber-500 transition-colors">{q.clientEmail}</a>
+                              <a href={`mailto:${q.clientEmail}`} className="hover:text-green-500 transition-colors">{q.clientEmail}</a>
                             </div>
                           )}
 
                           {/* Scope of Work (if present) */}
                           {q.scopeOfWork && (
-                            <div className="mt-4 mb-2 bg-amber-50 border border-amber-100 rounded-xl p-3.5">
-                              <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-1">Scope of Work</p>
-                              <p className="text-sm text-amber-800 leading-relaxed">{q.scopeOfWork}</p>
+                            <div className="mt-4 mb-2 bg-green-50 border border-green-100 rounded-xl p-3.5">
+                              <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-1">Scope of Work</p>
+                              <p className="text-sm text-green-800 leading-relaxed">{q.scopeOfWork}</p>
                             </div>
                           )}
 
@@ -1141,7 +1141,7 @@ ${biz}`
                                   )}
                                   <div className="flex justify-between font-bold text-sm pt-1.5 border-t border-gray-100">
                                     <span>Total</span>
-                                    <span className="text-[#D97706] tabular-nums">${q.total?.toLocaleString()}</span>
+                                    <span className="text-[#16a34a] tabular-nums">${q.total?.toLocaleString()}</span>
                                   </div>
                                 </div>
                               </div>
@@ -1167,12 +1167,12 @@ ${biz}`
                                 </div>
                               )}
                               {q.exclusions && q.exclusions.length > 0 && (
-                                <div className="bg-amber-50 border border-amber-100 rounded-xl p-3.5">
-                                  <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1.5">⚠ Not Included</p>
+                                <div className="bg-green-50 border border-green-100 rounded-xl p-3.5">
+                                  <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest mb-1.5">⚠ Not Included</p>
                                   <ul className="space-y-1">
                                     {q.exclusions.map((item: string, i: number) => (
-                                      <li key={i} className="text-xs text-amber-800 flex items-start gap-1.5">
-                                        <svg className="w-3 h-3 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <li key={i} className="text-xs text-green-800 flex items-start gap-1.5">
+                                        <svg className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                         {item}
@@ -1186,9 +1186,9 @@ ${biz}`
 
                           {/* Notes */}
                           {q.notes && (
-                            <div className="mt-3 bg-amber-50 border border-amber-100 rounded-xl p-3.5">
-                              <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-1">Notes</p>
-                              <p className="text-sm text-amber-800 leading-relaxed">{q.notes}</p>
+                            <div className="mt-3 bg-green-50 border border-green-100 rounded-xl p-3.5">
+                              <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-1">Notes</p>
+                              <p className="text-sm text-green-800 leading-relaxed">{q.notes}</p>
                             </div>
                           )}
 
@@ -1241,7 +1241,7 @@ ${biz}`
                             <button
                               onClick={() => handleDownloadHistoryPDF(q)}
                               disabled={historyPdfDownloading === q.id}
-                              className="flex items-center gap-1.5 bg-[#D97706] hover:bg-amber-700 disabled:opacity-60 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors shadow-sm shadow-amber-100"
+                              className="flex items-center gap-1.5 bg-[#16a34a] hover:bg-green-700 disabled:opacity-60 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors shadow-sm shadow-green-100"
                             >
                               {historyPdfDownloading === q.id ? (
                                 <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
@@ -1260,7 +1260,7 @@ ${biz}`
                               className={`flex items-center gap-1.5 border font-semibold py-2 px-4 rounded-xl text-xs transition-all ${
                                 reuseFlash === q.id
                                   ? 'bg-green-500 border-green-500 text-white'
-                                  : 'bg-white border-gray-200 text-gray-600 hover:border-amber-300 hover:text-amber-600 hover:bg-amber-50'
+                                  : 'bg-white border-gray-200 text-gray-600 hover:border-green-300 hover:text-green-600 hover:bg-green-50'
                               }`}
                             >
                               {reuseFlash === q.id ? (
@@ -1305,8 +1305,8 @@ ${biz}`
 
               {/* Pre-fill banner — shown briefly after reusing a quote */}
               {reuseFlash && (
-                <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4 text-sm text-amber-700 animate-fade-in-up">
-                  <svg className="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-2.5 bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-4 text-sm text-green-700 animate-fade-in-up">
+                  <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                   <span>Form pre-filled from your previous quote — update any details and generate a new one.</span>
@@ -1339,8 +1339,8 @@ ${biz}`
                               onClick={() => setForm(f => ({ ...f, trade: c.value }))}
                               className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
                                 form.trade === c.value
-                                  ? 'bg-[#D97706] border-[#D97706] text-white shadow-sm'
-                                  : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-amber-300 hover:text-amber-600'
+                                  ? 'bg-[#16a34a] border-[#16a34a] text-white shadow-sm'
+                                  : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-green-300 hover:text-green-600'
                               }`}>
                               {c.label}
                             </button>
@@ -1387,7 +1387,7 @@ ${biz}`
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Job Context</p>
                       <p className="text-xs text-gray-400 mt-0.5">Optional — helps the AI price more accurately</p>
                     </div>
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${showJobContext ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-400'}`}>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${showJobContext ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
                       <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         style={{ transform: showJobContext ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7"/>
@@ -1410,7 +1410,7 @@ ${biz}`
                           onClick={() => setForm(f => ({ ...f, jobType: f.jobType === opt.value ? '' : opt.value }))}
                           className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
                             form.jobType === opt.value
-                              ? opt.value === 'emergency' ? 'bg-orange-500 border-orange-500 text-white' : 'bg-[#D97706] border-[#D97706] text-white'
+                              ? opt.value === 'emergency' ? 'bg-orange-500 border-orange-500 text-white' : 'bg-[#16a34a] border-[#16a34a] text-white'
                               : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
                           }`}>
                           {opt.label}
@@ -1427,7 +1427,7 @@ ${biz}`
                           onClick={() => setForm(f => ({ ...f, propertyType: f.propertyType === opt.toLowerCase() ? '' : opt.toLowerCase() }))}
                           className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
                             form.propertyType === opt.toLowerCase()
-                              ? 'bg-[#D97706] border-[#D97706] text-white'
+                              ? 'bg-[#16a34a] border-[#16a34a] text-white'
                               : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
                           }`}>
                           {opt}
@@ -1448,7 +1448,7 @@ ${biz}`
                           onClick={() => setForm(f => ({ ...f, accessDifficulty: f.accessDifficulty === opt.value ? '' : opt.value }))}
                           className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
                             form.accessDifficulty === opt.value
-                              ? opt.value === 'difficult' ? 'bg-red-500 border-red-500 text-white' : opt.value === 'moderate' ? 'bg-amber-500 border-amber-500 text-white' : 'bg-green-500 border-green-500 text-white'
+                              ? opt.value === 'difficult' ? 'bg-red-500 border-red-500 text-white' : opt.value === 'moderate' ? 'bg-green-500 border-green-500 text-white' : 'bg-green-500 border-green-500 text-white'
                               : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
                           }`}>
                           {opt.label}
@@ -1472,7 +1472,7 @@ ${biz}`
                         {EXAMPLE_PROMPTS.map((p, i) => (
                           <button key={i} type="button"
                             onClick={() => { setForm(f => ({ ...f, jobDescription: p })); setDescCount(p.length) }}
-                            className="text-[11px] text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition-colors">
+                            className="text-[11px] text-green-500 hover:text-green-700 bg-green-50 hover:bg-green-100 px-2 py-0.5 rounded-md transition-colors">
                             {p.split(' ').slice(0, 4).join(' ')}…
                           </button>
                         ))}
@@ -1503,13 +1503,13 @@ ${biz}`
                           onClick={() => setForm(f => ({ ...f, materialTierOverride: f.materialTierOverride === tier.value ? '' : tier.value }))}
                           className={`relative p-3 rounded-xl border-2 text-center transition-all duration-150 ${
                             active
-                              ? 'border-[#D97706] bg-amber-50 shadow-sm'
+                              ? 'border-[#16a34a] bg-green-50 shadow-sm'
                               : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
                           }`}>
                           <div className="text-lg mb-0.5">{tier.icon}</div>
-                          <div className={`text-xs font-semibold ${active ? 'text-[#D97706]' : 'text-gray-700'}`}>{tier.label}</div>
+                          <div className={`text-xs font-semibold ${active ? 'text-[#16a34a]' : 'text-gray-700'}`}>{tier.label}</div>
                           <div className="text-[10px] text-gray-400 mt-0.5">{tier.sub}</div>
-                          {active && <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#D97706]" />}
+                          {active && <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#16a34a]" />}
                         </button>
                       )
                     })}
@@ -1535,7 +1535,7 @@ ${biz}`
                 )}
 
                 <button type="submit" disabled={loading}
-                  className="w-full relative overflow-hidden bg-[#D97706] hover:bg-amber-700 disabled:opacity-70 text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 text-sm shadow-md shadow-amber-200 flex items-center justify-center gap-2">
+                  className="w-full relative overflow-hidden bg-[#16a34a] hover:bg-green-700 disabled:opacity-70 text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 text-sm shadow-md shadow-green-200 flex items-center justify-center gap-2">
                   {loading ? (
                     <>
                       <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
@@ -1570,7 +1570,7 @@ ${biz}`
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${quotesUsed >= FREE_QUOTA - 1 ? 'bg-orange-400' : 'bg-[#D97706]'}`}
+                        className={`h-full rounded-full transition-all ${quotesUsed >= FREE_QUOTA - 1 ? 'bg-orange-400' : 'bg-[#16a34a]'}`}
                         style={{ width: `${(quotesUsed / FREE_QUOTA) * 100}%` }}
                       />
                     </div>
@@ -1600,8 +1600,8 @@ ${biz}`
               {loading ? (
                 <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm animate-fade-in-up">
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
-                      <svg className="animate-spin w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24">
+                    <div className="w-9 h-9 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                      <svg className="animate-spin w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                       </svg>
@@ -1615,14 +1615,14 @@ ${biz}`
                     {['Reading job description…', 'Calculating your rates…', 'Building line items…', 'Finalizing totals…'].map((step, i) => (
                       <div key={i} className={`flex items-center gap-3 transition-all duration-500 ${i <= loadingStep && loadingStep <= 4 ? 'opacity-100' : 'opacity-25'}`}>
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          i < loadingStep && loadingStep <= 4 ? 'bg-green-100' : i === loadingStep ? 'bg-amber-100' : 'bg-gray-100'
+                          i < loadingStep && loadingStep <= 4 ? 'bg-green-100' : i === loadingStep ? 'bg-green-100' : 'bg-gray-100'
                         }`}>
                           {i < loadingStep && loadingStep <= 4 ? (
                             <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/>
                             </svg>
                           ) : i === loadingStep ? (
-                            <svg className="animate-spin w-3 h-3 text-amber-600" fill="none" viewBox="0 0 24 24">
+                            <svg className="animate-spin w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                             </svg>
@@ -1657,7 +1657,7 @@ ${biz}`
                     </div>
                     <div className="text-right">
                       <p className="text-stone-400 text-[10px] uppercase tracking-wide">Quote</p>
-                      <p className="text-amber-400 text-xs font-bold mt-0.5">SB-0142</p>
+                      <p className="text-green-400 text-xs font-bold mt-0.5">SB-0142</p>
                     </div>
                   </div>
                   <div className="px-5 py-4 space-y-2.5">
@@ -1675,7 +1675,7 @@ ${biz}`
                     ))}
                     <div className="pt-2.5 border-t border-gray-100 flex justify-between items-center">
                       <span className="text-xs text-gray-400">Total</span>
-                      <span className="text-sm font-bold text-[#D97706]">$2,843</span>
+                      <span className="text-sm font-bold text-[#16a34a]">$2,843</span>
                     </div>
                   </div>
                   <div className="px-5 pb-3.5">
@@ -1694,7 +1694,7 @@ ${biz}`
                     { n: '03', t: 'Download PDF', d: 'Professional. Ready to send.' },
                   ].map(s => (
                     <div key={s.n} className="flex items-start gap-3">
-                      <span className="text-[11px] font-bold text-[#D97706] w-6 pt-0.5">{s.n}</span>
+                      <span className="text-[11px] font-bold text-[#16a34a] w-6 pt-0.5">{s.n}</span>
                       <div>
                         <p className="text-sm font-medium text-gray-800">{s.t}</p>
                         <p className="text-xs text-gray-400">{s.d}</p>
@@ -1726,7 +1726,7 @@ ${biz}`
                     ))}
                   </div>
                   <SignInButton mode="modal" forceRedirectUrl="/">
-                    <button className="w-full bg-[#D97706] hover:bg-amber-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors shadow-sm shadow-amber-200">
+                    <button className="w-full bg-[#16a34a] hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors shadow-sm shadow-green-200">
                       Create free account →
                     </button>
                   </SignInButton>
@@ -1772,17 +1772,17 @@ ${biz}`
                     onClick={() => setSelectedTier(tier)}
                     className={`flex-1 relative py-2.5 rounded-xl border text-sm font-medium transition-all ${
                       selectedTier === tier
-                        ? 'bg-[#D97706] border-[#D97706] text-white shadow-md shadow-amber-200'
+                        ? 'bg-[#16a34a] border-[#16a34a] text-white shadow-md shadow-green-200'
                         : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'
                     }`}>
                     {tier.charAt(0).toUpperCase() + tier.slice(1)}
                     {tier === 'standard' && (
                       <span className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                        selectedTier === 'standard' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-600'
+                        selectedTier === 'standard' ? 'bg-white/20 text-white' : 'bg-green-100 text-green-600'
                       }`}>Recommended</span>
                     )}
                     {quote.tiers?.[tier] && (
-                      <p className={`text-xs mt-0.5 ${selectedTier === tier ? 'text-amber-100' : 'text-gray-400'}`}>
+                      <p className={`text-xs mt-0.5 ${selectedTier === tier ? 'text-green-100' : 'text-gray-400'}`}>
                         ${quote.tiers[tier].total?.toLocaleString()}
                       </p>
                     )}
@@ -1811,7 +1811,7 @@ ${biz}`
                 </div>
                 <div className="text-right">
                   <p className="text-stone-400 text-xs font-medium uppercase tracking-wide">Quote</p>
-                  <p className="text-amber-400 font-bold text-lg mt-0.5">{quote.quoteNumber}</p>
+                  <p className="text-green-400 font-bold text-lg mt-0.5">{quote.quoteNumber}</p>
                   <p className="text-stone-400 text-xs mt-1">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                   <div className="mt-1.5 flex items-center gap-1 justify-end">
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="flex-shrink-0">
@@ -1905,7 +1905,7 @@ ${biz}`
                                           onBlur={() => handleLineItemEditCommit(i)}
                                           onKeyDown={e => handleLineItemEditKeyDown(e, i)}
                                           autoFocus
-                                          className="w-20 text-right border border-blue-400 rounded-lg px-2 py-1 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-50"
+                                          className="w-20 text-right border border-blue-400 rounded-lg px-2 py-1 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-green-50"
                                         />
                                       </div>
                                     ) : (
@@ -1924,7 +1924,7 @@ ${biz}`
                                           type="button"
                                           title="Click to edit"
                                           onClick={() => handleLineItemEditStart(i, displayTotal)}
-                                          className={`font-semibold tabular-nums transition-colors hover:text-amber-600 cursor-pointer rounded px-1 py-0.5 hover:bg-amber-50 ${isOverridden ? 'text-amber-600' : 'text-gray-900'}`}
+                                          className={`font-semibold tabular-nums transition-colors hover:text-green-600 cursor-pointer rounded px-1 py-0.5 hover:bg-green-50 ${isOverridden ? 'text-green-600' : 'text-gray-900'}`}
                                         >
                                           ${displayTotal}
                                         </button>
@@ -1963,14 +1963,14 @@ ${biz}`
                                       onBlur={() => handleLineItemEditCommit(i)}
                                       onKeyDown={e => handleLineItemEditKeyDown(e, i)}
                                       autoFocus
-                                      className="w-16 text-right border border-blue-400 rounded px-1.5 py-0.5 text-xs font-semibold text-gray-900 focus:outline-none bg-amber-50"
+                                      className="w-16 text-right border border-blue-400 rounded px-1.5 py-0.5 text-xs font-semibold text-gray-900 focus:outline-none bg-green-50"
                                     />
                                   </div>
                                 ) : (
                                   <button
                                     type="button"
                                     onClick={() => handleLineItemEditStart(i, displayTotal)}
-                                    className={`font-semibold transition-colors active:text-amber-600 ${isOverridden ? 'text-amber-600' : 'text-gray-900'}`}
+                                    className={`font-semibold transition-colors active:text-green-600 ${isOverridden ? 'text-green-600' : 'text-gray-900'}`}
                                   >
                                     ${displayTotal} ✎
                                   </button>
@@ -1993,7 +1993,7 @@ ${biz}`
                           )}
                           <div className="flex justify-between font-bold text-base pt-2.5 border-t-2 border-gray-100">
                             <span>Total</span>
-                            <span className="text-[#D97706] tabular-nums">${activeTotals?.total}</span>
+                            <span className="text-[#16a34a] tabular-nums">${activeTotals?.total}</span>
                           </div>
                         </div>
                       </div>
@@ -2020,12 +2020,12 @@ ${biz}`
                       </div>
                     )}
                     {quote.exclusions && quote.exclusions.length > 0 && (
-                      <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2">⚠ Not Included</p>
+                      <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+                        <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest mb-2">⚠ Not Included</p>
                         <ul className="space-y-1.5">
                           {quote.exclusions.map((item: string, i: number) => (
-                            <li key={i} className="flex items-start gap-2 text-sm text-amber-800">
-                              <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <li key={i} className="flex items-start gap-2 text-sm text-green-800">
+                              <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
                               </svg>
                               {item}
@@ -2039,9 +2039,9 @@ ${biz}`
 
                 {/* Notes */}
                 {quote.notes && (
-                  <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                    <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-1.5">Notes</p>
-                    <p className="text-sm text-amber-800 leading-relaxed">{quote.notes}</p>
+                  <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+                    <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-1.5">Notes</p>
+                    <p className="text-sm text-green-800 leading-relaxed">{quote.notes}</p>
                   </div>
                 )}
 
@@ -2055,7 +2055,7 @@ ${biz}`
             {/* Action buttons */}
             <div className="flex gap-3 flex-wrap">
               <button onClick={handleDownloadPDF}
-                className="flex-1 min-w-[130px] flex items-center justify-center gap-2 bg-[#D97706] hover:bg-amber-700 text-white font-semibold py-3 px-5 rounded-xl transition-colors text-sm shadow-md shadow-amber-200">
+                className="flex-1 min-w-[130px] flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-green-700 text-white font-semibold py-3 px-5 rounded-xl transition-colors text-sm shadow-md shadow-green-200">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                 </svg>
@@ -2106,20 +2106,20 @@ ${biz}`
 
             {/* Near-quota upgrade nudge (last free quote used) */}
             {user && !isSubscribed && quotesUsed >= FREE_QUOTA - 1 && (
-              <div className="mt-4 flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              <div className="mt-4 flex items-center justify-between gap-4 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-amber-600 text-base">🔥</span>
+                  <span className="text-green-600 text-base">🔥</span>
                   <div>
-                    <p className="text-sm font-semibold text-amber-800">
+                    <p className="text-sm font-semibold text-green-800">
                       {quotesUsed >= FREE_QUOTA ? 'You\'ve used all your free quotes' : 'This was your last free quote'}
                     </p>
-                    <p className="text-xs text-amber-600">Upgrade for $9/mo and keep quoting — no limits, ever.</p>
+                    <p className="text-xs text-green-600">Upgrade for $9/mo and keep quoting — no limits, ever.</p>
                   </div>
                 </div>
                 <button
                   onClick={handleUpgrade}
                   disabled={upgrading}
-                  className="flex-shrink-0 bg-amber-500 hover:bg-amber-600 disabled:opacity-70 text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors shadow-sm flex items-center gap-1.5"
+                  className="flex-shrink-0 bg-green-500 hover:bg-green-600 disabled:opacity-70 text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors shadow-sm flex items-center gap-1.5"
                 >
                   {upgrading ? (
                     <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
@@ -2153,20 +2153,20 @@ ${biz}`
             </button>
 
             {/* Icon */}
-            <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-5 mx-auto">
+            <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-5 mx-auto">
               <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                <path d="M14 2L4 14h8l-2 10 14-16H14V2z" fill="#D97706"/>
+                <path d="M14 2L4 14h8l-2 10 14-16H14V2z" fill="#16a34a"/>
               </svg>
             </div>
 
             <h2 className="text-xl font-bold text-gray-900 text-center mb-2">You've used your 3 free quotes</h2>
             <p className="text-gray-500 text-sm text-center leading-relaxed mb-4">
-              Join as a <span className="font-semibold text-amber-600">founding member</span> and lock in $9/mo forever — before we go public at $19.
+              Join as a <span className="font-semibold text-green-600">founding member</span> and lock in $9/mo forever — before we go public at $19.
             </p>
 
             {/* Founder badge */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4 text-center">
-              <span className="text-xs font-semibold text-amber-700">🔥 Founder Pricing — First 50 users lock in $9/mo forever</span>
+            <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-4 text-center">
+              <span className="text-xs font-semibold text-green-700">🔥 Founder Pricing — First 50 users lock in $9/mo forever</span>
             </div>
 
             {/* What's included */}
@@ -2199,7 +2199,7 @@ ${biz}`
               <button
                 onClick={handleUpgrade}
                 disabled={upgrading}
-                className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-70 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm shadow-sm flex items-center justify-center gap-2">
+                className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-70 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm shadow-sm flex items-center justify-center gap-2">
                 {upgrading ? (
                   <>
                     <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">

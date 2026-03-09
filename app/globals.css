@@ -3,9 +3,9 @@
 :root {
   --background: #f4f3f0;
   --foreground: #1c1917;
-  --brand: #D97706;
-  --brand-dark: #B45309;
-  --brand-light: #FEF3C7;
+  --brand: #16a34a;
+  --brand-dark: #14532d;
+  --brand-light: #dcfce7;
 }
 
 body {
@@ -51,8 +51,8 @@ body {
 /* Focus ring override — consistent across all inputs */
 input:focus, select:focus, textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
-  border-color: #D97706 !important;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+  border-color: #16a34a !important;
 }
 
 /* Smooth scrolling */
