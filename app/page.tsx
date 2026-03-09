@@ -804,6 +804,21 @@ ${biz}`
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
                     {profile?.businessName || 'My Profile'}
                   </button>
+                  {isSubscribed && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/stripe/portal', { method: 'POST' })
+                          const data = await res.json()
+                          if (data.url) window.location.href = data.url
+                        } catch {}
+                      }}
+                      className="hidden sm:flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Manage subscription"
+                    >
+                      ⚡ Pro · Manage
+                    </button>
+                  )}
                   <UserButton />
                 </div>
               ) : (

@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 
 const FOUNDER_SPOTS_TOTAL = 50
-const FOUNDER_SPOTS_TAKEN = 0 // update this as real signups come in
-const FOUNDER_SPOTS_LEFT = FOUNDER_SPOTS_TOTAL - FOUNDER_SPOTS_TAKEN
 
 const FEATURES = [
   { icon: '⚡', label: 'Unlimited quotes — no monthly cap' },
@@ -22,12 +20,14 @@ export default function UpgradePage() {
   const { user, isLoaded } = useUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [spotsLeft, setSpotsLeft] = useState(FOUNDER_SPOTS_LEFT)
+  const [spotsLeft, setSpotsLeft] = useState(FOUNDER_SPOTS_TOTAL)
 
-  // Simulate real-time slight fluctuation for urgency (subtle, not fake)
+  // Fetch real subscriber count from Stripe
   useEffect(() => {
-    // No fake countdown — just show real static number
-    setSpotsLeft(FOUNDER_SPOTS_LEFT)
+    fetch('/api/founder-count')
+      .then(r => r.json())
+      .then(d => setSpotsLeft(Math.max(0, FOUNDER_SPOTS_TOTAL - (d.count || 0))))
+      .catch(() => setSpotsLeft(FOUNDER_SPOTS_TOTAL))
   }, [])
 
   const handleUpgrade = async () => {
