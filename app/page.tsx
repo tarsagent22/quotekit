@@ -777,10 +777,12 @@ ${biz}`
   const lbl = "block text-sm font-medium text-gray-700 mb-1.5"
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+    <div className="min-h-screen relative" style={{ background: 'var(--background)' }}>
+      {/* Full-page dot grid */}
+      <div className="fixed inset-0 dot-grid opacity-40 pointer-events-none z-0" />
 
       {/* ── HEADER ──────────────────────────────────────────────────────────── */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm">
+      <header className="bg-white/95 border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
@@ -885,10 +887,8 @@ ${biz}`
 
       {/* ── HERO (guest only) ───────────────────────────────────────────────── */}
       {isLoaded && !user && !quote && (
-        <div className="relative overflow-hidden bg-white border-b border-gray-100">
-          {/* Dot grid background */}
-          <div className="absolute inset-0 dot-grid opacity-60" />
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20 text-center">
+        <div className="relative overflow-hidden border-b border-gray-100/60">
+          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20 text-center">
             <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-amber-100">
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M5.5 0.5L1.5 5.5h3l-.5 4 4.5-6H5.5V0.5z" fill="#D97706"/>
@@ -899,7 +899,7 @@ ${biz}`
               Professional quotes<br />
               <span className="text-[#D97706]">in 60 seconds</span>
             </h1>
-            <p className="text-gray-500 text-lg sm:text-xl max-w-xl mx-auto mb-8 leading-relaxed">
+            <p className="text-gray-700 text-lg sm:text-xl max-w-xl mx-auto mb-8 leading-relaxed">
               Describe the job in plain English. SnapBid generates accurate, itemized quotes calibrated to your rates.
             </p>
             <SignInButton mode="modal" forceRedirectUrl="/profile">
