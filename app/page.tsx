@@ -389,7 +389,7 @@ ${biz}`
     const contentW = pageW - margin * 2
     let y = margin
 
-    doc.setFillColor(37, 99, 235)
+    doc.setFillColor(28, 25, 23)
     doc.rect(0, 0, pageW, 72, 'F')
     doc.setTextColor(255, 255, 255)
 
@@ -488,7 +488,7 @@ ${biz}`
     const totalY1 = hasTax1 ? y + 52 : y + 36
     doc.setDrawColor(229, 231, 235)
     doc.line(totalsX, lineY1, pageW - margin, lineY1)
-    doc.setTextColor(37, 99, 235)
+    doc.setTextColor(217, 119, 6)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(13)
     doc.text('TOTAL', totalsX, totalY1)
@@ -539,7 +539,7 @@ ${biz}`
       const scopeParts = rawParts.length > 1
         ? rawParts
         : quote.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
-      renderSectionBox('SCOPE OF WORK', scopeParts, '-', [239,246,255], [29,78,216], [30,58,138])
+      renderSectionBox('SCOPE OF WORK', scopeParts, '-', [255,251,235], [180,83,9], [120,53,15])
     }
 
     // Inclusions & Exclusions — stacked vertically, full width
@@ -549,11 +549,11 @@ ${biz}`
     renderSectionBox('NOT INCLUDED', pdfExclusions, '-', [255,251,235], [146,64,14], [120,53,15])
 
     if (quote.notes) {
-      doc.setFillColor(239, 246, 255)
+      doc.setFillColor(255, 251, 235)
       const noteLines = doc.splitTextToSize(quote.notes, contentW - 24)
       const noteH = noteLines.length * 14 + 28
       doc.roundedRect(margin, y, contentW, noteH, 4, 4, 'F')
-      doc.setTextColor(29, 78, 216)
+      doc.setTextColor(180, 83, 9)
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(9)
       doc.text('NOTES', margin + 12, y + 16)
@@ -590,7 +590,7 @@ ${biz}`
       const contentW = pageW - margin * 2
       let y = margin
 
-      doc.setFillColor(37, 99, 235)
+      doc.setFillColor(28, 25, 23)
       doc.rect(0, 0, pageW, 72, 'F')
       doc.setTextColor(255, 255, 255)
 
@@ -684,7 +684,7 @@ ${biz}`
       const totalY2 = hasTax2 ? y + 52 : y + 36
       doc.setDrawColor(229, 231, 235)
       doc.line(totalsX, lineY2, pageW - margin, lineY2)
-      doc.setTextColor(37, 99, 235)
+      doc.setTextColor(217, 119, 6)
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(13)
       doc.text('TOTAL', totalsX, totalY2)
@@ -731,7 +731,7 @@ ${biz}`
         const scopeParts = rawParts.length > 1
           ? rawParts
           : q.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
-        renderHistSection('SCOPE OF WORK', scopeParts, [239,246,255], [29,78,216], [30,58,138])
+        renderHistSection('SCOPE OF WORK', scopeParts, [255,251,235], [180,83,9], [120,53,15])
       }
 
       // Inclusions & Exclusions — stacked vertically, full width
@@ -741,11 +741,11 @@ ${biz}`
       renderHistSection('NOT INCLUDED', histExclusions, [255,251,235], [146,64,14], [120,53,15])
 
       if (q.notes) {
-        doc.setFillColor(239, 246, 255)
+        doc.setFillColor(255, 251, 235)
         const noteLines = doc.splitTextToSize(q.notes, contentW - 24)
         const noteH = noteLines.length * 14 + 28
         doc.roundedRect(margin, y, contentW, noteH, 4, 4, 'F')
-        doc.setTextColor(29, 78, 216)
+        doc.setTextColor(180, 83, 9)
         doc.setFont('helvetica', 'bold')
         doc.setFontSize(9)
         doc.text('NOTES', margin + 12, y + 16)

@@ -103,11 +103,6 @@ const jsonLd = {
     priceCurrency: 'USD',
     description: 'Free tier — 3 quotes included',
   },
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '4.9',
-    ratingCount: '12',
-  },
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
