@@ -348,12 +348,7 @@ export default function ProfilePage() {
     <main className="min-h-screen" style={{ background: 'var(--background)' }}>
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-3.5 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#D97706] flex items-center justify-center shadow-sm shadow-amber-200 flex-shrink-0">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M9 1L3 9h5l-1 6 7-10H9V1z" fill="white" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <span className="font-semibold text-gray-900 text-[17px] tracking-tight">SnapBid</span>
+          <img src="/logo.svg" alt="SnapBid" className="h-9 w-auto" />
           <span className="text-gray-300">·</span>
           <span className="text-gray-400 text-sm">Your Profile</span>
         </div>

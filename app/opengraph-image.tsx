@@ -22,15 +22,15 @@ export default async function Image() {
           overflow: 'hidden',
         }}
       >
-        {/* Background accent */}
+        {/* Background accent — warm amber glow */}
         <div
           style={{
             position: 'absolute',
             top: 0,
             right: 0,
-            width: '480px',
-            height: '480px',
-            background: 'radial-gradient(circle, #eff6ff 0%, #ffffff 70%)',
+            width: '500px',
+            height: '500px',
+            background: 'radial-gradient(circle, #FEF3C7 0%, #ffffff 70%)',
             borderRadius: '50%',
             transform: 'translate(30%, -30%)',
           }}
@@ -42,34 +42,69 @@ export default async function Image() {
             position: 'absolute',
             bottom: 0,
             left: 0,
-            width: '300px',
-            height: '300px',
-            opacity: 0.15,
-            background: 'radial-gradient(circle, #2563eb 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
+            width: '320px',
+            height: '320px',
+            opacity: 0.12,
+            background: 'radial-gradient(circle, #D97706 1.5px, transparent 1.5px)',
+            backgroundSize: '22px 22px',
           }}
         />
 
         {/* Logo + wordmark */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
-          <div
-            style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '14px',
-              background: '#2563EB',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <svg width="26" height="26" viewBox="0 0 16 16" fill="none">
-              <path d="M9 1L3 9h5l-1 6 7-10H9V1z" fill="white" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0px', marginBottom: '44px' }}>
+          {/* Clipboard icon */}
+          <div style={{ position: 'relative', width: '64px', height: '76px', display: 'flex' }}>
+            {/* clip tab */}
+            <div style={{
+              position: 'absolute', top: '4px', left: '22px',
+              width: '20px', height: '10px',
+              background: '#D97706', borderRadius: '4px',
+            }} />
+            {/* clipboard body dark */}
+            <div style={{
+              position: 'absolute', top: '12px', left: '4px',
+              width: '56px', height: '64px',
+              background: '#1C1917', borderRadius: '8px',
+            }} />
+            {/* clipboard face amber */}
+            <div style={{
+              position: 'absolute', top: '20px', left: '10px',
+              width: '44px', height: '52px',
+              background: '#D97706', borderRadius: '4px',
+            }} />
+            {/* line 1 */}
+            <div style={{
+              position: 'absolute', top: '28px', left: '14px',
+              width: '28px', height: '3px',
+              background: '#1C1917', borderRadius: '2px', opacity: 0.35,
+            }} />
+            {/* line 2 */}
+            <div style={{
+              position: 'absolute', top: '35px', left: '14px',
+              width: '20px', height: '3px',
+              background: '#1C1917', borderRadius: '2px', opacity: 0.35,
+            }} />
+            {/* checkmark — approximated as two divs rotated */}
+            <svg
+              width="64" height="76"
+              viewBox="0 0 64 76"
+              style={{ position: 'absolute', top: 0, left: 0 }}
+            >
+              <path
+                d="M13 57 L22 68 L51 42"
+                stroke="white"
+                strokeWidth="5.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
             </svg>
           </div>
-          <span style={{ fontSize: '32px', fontWeight: 700, color: '#111827', letterSpacing: '-0.5px' }}>
-            SnapBid
-          </span>
+          {/* Wordmark */}
+          <div style={{ display: 'flex', alignItems: 'baseline', marginLeft: '12px' }}>
+            <span style={{ fontSize: '48px', fontWeight: 800, color: '#D97706', letterSpacing: '-2px', lineHeight: 1 }}>Snap</span>
+            <span style={{ fontSize: '48px', fontWeight: 800, color: '#1C1917', letterSpacing: '-2px', lineHeight: 1 }}>Bid</span>
+          </div>
         </div>
 
         {/* Headline */}
@@ -77,7 +112,7 @@ export default async function Image() {
           style={{
             fontSize: '64px',
             fontWeight: 800,
-            color: '#111827',
+            color: '#1C1917',
             lineHeight: 1.1,
             letterSpacing: '-1.5px',
             maxWidth: '700px',
@@ -86,14 +121,14 @@ export default async function Image() {
         >
           Professional quotes
           <br />
-          <span style={{ color: '#2563EB' }}>in 60 seconds.</span>
+          <span style={{ color: '#D97706' }}>in 60 seconds.</span>
         </div>
 
         {/* Subline */}
         <div
           style={{
             fontSize: '26px',
-            color: '#6b7280',
+            color: '#78716C',
             maxWidth: '620px',
             lineHeight: 1.5,
             marginBottom: '48px',
@@ -108,13 +143,13 @@ export default async function Image() {
             <div
               key={label}
               style={{
-                background: '#EFF6FF',
-                border: '1.5px solid #BFDBFE',
+                background: '#FFFBEB',
+                border: '1.5px solid #FCD34D',
                 borderRadius: '100px',
                 padding: '10px 22px',
                 fontSize: '18px',
                 fontWeight: 600,
-                color: '#1D4ED8',
+                color: '#92400E',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
@@ -132,7 +167,7 @@ export default async function Image() {
             bottom: '48px',
             right: '80px',
             fontSize: '20px',
-            color: '#9ca3af',
+            color: '#A8A29E',
             fontWeight: 500,
           }}
         >

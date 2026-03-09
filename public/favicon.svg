@@ -1,3 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <polygon points="18,2 8,18 15,18 14,30 24,14 17,14" fill="#2563EB"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="SnapBid icon">
+  <!-- Clipboard clip/tab -->
+  <rect x="11" y="1" width="10" height="5" rx="2.5" fill="#D97706"/>
+  <!-- Clipboard body (dark) -->
+  <rect x="3" y="5" width="26" height="26" rx="4" fill="#1C1917"/>
+  <!-- Clipboard face (amber) -->
+  <rect x="6" y="10" width="20" height="18" rx="2" fill="#D97706"/>
+  <!-- Checkmark (white) -->
+  <path d="M7 20 L12 26 L25 13" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>

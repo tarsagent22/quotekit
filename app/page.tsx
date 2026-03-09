@@ -783,13 +783,8 @@ ${biz}`
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#D97706] flex items-center justify-center shadow-sm shadow-amber-200">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M9 1L3 9h5l-1 6 7-10H9V1z" fill="white" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="font-semibold text-gray-900 text-[17px] tracking-tight">SnapBid</span>
+          <div className="flex items-center">
+            <img src="/logo.svg" alt="SnapBid" className="h-9 w-auto" />
           </div>
 
           {/* Nav / auth */}

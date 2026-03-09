@@ -73,12 +73,7 @@ export default function UpgradePage() {
             onClick={() => router.push('/')}
             className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#D97706] flex items-center justify-center shadow-sm shadow-amber-200">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M9 1L3 9h5l-1 6 7-10H9V1z" fill="white" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="font-semibold text-gray-900 text-[17px] tracking-tight">SnapBid</span>
+            <img src="/logo.svg" alt="SnapBid" className="h-9 w-auto" />
           </button>
         </div>
       </header>

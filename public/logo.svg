@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" fill="none" role="img" aria-label="SnapBid">
+  <!-- Clipboard Icon (centered vertically in 80px height) -->
+  <!-- Clip/tab at top center -->
+  <rect x="28" y="4" width="16" height="8" rx="3.5" fill="#D97706"/>
+  <!-- Clipboard body (dark rounded rect) -->
+  <rect x="8" y="10" width="52" height="62" rx="6" fill="#1C1917"/>
+  <!-- Clipboard face (amber fill, inset from border) -->
+  <rect x="14" y="18" width="40" height="50" rx="3" fill="#D97706"/>
+  <!-- Horizontal lines on clipboard (document lines, subtle) -->
+  <rect x="18" y="24" width="26" height="3" rx="1.5" fill="#1C1917" opacity="0.35"/>
+  <rect x="18" y="30" width="18" height="3" rx="1.5" fill="#1C1917" opacity="0.35"/>
+  <!-- Checkmark in white on the amber clipboard face -->
+  <!-- Starts lower-left, dips to bottom vertex, sweeps up-right -->
+  <path d="M16 51 L24 61 L52 36" stroke="white" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Wordmark -->
+  <!-- "Snap" in amber -->
+  <text x="72" y="57"
+    font-family="'Inter', 'Helvetica Neue', Arial, sans-serif"
+    font-size="36"
+    font-weight="800"
+    letter-spacing="-1.5"
+    fill="#D97706">Snap</text>
+  <!-- "Bid" in dark charcoal -->
+  <text x="165" y="57"
+    font-family="'Inter', 'Helvetica Neue', Arial, sans-serif"
+    font-size="36"
+    font-weight="800"
+    letter-spacing="-1.5"
+    fill="#1C1917">Bid</text>
+</svg>
