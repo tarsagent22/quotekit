@@ -778,11 +778,11 @@ ${biz}`
 
   return (
     <div className="min-h-screen relative" style={{ background: 'var(--background)' }}>
-      {/* Full-page dot grid */}
-      <div className="fixed inset-0 dot-grid opacity-40 pointer-events-none z-0" />
+      {/* Full-page dot grid — absolute so it stays behind content */}
+      <div className="absolute inset-0 dot-grid opacity-50 pointer-events-none z-0" />
 
       {/* ── HEADER ──────────────────────────────────────────────────────────── */}
-      <header className="bg-white/95 border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
@@ -832,7 +832,7 @@ ${biz}`
 
       {/* ── UPGRADE SUCCESS BANNER ──────────────────────────────────────────── */}
       {showUpgradedBanner && (
-        <div className="bg-green-500 text-white">
+        <div className="relative z-10 bg-green-500 text-white">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -851,7 +851,7 @@ ${biz}`
 
       {/* ── PROFILE CALIBRATION BAR (signed-in) ────────────────────────────── */}
       {profile && (
-        <div className="bg-[#16a34a]/5 border-b border-[#16a34a]/10">
+        <div className="relative z-10 bg-[#f4f3f0] border-b border-[#16a34a]/10">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-green-700 font-medium">⚡ Calibrated to {profile.businessName}</span>
@@ -887,8 +887,8 @@ ${biz}`
 
       {/* ── HERO (guest only) ───────────────────────────────────────────────── */}
       {isLoaded && !user && !quote && (
-        <div className="relative overflow-hidden border-b border-gray-100/60">
-          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20 text-center">
+        <div className="relative z-10 overflow-hidden border-b border-gray-100/60">
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-14 sm:py-20 text-center">
             <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-green-100">
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M5.5 0.5L1.5 5.5h3l-.5 4 4.5-6H5.5V0.5z" fill="#16a34a"/>
@@ -930,7 +930,7 @@ ${biz}`
 
       {/* ── TAB BAR (signed-in only) ─────────────────────────────────────────── */}
       {user && !quote && (
-        <div className="border-b border-gray-100 bg-white">
+        <div className="relative z-10 border-b border-gray-100 bg-white">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 flex gap-6">
             {(['new', 'history'] as const).map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
@@ -947,7 +947,7 @@ ${biz}`
       )}
 
       {/* ── MAIN CONTENT ────────────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-10">
         {/* ── HISTORY TAB ── */}
         {activeTab === 'history' && user && !quote ? (
           <div className="max-w-3xl mx-auto">
