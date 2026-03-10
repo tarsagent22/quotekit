@@ -25,7 +25,7 @@ The `\n` is visible in the raw page source. While Clerk's client-side JS may str
 ## [2026-03-09] Issue #2 — /sign-up returns 404; /dashboard returns 404 (HIGH)
 
 **Detected:** 2026-03-09 19:09 ET (automated QC check)
-**Status:** Open
+**Status:** ✅ Resolved 2026-03-09 23:05 ET — Created `/app/sign-up/[[...sign-up]]/page.tsx` with `<SignUp />` component (mirrors sign-in pattern, redirects to `/profile` post-auth). Added `/sign-up(.*)` to public routes in middleware. `/dashboard` 404 is acceptable — app uses `/profile` as the post-login destination, no dashboard route needed.
 
 **Description:**
 - `https://snapbid.app/sign-up` → **404**
@@ -50,7 +50,7 @@ curl -o /dev/null -w "%{http_code}" https://snapbid.app/dashboard  # → 404
 ## [2026-03-09] Issue #3 — Upgrade page progress bar shows 2/50 spots taken but counter reads "50 of 50 available" (LOW/UX)
 
 **Detected:** 2026-03-09 19:09 ET (automated QC check)
-**Status:** Open
+**Status:** ✅ Resolved 2026-03-09 23:05 ET — Fixed label to read "X of 50 spots claimed / Y left" so bar fill and text both consistently describe spots *taken*, eliminating the contradiction.
 
 **Description:**
 On `/upgrade`, the progress bar width is set to `4%` (approximately 2 of 50 users), but the text reads:

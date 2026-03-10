@@ -99,8 +99,8 @@ export default function UpgradePage() {
         {/* Spots progress bar */}
         <div className="mb-8">
           <div className="flex justify-between text-xs text-gray-500 mb-1.5">
-            <span>Just launched</span>
-            <span className="font-semibold text-green-600">{displaySpotsLeft} of {FOUNDER_SPOTS_TOTAL} spots available</span>
+            <span>{FOUNDER_SPOTS_TOTAL - displaySpotsLeft} of {FOUNDER_SPOTS_TOTAL} spots claimed</span>
+            <span className="font-semibold text-green-600">{displaySpotsLeft} left</span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2">
             <div
