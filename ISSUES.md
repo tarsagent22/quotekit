@@ -1,68 +1,70 @@
-# SnapBid Issues Log
+# SnapBid — Known Issues
+
+## Open Issues
 
 ---
 
-## [2026-03-09] Issue #1 — Clerk publishable key has trailing newline in HTML (MEDIUM)
+### ✅ [BUG] #1 — AI overrides quoteNumber format
+**Detected:** 2026-03-10  
+**Status:** Resolved — 2026-03-10 05:05 AM ET  
+**Severity:** Medium  
+**File:** `app/api/generate-quote/route.ts`
 
-**Detected:** 2026-03-09 19:09 ET (automated QC check)
-**Status:** Open
+**Problem:** The server generates a canonical `SB-XXXX` quote number (`quoteNum`) and embeds it in the AI prompt, but after parsing the AI response, `quoteData.quoteNumber` is used directly without being overridden. The AI occasionally ignores the instructed format and returns its own (e.g., `TC-2025-001` based on business name initials).
 
-**Description:**
-The Clerk publishable key embedded in the SSR HTML contains a literal newline character:
+**Evidence:** Calling the API with `businessName: "Test Co"` returned `"quoteNumber": "TC-2025-001"` instead of the expected `SB-XXXX` format.
 
-```
-"publishableKey":"pk_test_ZmFzdC1tYXN0b2Rvbi03NS5jbGVyay5hY2NvdW50cy5kZXYk\n"
-```
+**Impact:** Inconsistent quote numbers in history, PDF exports, and email subjects. Confuses contractors who expect `SB-` prefix.
 
-The `\n` is visible in the raw page source. While Clerk's client-side JS may strip it before use, this is a code hygiene issue and could cause subtle auth failures or warnings in some environments. The key should be trimmed at build time (e.g., `.trim()` on the env var read).
-
-**Steps to reproduce:** `curl -s https://snapbid.app | grep publishableKey`
-
-**Impact:** Low-medium. Probably not breaking today, but bad practice and may cause issues with future Clerk versions.
+**Fix applied:** Added `quoteData.quoteNumber = quoteNum` immediately after `JSON.parse(cleaned)` — unconditionally overrides any AI-returned quote number with the server-generated `SB-XXXX` value.
 
 ---
 
-## [2026-03-09] Issue #2 — /sign-up returns 404; /dashboard returns 404 (HIGH)
+### [WARNING] #4 — Clerk publishable key has trailing newline in env var
+**Detected:** 2026-03-10  
+**Status:** Open  
+**Severity:** Low (auth appears functional, but should be cleaned up)  
+**File:** Vercel environment variable `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 
-**Detected:** 2026-03-09 19:09 ET (automated QC check)
-**Status:** ✅ Resolved 2026-03-09 23:05 ET — Created `/app/sign-up/[[...sign-up]]/page.tsx` with `<SignUp />` component (mirrors sign-in pattern, redirects to `/profile` post-auth). Added `/sign-up(.*)` to public routes in middleware. `/dashboard` 404 is acceptable — app uses `/profile` as the post-login destination, no dashboard route needed.
+**Problem:** The Clerk publishable key in the Vercel env var has a trailing `\n` (newline character). This is visible in the SSR HTML as `"pk_test_...dZXYk\n"`. Clerk likely strips this before use, so auth seems to work, but it's sloppy and matches the known failure pattern from `TOOLS.md` (Secrets Hygiene).
 
-**Description:**
-- `https://snapbid.app/sign-up` → **404**
-- `https://snapbid.app/dashboard` → **404**
+**Also:** The key is `pk_test_` (development mode). If this is intended for production use, a `pk_live_` key from a production Clerk instance should be used instead.
 
-`/sign-in` works (200), but there is no `/sign-up` route. Clerk's default auth flow often looks for `/sign-up` as the sign-up URL. If the Clerk config points users to `/sign-up` after certain flows, they'll hit a 404. Also, `/dashboard` 404 means any post-login redirect to `/dashboard` would break.
-
-The sign-in page SSR shows `"forceRedirectUrl":"/profile"` which is correct (not `/dashboard`), but the missing `/sign-up` is a gap — new users clicking "Sign up" in the Clerk modal may be redirected to a dead route.
-
-**Steps to reproduce:**
-```
-curl -o /dev/null -w "%{http_code}" https://snapbid.app/sign-up   # → 404
-curl -o /dev/null -w "%{http_code}" https://snapbid.app/dashboard  # → 404
-```
-
-**Impact:** HIGH for new user acquisition. If any user clicks "Don't have an account? Sign up" in Clerk's modal, they may land on a 404.
-
-**Suggested fix:** Add a `/sign-up` page that renders `<SignUp />` (parallel to the `/sign-in` page), or confirm that Clerk is configured to use a different sign-up URL and verify that URL exists.
+**Fix:**
+1. Go to Vercel → Project → Settings → Environment Variables
+2. Edit `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — strip any trailing whitespace/newline
+3. Consider upgrading to a production Clerk instance (`pk_live_`) before launch
 
 ---
 
-## [2026-03-09] Issue #3 — Upgrade page progress bar shows 2/50 spots taken but counter reads "50 of 50 available" (LOW/UX)
+### [UX NOTE] #5 — Upgrade page progress bar shows "0 of 50 claimed" on initial SSR render
+**Detected:** 2026-03-10  
+**Status:** Open  
+**Severity:** Low (cosmetic / FOMO signal loss)  
+**Confirmed live:** 2026-03-10 03:10 AM ET (web fetch of https://snapbid.app/upgrade)
 
-**Detected:** 2026-03-09 19:09 ET (automated QC check)
-**Status:** ✅ Resolved 2026-03-09 23:05 ET — Fixed label to read "X of 50 spots claimed / Y left" so bar fill and text both consistently describe spots *taken*, eliminating the contradiction.
+**Problem:** The upgrade page SSR renders "0 of 50 spots claimed / 50 left" because `spotsLeft` initializes to `null` (displayed as `FOUNDER_SPOTS_TOTAL = 50` via `displaySpotsLeft = spotsLeft ?? 50`). The real count loads via `useEffect` after hydration. The raw HTML served to scrapers/bots/slow connections always shows 0 claimed.
 
-**Description:**
-On `/upgrade`, the progress bar width is set to `4%` (approximately 2 of 50 users), but the text reads:
+**Impact:** Minor trust/FOMO signal loss. Any user on a slow connection or any search bot sees "0 of 50 claimed," defeating the urgency messaging. If Chandler is running any paid ads pointing to `/upgrade`, this matters.
 
-> "50 of 50 spots available"
-
-These two signals contradict each other. The bar implies ~2 signups, but the text says 0 signups (all 50 still open). This looks like a wiring bug — the spot counter text isn't reading from the same data source as the bar width, or one of them is hardcoded.
-
-**Steps to reproduce:** `curl -s https://snapbid.app/upgrade | grep -A2 "spots available"`
-
-**Impact:** Low severity functionally, but looks unprofessional and erodes trust for potential paying customers landing on the upgrade page.
-
-**Suggested fix:** Make both the bar width and the "X of 50 spots available" text derive from the same live value (current subscriber count). Currently either the bar or the text is stale/hardcoded.
+**Fix (optional):** Fetch founder count in a Server Component and pass as a prop, or accept the flash since the `/api/founder-count` call is typically fast after hydration.
 
 ---
+
+## Resolved Issues
+
+---
+
+### ✅ [BUG] #2 — /sign-up returns 404; /dashboard returns 404
+**Detected:** 2026-03-09 19:09 ET  
+**Resolved:** 2026-03-09 23:05 ET (commit `eee13d4`)  
+
+**Fix applied:** Created `/app/sign-up/[[...sign-up]]/page.tsx` with `<SignUp />` component (mirrors sign-in pattern, redirects to `/profile` post-auth). Added `/sign-up(.*)` to public routes in middleware. `/dashboard` 404 is acceptable — app uses `/profile` as the post-login destination.
+
+---
+
+### ✅ [UX] #3 — Upgrade page progress bar label contradicted bar fill
+**Detected:** 2026-03-09 19:09 ET  
+**Resolved:** 2026-03-09 23:05 ET (commit `eee13d4`)  
+
+**Fix applied:** Fixed label to read "X of 50 spots claimed / Y left" so bar fill and text consistently describe spots *taken*, eliminating the contradiction.

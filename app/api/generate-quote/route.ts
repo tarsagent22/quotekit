@@ -215,6 +215,9 @@ ${offerTieredOptions ? `{
     const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
     const quoteData = JSON.parse(cleaned)
 
+    // Always use server-generated quote number — never let AI override it
+    quoteData.quoteNumber = quoteNum
+
     const round50 = (n: number) => Math.round(n / 50) * 50
 
     if (quoteData.tiered && quoteData.tiers) {
