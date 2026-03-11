@@ -907,8 +907,7 @@ ${biz}`
               AI-powered · Built for tradespeople
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight mb-4 leading-[1.1]">
-              Professional quotes at
-              <span className="text-[#991b1b]">the snap of a finger</span>
+              Professional quotes at the <span className="text-[#991b1b]">snap</span> of a finger
             </h1>
             <p className="text-gray-700 text-lg sm:text-xl max-w-xl mx-auto mb-8 leading-relaxed">
               Describe the job in plain English. SnapBid generates accurate, itemized quotes calibrated to your rates.
