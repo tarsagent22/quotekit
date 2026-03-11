@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none" role="img" aria-label="SnapBid">
+  <!-- Solid green background -->
+  <rect width="400" height="400" fill="#16a34a"/>
+
+  <!-- Clipboard body (white) — centered, upper half -->
+  <rect x="130" y="60" width="140" height="170" rx="14" fill="white"/>
+
+  <!-- Clipboard interior (very light green) -->
+  <rect x="143" y="83" width="114" height="133" rx="7" fill="#f0fdf4"/>
+
+  <!-- Clip tab at top center -->
+  <rect x="162" y="44" width="76" height="42" rx="10" fill="white"/>
+  <!-- Clip hole (brand green) -->
+  <rect x="174" y="52" width="52" height="22" rx="6" fill="#16a34a"/>
+
+  <!-- Bold gold checkmark -->
+  <path d="M153 148 L182 182 L255 112" stroke="#14532d" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M153 148 L182 182 L255 112" stroke="#f59e0b" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Horizontal document lines inside clipboard (subtle) -->
+  <rect x="155" y="97" width="60" height="7" rx="3.5" fill="#16a34a" opacity="0.25"/>
+  <rect x="155" y="111" width="42" height="7" rx="3.5" fill="#16a34a" opacity="0.18"/>
+
+  <!-- "SnapBid" wordmark — bottom portion, white, bold -->
+  <text
+    x="200" y="298"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-size="52"
+    font-weight="900"
+    text-anchor="middle"
+    letter-spacing="-1"
+    fill="white"
+  >Snap<tspan fill="#f0fdf4" opacity="0.85">Bid</tspan></text>
+
+  <!-- Subtle tagline -->
+  <text
+    x="200" y="335"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="18"
+    font-weight="500"
+    text-anchor="middle"
+    letter-spacing="2"
+    fill="white"
+    opacity="0.75"
+  >AI QUOTING</text>
+</svg>

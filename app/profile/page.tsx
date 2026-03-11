@@ -167,6 +167,8 @@ export default function ProfilePage() {
   const [showPreview, setShowPreview] = useState(false)
   const [activeTab, setActiveTab] = useState<'profile' | 'saved-items'>('profile')
   const [showAdvancedRates, setShowAdvancedRates] = useState(false)
+  const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null)
+  const [logoRemoving, setLogoRemoving] = useState(false)
 
   const [form, setForm] = useState({
     // Core
@@ -217,6 +219,7 @@ export default function ProfilePage() {
         if (data.profile) {
           const p = data.profile
           if (p.savedLineItems) setSavedLineItems(p.savedLineItems)
+          if (p.logoDataUrl) setLogoDataUrl(p.logoDataUrl)
           setForm({
             businessName: p.businessName || '',
             trade: p.trade || 'general',
@@ -262,6 +265,20 @@ export default function ProfilePage() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 512 * 1024) { alert('Logo must be under 512 KB.'); return }
+    const reader = new FileReader()
+    reader.onload = ev => setLogoDataUrl(ev.target?.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveLogo = () => {
+    setLogoRemoving(false)
+    setLogoDataUrl(null)
+  }
+
   const handleAddLineItem = () => {
     if (!newLineItem.description || !newLineItem.defaultUnitPrice) return
     const item: LineItem = {
@@ -285,6 +302,7 @@ export default function ProfilePage() {
       ...form,
       afterHoursRate: form.afterHoursRate ? parseFloat(form.afterHoursRate) : undefined,
       savedLineItems,
+      logoDataUrl: logoDataUrl || '',
     }
     await fetch('/api/profile', {
       method: 'POST',
@@ -416,6 +434,40 @@ export default function ProfilePage() {
               <div>
                 <label className={labelCls}>Business Name <span className="text-red-400">*</span></label>
                 <input name="businessName" value={form.businessName} onChange={handleChange} placeholder="e.g. Mike's Plumbing LLC" className={inputCls} />
+              </div>
+
+              {/* Logo upload */}
+              <div>
+                <label className={labelCls}>Business Logo <span className="text-gray-400 font-normal">(optional)</span></label>
+                <div className="flex items-center gap-4">
+                  {logoDataUrl ? (
+                    <div className="relative flex-shrink-0">
+                      <img src={logoDataUrl} alt="Business logo" className="w-16 h-16 object-contain rounded-xl border border-gray-200 bg-gray-50 p-1" />
+                      <button
+                        type="button"
+                        onClick={handleRemoveLogo}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs leading-none hover:bg-red-600 transition-colors"
+                        title="Remove logo"
+                      >×</button>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center flex-shrink-0">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="text-gray-300">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <label className="cursor-pointer inline-flex items-center gap-2 border border-gray-200 bg-[#faf8f5] hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-2 rounded-xl transition-colors">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                      </svg>
+                      {logoDataUrl ? 'Replace logo' : 'Upload logo'}
+                      <input type="file" accept="image/*" onChange={handleLogoUpload} className="sr-only" />
+                    </label>
+                    <p className="text-xs text-gray-400 mt-1.5">PNG or JPG · Max 512 KB · Appears on PDF quotes</p>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

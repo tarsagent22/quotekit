@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     quoteValidityDays: parseInt(body.quoteValidityDays) || 30,
     introMessage: body.introMessage || '',
     notesTemplate: body.notesTemplate || '',
-    logoDataUrl: existing?.logoDataUrl,
+    logoDataUrl: body.logoDataUrl !== undefined ? (body.logoDataUrl || undefined) : existing?.logoDataUrl,
     // Business mechanics
     minimumJobCharge: parseFloat(body.minimumJobCharge) || undefined,
     tripCharge: parseFloat(body.tripCharge) || undefined,
