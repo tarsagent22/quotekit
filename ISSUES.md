@@ -37,17 +37,13 @@
 
 ---
 
-### [UX NOTE] #5 — Upgrade page progress bar shows "0 of 50 claimed" on initial SSR render
+### ✅ [UX NOTE] #5 — Upgrade page progress bar shows "0 of 50 claimed" on initial SSR render
 **Detected:** 2026-03-10  
-**Status:** Open  
+**Status:** Resolved — 2026-03-10 (commit `b507e09`)
 **Severity:** Low (cosmetic / FOMO signal loss)  
 **Confirmed live:** 2026-03-10 03:10 AM ET (web fetch of https://snapbid.app/upgrade)
 
-**Problem:** The upgrade page SSR renders "0 of 50 spots claimed / 50 left" because `spotsLeft` initializes to `null` (displayed as `FOUNDER_SPOTS_TOTAL = 50` via `displaySpotsLeft = spotsLeft ?? 50`). The real count loads via `useEffect` after hydration. The raw HTML served to scrapers/bots/slow connections always shows 0 claimed.
-
-**Impact:** Minor trust/FOMO signal loss. Any user on a slow connection or any search bot sees "0 of 50 claimed," defeating the urgency messaging. If Chandler is running any paid ads pointing to `/upgrade`, this matters.
-
-**Fix (optional):** Fetch founder count in a Server Component and pass as a prop, or accept the flash since the `/api/founder-count` call is typically fast after hydration.
+**Fix applied:** Converted `/upgrade/page.tsx` to a proper async Server Component that fetches the Stripe active subscription count at render time and passes `initialSpotsLeft` as a prop to `UpgradeClient`. SSR now shows real spot count; client re-fetches `/api/founder-count` in useEffect for freshness.
 
 ---
 

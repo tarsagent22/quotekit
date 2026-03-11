@@ -1453,7 +1453,7 @@ ${biz}`
                           onClick={() => setForm(f => ({ ...f, accessDifficulty: f.accessDifficulty === opt.value ? '' : opt.value }))}
                           className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
                             form.accessDifficulty === opt.value
-                              ? opt.value === 'difficult' ? 'bg-red-500 border-red-500 text-white' : opt.value === 'moderate' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-amber-600 border-amber-600 text-white'
+                              ? opt.value === 'difficult' ? 'bg-red-500 border-red-500 text-white' : opt.value === 'moderate' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-emerald-600 border-emerald-600 text-white'
                               : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-[#faf8f5]'
                           }`}>
                           {opt.label}

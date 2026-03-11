@@ -188,6 +188,7 @@ export default function ProfilePage() {
     paymentTerms: '50-deposit',
     quoteValidityDays: '30',
     taxRate: '8.5',
+    introMessage: '',
     notesTemplate: '',
     // Business mechanics
     minimumJobCharge: '',
@@ -232,6 +233,7 @@ export default function ProfilePage() {
             paymentTerms: p.paymentTerms || '50-deposit',
             quoteValidityDays: String(p.quoteValidityDays || '30'),
             taxRate: String(p.taxRate || '8.5'),
+            introMessage: p.introMessage || '',
             notesTemplate: p.notesTemplate || '',
             minimumJobCharge: p.minimumJobCharge ? String(p.minimumJobCharge) : '',
             tripCharge: p.tripCharge ? String(p.tripCharge) : '',
@@ -692,6 +694,14 @@ export default function ProfilePage() {
                     {VALIDITY_OPTIONS.map(v => <option key={v.value} value={v.value}>{v.label}</option>)}
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className={labelCls}>Intro Message <span className="text-gray-400 font-normal">(optional)</span></label>
+                <textarea name="introMessage" value={form.introMessage} onChange={handleChange}
+                  placeholder="e.g. Thank you for choosing Mike's Plumbing! We take pride in quality work and transparent pricing."
+                  rows={2} className={`${inputCls} resize-none`} />
+                <p className={helperCls}>A personal note from your business — shown at the top of email quotes and woven naturally into quote language by the AI.</p>
               </div>
 
               <div>
