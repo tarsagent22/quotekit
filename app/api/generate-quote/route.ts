@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@clerk/nextjs/server'
 import { getProfile, getSubscriptionStatus, incrementQuoteCount, saveQuoteToHistory } from '@/lib/profile'
+import { getTradeHints } from '@/lib/trade-templates'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -113,6 +114,7 @@ export async function POST(req: NextRequest) {
     const tradeRatesSection = tradeRatesLines.length > 0 ? `\nTrade-specific rates:\n${tradeRatesLines.join('\n')}` : ''
 
     // Saved line items hint
+    const tradeTemplateHint = getTradeHints(trade)
     const savedItemsHint = savedLineItems.length > 0
       ? `\nContractor's saved line items (use these descriptions/prices as a reference when applicable):\n${savedLineItems.slice(0, 10).map((item) => `- ${item.description}: $${item.defaultUnitPrice} (${item.category})`).join('\n')}`
       : ''
@@ -155,6 +157,7 @@ Contractor's pricing parameters:
 ${minimumJobCharge ? `- Minimum job charge: $${minimumJobCharge} — if total would be below this, add a minimum charge line item` : ''}
 ${tripCharge ? `- Trip/service charge: $${tripCharge} — add as first line item when a service call or travel is involved` : ''}
 ${tradeRatesSection}
+${tradeTemplateHint}
 ${savedItemsHint}
 
 Quote format: ${pricingModelInstructions[pricingModel] || pricingModelInstructions['time-and-materials']}
@@ -220,16 +223,28 @@ ${offerTieredOptions ? `{
 
     const round50 = (n: number) => Math.round(n / 50) * 50
 
+    // Parse qty string like "8 hrs", "2", "1 unit" → numeric value
+    const parseQty = (qty: string): number => {
+      if (!qty) return 1
+      const match = String(qty).match(/[\d.]+/)
+      return match ? parseFloat(match[0]) || 1 : 1
+    }
+
+    // Recalculate line item totals server-side so unitPrice × qty = total always
+    const fixLineItems = (items: any[]) =>
+      items.map((item: any) => {
+        const unitPrice = round50(parseFloat(item.unitPrice) || 0)
+        const qty = parseQty(item.qty)
+        const total = round50(unitPrice * qty)
+        return { ...item, unitPrice, total }
+      })
+
     if (quoteData.tiered && quoteData.tiers) {
       // Round all tiers
       for (const tierKey of Object.keys(quoteData.tiers)) {
         const tier = quoteData.tiers[tierKey]
         if (Array.isArray(tier.lineItems)) {
-          tier.lineItems = tier.lineItems.map((item: any) => ({
-            ...item,
-            unitPrice: round50(parseFloat(item.unitPrice) || 0),
-            total: round50(parseFloat(item.total) || 0),
-          }))
+          tier.lineItems = fixLineItems(tier.lineItems)
         }
         const tierSubtotal = (tier.lineItems || []).reduce((s: number, i: any) => s + (parseFloat(i.total) || 0), 0)
         const tierTax = taxRate === 0 ? 0 : round50(tierSubtotal * (taxRate / 100))
@@ -242,13 +257,9 @@ ${offerTieredOptions ? `{
       quoteData.tax = quoteData.tiers.standard?.tax || 0
       quoteData.total = quoteData.tiers.standard?.total || 0
     } else {
-      // Standard rounding
+      // Standard rounding — recalculate totals server-side
       if (Array.isArray(quoteData.lineItems)) {
-        quoteData.lineItems = quoteData.lineItems.map((item: any) => ({
-          ...item,
-          unitPrice: round50(parseFloat(item.unitPrice) || 0),
-          total: round50(parseFloat(item.total) || 0),
-        }))
+        quoteData.lineItems = fixLineItems(quoteData.lineItems)
       }
       const subtotal = (quoteData.lineItems || []).reduce(
         (sum: number, item: any) => sum + (parseFloat(item.total) || 0), 0

@@ -39,14 +39,19 @@ export async function POST(req: NextRequest) {
         const clerkUserId = session.metadata?.clerk_user_id
         if (!clerkUserId) break
 
+        const isLTD = session.metadata?.ltd === 'true'
+
         await clerk.users.updateUserMetadata(clerkUserId, {
           publicMetadata: {
             subscribed: true,
+            ltd: isLTD ? true : undefined,
             stripe_customer_id: session.customer as string,
-            stripe_subscription_id: session.subscription as string,
+            // LTD uses payment mode — no subscription ID
+            stripe_subscription_id: isLTD ? 'ltd' : session.subscription as string,
+            stripe_subscription_status: 'active',
           },
         })
-        console.log(`[SnapBid] User ${clerkUserId} subscribed via checkout.session.completed`)
+        console.log(`[SnapBid] User ${clerkUserId} ${isLTD ? 'LTD purchase' : 'subscribed'} via checkout.session.completed`)
         break
       }
 

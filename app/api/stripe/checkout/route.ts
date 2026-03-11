@@ -20,25 +20,51 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Support ?type=ltd for lifetime deal checkout
+  const { searchParams } = new URL(req.url)
+  const checkoutType = searchParams.get('type') || 'subscription'
+  const isLTD = checkoutType === 'ltd'
+
+  const stripe = getStripe()
+
+  if (isLTD) {
+    const ltdPriceId = process.env.STRIPE_LTD_PRICE_ID
+    if (!ltdPriceId) {
+      return NextResponse.json(
+        { error: 'LTD not configured — STRIPE_LTD_PRICE_ID missing' },
+        { status: 500 }
+      )
+    }
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [{ price: ltdPriceId, quantity: 1 }],
+      success_url: 'https://snapbid.app/?upgraded=true',
+      cancel_url: 'https://snapbid.app/upgrade',
+      customer_email: user.emailAddresses[0]?.emailAddress,
+      metadata: {
+        clerk_user_id: user.id,
+        ltd: 'true',
+      },
+    })
+    return NextResponse.json({ url: session.url })
+  }
+
+  // Standard subscription checkout
   const priceId = process.env.STRIPE_PRICE_ID
   if (!priceId) {
-    console.error(
-      '[SnapBid] STRIPE_PRICE_ID is not set. ' +
-      'Create a $19/mo recurring price in Stripe Dashboard and set this env var.'
-    )
     return NextResponse.json(
       { error: 'Stripe not configured — STRIPE_PRICE_ID missing' },
       { status: 500 }
     )
   }
 
-  const stripe = getStripe()
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: 'https://snapbid.app/?upgraded=true',
-    cancel_url: 'https://snapbid.app/',
+    cancel_url: 'https://snapbid.app/upgrade',
     customer_email: user.emailAddresses[0]?.emailAddress,
     metadata: {
       clerk_user_id: user.id,
