@@ -907,18 +907,18 @@ ${biz}`
               AI-powered · Built for tradespeople
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight mb-4 leading-[1.1]">
-              Professional quotes at the <span className="text-[#991b1b]">snap</span> of a finger
+              Send pro quotes in seconds —<br className="hidden sm:block" /> <span className="text-[#991b1b]">close</span> more jobs
             </h1>
             <p className="text-gray-700 text-lg sm:text-xl max-w-xl mx-auto mb-8 leading-relaxed">
-              Describe the job in plain English. SnapBid generates accurate, itemized quotes calibrated to your rates.
+              Describe the work in plain English. SnapBid builds a professional, itemized quote calibrated to your hourly rate, markup, and region — ready to send in one click.
             </p>
             <SignInButton mode="modal" forceRedirectUrl="/profile">
               <button className="inline-flex items-center gap-2 bg-[#991b1b] hover:bg-red-800 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-amber-200 text-sm">
-                Get started free
+                Try free — 3 quotes included
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 3l5 4-5 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             </SignInButton>
-            <p className="text-xs text-gray-400 mt-3">Free account · 3 quotes included · No credit card</p>
+            <p className="text-xs text-gray-400 mt-3">Free account · No credit card · Setup in 60 seconds</p>
 
             {/* How it works */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 text-left">
@@ -1000,17 +1000,23 @@ ${biz}`
               </div>
             ) : history.length === 0 ? (
               <div className="bg-[#faf8f5] rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-3 mx-auto">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M6 7h8M6 10h6M6 13h4M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z"
-                      stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round"/>
+                <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-4 mx-auto">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      stroke="#991b1b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 12h6M9 16h4" stroke="#991b1b" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-gray-400">No quotes yet</p>
-                <p className="text-xs text-gray-300 mt-1">Your generated quotes will appear here</p>
+                <p className="text-base font-semibold text-gray-800">No quotes yet — let&apos;s fix that!</p>
+                <p className="text-sm text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
+                  Generate your first AI-powered quote in under a minute. It&apos;ll save here automatically.
+                </p>
                 <button onClick={() => setActiveTab('new')}
-                  className="mt-4 text-sm text-[#991b1b] hover:underline font-medium">
-                  Generate your first quote →
+                  className="mt-5 inline-flex items-center gap-2 bg-[#991b1b] hover:bg-red-800 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm shadow-sm shadow-amber-200">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 1.5L1.5 7h3.5L4 10.5 10.5 5H7V1.5H6z" fill="white"/>
+                  </svg>
+                  Generate my first quote
                 </button>
               </div>
             ) : (
@@ -1617,7 +1623,7 @@ ${biz}`
                     </div>
                   </div>
                   <div className="space-y-3.5">
-                    {['Reading job description…', 'Calculating your rates…', 'Building line items…', 'Finalizing totals…'].map((step, i) => (
+                    {['Analyzing your job description…', 'Pricing materials & labor…', 'Assembling itemized line items…', 'Polishing your quote…'].map((step, i) => (
                       <div key={i} className={`flex items-center gap-3 transition-all duration-500 ${i <= loadingStep && loadingStep <= 4 ? 'opacity-100' : 'opacity-25'}`}>
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
                           i < loadingStep && loadingStep <= 4 ? 'bg-amber-100' : i === loadingStep ? 'bg-amber-100' : 'bg-gray-100'
@@ -1799,7 +1805,7 @@ ${biz}`
             {/* Quote card */}
             <div className="bg-[#faf8f5] rounded-2xl border border-gray-100 overflow-hidden shadow-md mb-4">
               {/* Card header */}
-              <div className="bg-[#1C1917] px-8 py-6 flex justify-between items-start">
+              <div className="bg-[#1C1917] px-5 sm:px-8 py-5 sm:py-6 flex justify-between items-start gap-4">
                 <div>
                   <h3 className="text-white font-bold text-xl tracking-tight">
                     {profile?.businessName || form.businessName}
@@ -1828,7 +1834,7 @@ ${biz}`
                 </div>
               </div>
 
-              <div className="px-8 py-6 space-y-6">
+              <div className="px-5 sm:px-8 py-5 sm:py-6 space-y-6">
                 {/* Bill to */}
                 <div className="bg-gray-50 rounded-xl p-4">
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Prepared For</p>
@@ -2096,12 +2102,12 @@ ${biz}`
                 {copied ? (
                   <>
                     <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
-                    <span className="hidden sm:inline">Copied!</span>
+                    Copied!
                   </>
                 ) : (
                   <>
                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" strokeWidth={2}/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" strokeWidth={2}/></svg>
-                    <span className="hidden sm:inline">Copy</span>
+                    Copy
                   </>
                 )}
               </button>
@@ -2117,7 +2123,7 @@ ${biz}`
 
             {/* Near-quota upgrade nudge (last free quote used) */}
             {user && !isSubscribed && quotesUsed >= FREE_QUOTA - 1 && (
-              <div className="mt-4 flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              <div className="mt-4 flex items-center justify-between gap-4 flex-wrap bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                 <div className="flex items-center gap-2.5">
                   <span className="text-red-700 text-base">🔥</span>
                   <div>

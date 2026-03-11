@@ -20,6 +20,28 @@
 
 ---
 
+### ✅ [UX] #6 — Intro Message profile field missing from UI (silent feature gap)
+**Detected:** 2026-03-11  
+**Status:** Resolved — 2026-03-11 05:15 AM ET (commit `525b7dc`)  
+**Severity:** Medium (feature silently unusable)
+
+**Problem:** `introMessage` was defined in `ContractorProfile`, saved/loaded by the API, and used by the AI in quote generation. But there was no input field in `app/profile/page.tsx` — contractors had no way to set it through the UI.
+
+**Fix applied:** Added "Intro Message" textarea to Quote Settings section in the profile page. Includes placeholder text and helper description.
+
+---
+
+### ✅ [UX] #7 — Access difficulty chip colors ambiguous
+**Detected:** 2026-03-11  
+**Status:** Resolved — 2026-03-11 05:15 AM ET (commit `525b7dc`)  
+**Severity:** Low (cosmetic)
+
+**Problem:** Easy, Moderate, and Difficult access difficulty buttons all used `bg-amber-600` when selected — Easy and Moderate were indistinguishable.
+
+**Fix applied:** Easy = `bg-emerald-600` (green), Moderate = `bg-amber-600` (amber), Difficult = `bg-red-500` (red).
+
+---
+
 ### [WARNING] #4 — Clerk publishable key has trailing newline in env var
 **Detected:** 2026-03-10  
 **Status:** Open  

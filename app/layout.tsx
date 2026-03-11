@@ -107,6 +107,10 @@ const jsonLd = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth()
+  // NOTE (Issue #4): NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY has a trailing newline in the Vercel env var.
+  // Auth works because Clerk trims it, but the raw key is visible in SSR HTML with a trailing newline.
+  // Fix: strip trailing whitespace from the env var in Vercel > Settings > Environment Variables.
+  // Also consider switching from pk_test_ to a pk_live_ key before production launch.
   return (
     <ClerkProvider>
       <html lang="en" className={`${inter.variable} ${geistMono.variable}`}>

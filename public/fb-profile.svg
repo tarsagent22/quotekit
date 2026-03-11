@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none" role="img" aria-label="SnapBid">
+  <!-- Background circle (green brand) -->
+  <circle cx="200" cy="200" r="200" fill="#16a34a"/>
+
+  <!-- Inner lighter circle for depth -->
+  <circle cx="200" cy="200" r="185" fill="#14532d" opacity="0.25"/>
+
+  <!-- Clipboard body (white) -->
+  <rect x="120" y="130" width="160" height="185" rx="16" fill="white"/>
+
+  <!-- Clipboard interior (light green tint) -->
+  <rect x="133" y="155" width="134" height="146" rx="8" fill="#f0fdf4"/>
+
+  <!-- Clip bar across top -->
+  <rect x="155" y="110" width="90" height="50" rx="12" fill="white"/>
+  <!-- Clip hole -->
+  <rect x="172" y="118" width="56" height="26" rx="8" fill="#16a34a"/>
+  <!-- Clip hole inner highlight -->
+  <rect x="175" y="121" width="50" height="20" rx="6" fill="#14532d" opacity="0.4"/>
+
+  <!-- Checkmark (gold/white) -->
+  <path d="M148 228 L178 262 L260 185" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+  <path d="M148 228 L178 262 L260 185" stroke="#d97706" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- "SB" monogram at bottom of clipboard for polish -->
+  <!-- subtle lines suggesting a quote/document -->
+  <rect x="145" y="172" width="70" height="7" rx="3.5" fill="#16a34a" opacity="0.3"/>
+  <rect x="145" y="186" width="50" height="7" rx="3.5" fill="#16a34a" opacity="0.2"/>
+</svg>
