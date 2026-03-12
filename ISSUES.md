@@ -4,6 +4,23 @@
 
 ---
 
+### ✅ [UX FEATURE] #13 — Advanced Pricing settings silently missing from profile UI
+**Detected:** 2026-03-12 11:05 AM ET (6h feature pass cron)
+**Status:** Resolved — 2026-03-12 11:30 AM ET (commit `31db956`)
+**Severity:** Medium (feature silently unusable — contractors couldn't access these settings)
+
+**Problem:** `pricingModel`, `offerTieredOptions`, `afterHoursRate`, and all trade-specific rates (`fixtureRate`, `panelWorkRate`, `permitFeeTypical`, `sqftRateInterior`, `sqftRateExterior`, `sqftRateRoofing`, `tearOffRate`, `serviceCallRate`) were all fully wired into the AI prompt and profile schema, but had **no UI** in `app/profile/page.tsx`. Contractors had no way to set them, so the AI was always falling back to default values.
+
+**Fix applied:**
+- Added new "Advanced Pricing" section to the profile page between Business Mechanics and Quote Settings.
+- **Pricing Model selector:** 3-button toggle for Time & Materials / Flat Rate / Cost-Plus — controls how the AI formats line items.
+- **Tiered Options toggle:** Checkbox to enable Budget / Standard / Premium quote generation on every job.
+- **After-Hours Rate field:** Used automatically when the job description or type signals emergency/after-hours.
+- **Trade-specific rate fields:** Conditional on the selected trade — only shows relevant fields (plumber sees fixture rate, electrician sees panel rate + permit fee, painter sees sqft rates, roofer sees installation + tear-off rates, HVAC sees service call rate).
+- All fields load/save correctly through the existing API route (which already handled these fields server-side).
+
+---
+
 ### ✅ [UX FEATURE] #12 — No way to delete quotes from history
 **Detected:** 2026-03-12 05:05 AM ET (6h feature pass cron)
 **Status:** Resolved — 2026-03-12 05:15 AM ET (commit `24c728b`)

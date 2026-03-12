@@ -69,6 +69,8 @@ export default function Home() {
   const [loadingStep, setLoadingStep] = useState(0)
   const [showJobContext, setShowJobContext] = useState(false)
   const [founderSpotsLeft, setFounderSpotsLeft] = useState<number>(50)
+  const [showProfileNudge, setShowProfileNudge] = useState(false)
+  const PROFILE_NUDGE_KEY = 'snapbid_profile_nudge_dismissed'
 
   // Fetch live founder spot count from Stripe
   useEffect(() => {
@@ -127,6 +129,22 @@ export default function Home() {
       }
     }
   }, [])
+
+  // Profile nudge for first-run users who haven't set up their profile
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!user || !profile) return
+    // Only show if businessName is empty and nudge hasn't been dismissed
+    const dismissed = localStorage.getItem(PROFILE_NUDGE_KEY)
+    if (!dismissed && !profile.businessName) {
+      setShowProfileNudge(true)
+    }
+  }, [user, profile])
+
+  const dismissProfileNudge = () => {
+    localStorage.setItem(PROFILE_NUDGE_KEY, 'true')
+    setShowProfileNudge(false)
+  }
 
   // Cycle loading step messages while AI is generating
   useEffect(() => {
@@ -821,6 +839,37 @@ ${biz}`
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── PROFILE NUDGE (first-run users) ────────────────────────────────── */}
+      {showProfileNudge && (
+        <div className="relative z-10 bg-amber-50 border-b border-amber-100">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="text-amber-600 flex-shrink-0">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </span>
+              <span className="text-sm text-amber-800">
+                <span className="font-medium">Quick tip:</span> Add your business name and rates to your profile — it makes your quotes way more accurate. Takes 30 seconds.
+              </span>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => router.push('/profile')}
+                className="text-sm font-medium text-amber-700 hover:text-amber-900 transition-colors whitespace-nowrap"
+              >
+                Set up profile →
+              </button>
+              <button onClick={dismissProfileNudge} className="text-amber-400 hover:text-amber-600 transition-colors p-1">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       )}
