@@ -2078,7 +2078,7 @@ ${biz}`
                     <p className="text-sm font-semibold text-red-800">
                       {quotesUsed >= FREE_QUOTA ? 'You\'ve used all your free quotes' : 'This was your last free quote'}
                     </p>
-                    <p className="text-xs text-red-700">Upgrade for $9/mo — {founderSpotsLeft} founder spots left.</p>
+                    <p className="text-xs text-red-700">Get unlimited quotes — $59 lifetime deal, {founderSpotsLeft} founder spots left.</p>
                   </div>
                 </div>
                 <button
@@ -2126,7 +2126,7 @@ ${biz}`
 
             <h2 className="text-xl font-bold text-gray-900 text-center mb-2">You've used your 3 free quotes</h2>
             <p className="text-gray-500 text-sm text-center leading-relaxed mb-4">
-              Join as a <span className="font-semibold text-red-700">founding member</span> and lock in $9/mo forever — before we go public at $19.
+              Join as a <span className="font-semibold text-red-700">founding member</span> — pay once, use forever. Early access lifetime deal.
             </p>
 
             {/* Founder spots live counter */}
@@ -2141,13 +2141,13 @@ ${biz}`
                   style={{ width: `${Math.max(4, ((50 - founderSpotsLeft) / 50) * 100)}%` }}
                 />
               </div>
-              <p className="text-xs text-red-700 mt-1.5">Lock in $9/mo forever — goes to $19 after 50 users</p>
+              <p className="text-xs text-red-700 mt-1.5">$59 one-time — no subscription, no monthly fees. Ever.</p>
             </div>
 
             {/* What's included */}
             <div className="bg-gray-50 rounded-xl p-4 mb-6 space-y-2">
               {[
-                'Unlimited quotes — no monthly cap',
+                'Unlimited quotes — no monthly fees ever',
                 'Branded PDF downloads',
                 'Calibrated to your exact rates & trade',
                 'Quote history & win/loss tracking',
@@ -2184,7 +2184,7 @@ ${biz}`
                     Redirecting to checkout…
                   </>
                 ) : (
-                  <>🔥 Claim Founder Spot — $9/mo</>
+                  <>🔥 Claim Lifetime Deal — $59</>
                 )}
               </button>
             </div>

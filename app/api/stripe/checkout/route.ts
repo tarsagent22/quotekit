@@ -20,10 +20,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Support ?type=ltd for lifetime deal checkout
+  // LTD is the default checkout. Pass ?type=subscription to use monthly instead.
   const { searchParams } = new URL(req.url)
-  const checkoutType = searchParams.get('type') || 'subscription'
-  const isLTD = checkoutType === 'ltd'
+  const checkoutType = searchParams.get('type') || 'ltd'
+  const isLTD = checkoutType !== 'subscription'
 
   const stripe = getStripe()
 

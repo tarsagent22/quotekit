@@ -7,7 +7,7 @@ import { useUser } from '@clerk/nextjs'
 const FOUNDER_SPOTS_TOTAL = 50
 
 const FEATURES = [
-  { label: 'Unlimited quotes — no monthly cap' },
+  { label: 'Unlimited quotes — no monthly fees ever' },
   { label: 'Professional branded PDF exports' },
   { label: 'Calibrated to your exact rates and trade' },
   { label: 'Quote history and win/loss tracking' },
@@ -75,10 +75,10 @@ export default function UpgradeClient({ initialSpotsLeft }: Props) {
         <div className="text-center mb-10">
           <p className="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3">Founder Pricing</p>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-3">
-            Unlimited quotes. One flat rate.
+            Unlimited quotes. One payment. Forever.
           </h1>
           <p className="text-gray-500 text-base leading-relaxed max-w-md mx-auto">
-            Lock in founder pricing before we go public at $19/mo.
+            Early access lifetime deal — pay once, use forever. No monthly fees.
           </p>
         </div>
 
@@ -86,10 +86,10 @@ export default function UpgradeClient({ initialSpotsLeft }: Props) {
         <div className="bg-[#faf8f5] rounded-2xl border-2 border-[#991b1b] shadow-lg overflow-hidden mb-6">
           <div className="bg-[#991b1b] px-8 py-5 text-center">
             <div className="flex items-baseline justify-center gap-1.5">
-              <span className="text-4xl font-bold text-white">$9</span>
-              <span className="text-white/70 text-base font-medium">/month</span>
+              <span className="text-4xl font-bold text-white">$59</span>
+              <span className="text-white/70 text-base font-medium">one-time</span>
             </div>
-            <p className="text-amber-100 text-sm mt-1">Cancel anytime. Price locked forever.</p>
+            <p className="text-amber-100 text-sm mt-1">Pay once. Yours forever. No subscription.</p>
           </div>
 
           <div className="px-8 py-6">
@@ -125,7 +125,7 @@ export default function UpgradeClient({ initialSpotsLeft }: Props) {
               {loading ? (
                 <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Redirecting to checkout...</>
               ) : (
-                user ? 'Claim Founder Spot — $9/mo' : 'Sign in to get started'
+                user ? 'Claim Lifetime Deal — $59' : 'Sign in to get started'
               )}
             </button>
             <p className="text-center text-xs text-gray-400 mt-3">Secured by Stripe</p>
