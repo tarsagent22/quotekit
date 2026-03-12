@@ -182,6 +182,19 @@ export default function ProfilePage() {
     minimumJobCharge: '',
     tripCharge: '',
     specialties: '',
+    // Advanced pricing
+    pricingModel: 'time-and-materials',
+    offerTieredOptions: false,
+    afterHoursRate: '',
+    // Trade-specific rates
+    fixtureRate: '',
+    panelWorkRate: '',
+    permitFeeTypical: '',
+    sqftRateInterior: '',
+    sqftRateExterior: '',
+    sqftRateRoofing: '',
+    tearOffRate: '',
+    serviceCallRate: '',
   })
 
   useEffect(() => {
@@ -213,6 +226,19 @@ export default function ProfilePage() {
             minimumJobCharge: p.minimumJobCharge ? String(p.minimumJobCharge) : '',
             tripCharge: p.tripCharge ? String(p.tripCharge) : '',
             specialties: p.specialties || '',
+            // Advanced pricing
+            pricingModel: p.pricingModel || 'time-and-materials',
+            offerTieredOptions: p.offerTieredOptions || false,
+            afterHoursRate: p.afterHoursRate ? String(p.afterHoursRate) : '',
+            // Trade-specific rates
+            fixtureRate: p.fixtureRate ? String(p.fixtureRate) : '',
+            panelWorkRate: p.panelWorkRate ? String(p.panelWorkRate) : '',
+            permitFeeTypical: p.permitFeeTypical ? String(p.permitFeeTypical) : '',
+            sqftRateInterior: p.sqftRateInterior ? String(p.sqftRateInterior) : '',
+            sqftRateExterior: p.sqftRateExterior ? String(p.sqftRateExterior) : '',
+            sqftRateRoofing: p.sqftRateRoofing ? String(p.sqftRateRoofing) : '',
+            tearOffRate: p.tearOffRate ? String(p.tearOffRate) : '',
+            serviceCallRate: p.serviceCallRate ? String(p.serviceCallRate) : '',
           })
         } else {
           setIsNew(true)
@@ -517,6 +543,119 @@ export default function ProfilePage() {
                   <p className={helperCls}>Helps the AI tailor quotes to your specific expertise</p>
                 </div>
               </div>
+            </div>
+
+            {/* ── SECTION 5: Advanced Pricing ── */}
+            <div className={sectionCls}>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Advanced Pricing</p>
+                <p className="text-sm text-gray-400 mt-1">Fine-tune how the AI structures and presents your pricing.</p>
+              </div>
+
+              {/* Pricing model */}
+              <div>
+                <label className={labelCls}>Pricing Model</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'time-and-materials', label: 'Time & Materials', desc: 'Labor + materials separate' },
+                    { value: 'flat-rate', label: 'Flat Rate', desc: 'Fixed price per item' },
+                    { value: 'cost-plus', label: 'Cost-Plus', desc: 'Show cost + markup' },
+                  ].map(opt => (
+                    <button key={opt.value} type="button"
+                      onClick={() => setForm(f => ({ ...f, pricingModel: opt.value }))}
+                      className={`px-3 py-3 rounded-xl border text-sm font-medium transition-all duration-200 text-center ${
+                        form.pricingModel === opt.value
+                          ? 'bg-[#991b1b] border-[#991b1b] text-white shadow-sm'
+                          : 'border-gray-200 text-gray-600 hover:border-amber-400 hover:bg-amber-50'
+                      }`}>
+                      <div className="font-semibold text-xs">{opt.label}</div>
+                      <div className={`text-[10px] mt-0.5 ${form.pricingModel === opt.value ? 'text-amber-100' : 'text-gray-400'}`}>{opt.desc}</div>
+                    </button>
+                  ))}
+                </div>
+                <p className={helperCls}>Controls how the AI formats line items on every quote</p>
+              </div>
+
+              {/* Tiered options + after-hours rate */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="flex items-start gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={form.offerTieredOptions}
+                      onChange={() => setForm(f => ({ ...f, offerTieredOptions: !f.offerTieredOptions }))}
+                      className="w-4 h-4 mt-0.5 rounded accent-[#991b1b]"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Offer Budget / Standard / Premium options</span>
+                      <p className={helperCls}>AI generates 3 price tiers on every quote — lets clients choose their comfort level</p>
+                    </div>
+                  </label>
+                </div>
+                <div>
+                  <label className={labelCls}>After-Hours / Emergency Rate ($/hr)</label>
+                  <input name="afterHoursRate" type="number" value={form.afterHoursRate} onChange={handleChange} placeholder="e.g. 145" className={inputCls} />
+                  <p className={helperCls}>Used automatically when the job is flagged as emergency or after-hours</p>
+                </div>
+              </div>
+
+              {/* Trade-specific rates — shown based on selected trade */}
+              {form.trade === 'plumbing' && (
+                <div>
+                  <label className={labelCls}>Per-Fixture Flat Rate ($)</label>
+                  <input name="fixtureRate" type="number" value={form.fixtureRate} onChange={handleChange} placeholder="e.g. 185" className={inputCls} />
+                  <p className={helperCls}>Used instead of hourly for fixture swaps (toilets, faucets, valves)</p>
+                </div>
+              )}
+
+              {form.trade === 'electrical' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>Panel / Service Work Rate ($/hr)</label>
+                    <input name="panelWorkRate" type="number" value={form.panelWorkRate} onChange={handleChange} placeholder="e.g. 130" className={inputCls} />
+                    <p className={helperCls}>Higher rate for panel upgrades and service calls</p>
+                  </div>
+                  <div>
+                    <label className={labelCls}>Typical Permit Fee ($)</label>
+                    <input name="permitFeeTypical" type="number" value={form.permitFeeTypical} onChange={handleChange} placeholder="e.g. 175" className={inputCls} />
+                    <p className={helperCls}>Added as a separate line item when permits are required</p>
+                  </div>
+                </div>
+              )}
+
+              {form.trade === 'painting' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>Interior Painting Rate ($/sq ft)</label>
+                    <input name="sqftRateInterior" type="number" step="0.01" value={form.sqftRateInterior} onChange={handleChange} placeholder="e.g. 3.50" className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Exterior Painting Rate ($/sq ft)</label>
+                    <input name="sqftRateExterior" type="number" step="0.01" value={form.sqftRateExterior} onChange={handleChange} placeholder="e.g. 2.75" className={inputCls} />
+                  </div>
+                </div>
+              )}
+
+              {form.trade === 'roofing' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>Roofing Installation Rate ($/sq ft)</label>
+                    <input name="sqftRateRoofing" type="number" step="0.01" value={form.sqftRateRoofing} onChange={handleChange} placeholder="e.g. 5.00" className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Tear-Off / Removal Rate ($/sq ft)</label>
+                    <input name="tearOffRate" type="number" step="0.01" value={form.tearOffRate} onChange={handleChange} placeholder="e.g. 1.50" className={inputCls} />
+                  </div>
+                </div>
+              )}
+
+              {form.trade === 'hvac' && (
+                <div>
+                  <label className={labelCls}>Service Call Flat Rate ($)</label>
+                  <input name="serviceCallRate" type="number" value={form.serviceCallRate} onChange={handleChange} placeholder="e.g. 125" className={inputCls} />
+                  <p className={helperCls}>Added as the first line item on diagnostic and service visit quotes</p>
+                </div>
+              )}
             </div>
 
             {/* ── SECTION 6: Quote Settings ── */}

@@ -4,6 +4,22 @@
 
 ---
 
+### ✅ [UX FEATURE] #12 — No way to delete quotes from history
+**Detected:** 2026-03-12 05:05 AM ET (6h feature pass cron)
+**Status:** Resolved — 2026-03-12 05:15 AM ET (commit `24c728b`)
+**Severity:** Low (UX friction / clutter)
+
+**Problem:** Contractors had no way to delete test quotes, duplicates, or junk from their history. As history grew, there was no cleanup mechanism.
+
+**Fix applied:**
+- Added `deleteQuote()` function to `lib/profile.ts` (filters quote from Clerk privateMetadata).
+- Added `DELETE` handler to `app/api/quotes/route.ts`.
+- Added a delete button to the expanded history row in `app/page.tsx`.
+- Two-tap confirmation pattern: first click shows "Confirm?" (pulsing red), second click within 4 seconds confirms and removes the quote. Auto-resets if not confirmed. Prevents accidental deletions.
+- Optimistic UI: quote disappears immediately from the list after deletion; no page reload needed.
+
+---
+
 ### ✅ [UX POLISH] #11 — Currency not locale-formatted in quote display, copy, and email; PDF filenames not including quote number
 **Detected:** 2026-03-11 11:05 PM ET (6h feature pass cron)
 **Status:** Resolved — 2026-03-11 11:05 PM ET (commit `e565ad4`)
