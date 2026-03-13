@@ -4,6 +4,46 @@
 
 ---
 
+### [BUG] #16 — `/api/founder-count` always returns 0 — LTD purchases are `mode: payment`, not subscriptions
+**Detected:** 2026-03-13 ~11:11 PM ET (4h quality check cron)
+**Status:** Open
+**Severity:** Medium (upgrade page always shows "0 of 50 claimed" / 0% progress bar — FOMO signal broken)
+
+**Problem:** The `founder-count` API uses `stripe.subscriptions.list()` to count LTD buyers. But the LTD checkout uses `mode: 'payment'` (a one-time payment intent, not a subscription). Subscriptions list will never include LTD buyers. Any real LTD purchase would still show as "0 claimed" on the upgrade page.
+
+**Impact:** The FOMO progress bar on `/upgrade` is perpetually stuck at 0 — even as real sales come in. This actively hurts conversion.
+
+**Fix required:**
+- Change `founder-count` to count `checkout.sessions` with `mode: payment` and `metadata.ltd = 'true'` and `payment_status: 'paid'`, OR
+- Use `stripe.paymentIntents.list()` with the `STRIPE_LTD_PRICE_ID` to count successful charges, OR
+- Track the count via a Clerk metadata counter incremented in the `checkout.session.completed` webhook handler (most reliable, already has `isLTD` logic)
+
+**Files to change:**
+- `app/api/founder-count/route.ts` — replace subscriptions.list with correct payment-based count
+- Optional: also ensure webhook increments a global count for faster lookups
+
+**Last checked:** 2026-03-13 03:11 AM ET — still unresolved. `/api/founder-count` returns `{"count":0}`. Upgrade page SSR confirms `initialSpotsLeft: 50` (full 50 available = 0 sold detected).
+
+---
+
+
+
+### ✅ [UX POLISH] #15 — History PDF exposed markup lines + unformatted currency in PDF outputs
+**Detected:** 2026-03-12 11:05 PM ET (6h feature pass cron)
+**Status:** Resolved — 2026-03-13 03:05 AM ET (commit `7680982`)
+**Severity:** Medium (internal markup could be exposed to clients in history PDFs)
+
+**Problem 1:** The current-quote PDF correctly filtered out "markup" line items when `showMarkupOnQuote` was false (respecting the contractor's privacy setting). However, the history PDF download (`handleDownloadHistoryPDF`) had no such filter — it rendered all line items including any with "markup" in the description, potentially exposing internal cost breakdowns to clients.
+
+**Problem 2:** Both PDF generators (current-quote and history) rendered currency values as raw numbers (`$${value}`) without `.toLocaleString()`, so large quotes like $10,000 would display as `$10000` instead of `$10,000`. This was already fixed in the display UI (issue #11) but never applied to the jsPDF text output paths.
+
+**Fix applied:**
+- Added `showMarkupOnQuote` filter to history PDF line items (matching the current-quote PDF behavior exactly).
+- Applied `.toLocaleString()` to all currency values in both PDF generators: line item unitPrices, line item totals, subtotal, tax, and grand total.
+- Both PDFs now render `$10,000` not `$10000` for large values.
+
+---
+
 ### ✅ [UX POLISH] #14 — Paywall modal showed wrong price ($9/mo instead of $59 LTD) + no history search
 **Detected:** 2026-03-12 5:05 PM ET (6h feature pass cron)
 **Status:** Resolved — 2026-03-12 5:30 PM ET (commit `4b8a645`)

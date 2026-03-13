@@ -1,5 +1,7 @@
 // Server Component — fetches founder count at render time so SSR HTML
 // always shows the real "X of 50 claimed" value (fixes Issue #5).
+// Issue #16 fix: counts completed LTD checkout.sessions (mode:payment)
+// instead of subscriptions (which are always empty for one-time purchases).
 import UpgradeClient from './UpgradeClient'
 import Stripe from 'stripe'
 
@@ -8,6 +10,41 @@ const CACHE_TTL_MS = 5 * 60 * 1000 // 5 min — matches the API route cache
 
 // Module-level cache so cold starts are cheap within the same serverless instance
 let cached: { count: number; ts: number } | null = null
+
+/**
+ * Counts completed LTD purchases by paginating checkout.sessions with
+ * status='complete' and filtering for mode=payment + metadata.ltd='true'.
+ *
+ * LTD uses mode:'payment' (one-time charge) — subscriptions.list() will
+ * always return 0 for these buyers. Issue #16.
+ */
+async function countLTDPurchases(stripe: Stripe): Promise<number> {
+  let count = 0
+  let hasMore = true
+  let startingAfter: string | undefined
+
+  while (hasMore) {
+    const sessions = await stripe.checkout.sessions.list({
+      status: 'complete',
+      limit: 100,
+      ...(startingAfter ? { starting_after: startingAfter } : {}),
+    })
+
+    // Filter to LTD sessions only (mode=payment + metadata.ltd='true')
+    for (const session of sessions.data) {
+      if (session.mode === 'payment' && session.metadata?.ltd === 'true') {
+        count++
+      }
+    }
+
+    hasMore = sessions.has_more
+    if (sessions.data.length > 0) {
+      startingAfter = sessions.data[sessions.data.length - 1].id
+    }
+  }
+
+  return count
+}
 
 async function getFounderSpotsLeft(): Promise<number> {
   // Serve from in-process cache if fresh
@@ -22,25 +59,7 @@ async function getFounderSpotsLeft(): Promise<number> {
 
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-    const FOUNDER_PRICE_ID = 'price_1T8uGlCg7cEQSTg1WqQiUdun'
-
-    let count = 0
-    let hasMore = true
-    let startingAfter: string | undefined
-
-    while (hasMore) {
-      const subs = await stripe.subscriptions.list({
-        price: FOUNDER_PRICE_ID,
-        status: 'active',
-        limit: 100,
-        ...(startingAfter ? { starting_after: startingAfter } : {}),
-      })
-      count += subs.data.length
-      hasMore = subs.has_more
-      if (subs.data.length > 0) {
-        startingAfter = subs.data[subs.data.length - 1].id
-      }
-    }
+    const count = await countLTDPurchases(stripe)
 
     cached = { count, ts: Date.now() }
     return Math.max(0, FOUNDER_SPOTS_TOTAL - count)
