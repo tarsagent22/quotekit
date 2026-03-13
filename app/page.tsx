@@ -69,6 +69,10 @@ export default function Home() {
   const [reuseFlash, setReuseFlash] = useState<string | null>(null)
   const [loadingStep, setLoadingStep] = useState(0)
   const [showJobContext, setShowJobContext] = useState(false)
+  // Guest post-result email capture
+  const [guestEmail, setGuestEmail] = useState('')
+  const [guestEmailSubmitting, setGuestEmailSubmitting] = useState(false)
+  const [guestEmailSaved, setGuestEmailSaved] = useState(false)
   const [founderSpotsLeft, setFounderSpotsLeft] = useState<number>(50)
   const [showProfileNudge, setShowProfileNudge] = useState(false)
   const PROFILE_NUDGE_KEY = 'snapbid_profile_nudge_dismissed'
@@ -114,9 +118,8 @@ export default function Home() {
               businessName: f.businessName || data.profile.businessName,
               trade: f.trade || data.profile.trade,
             }))
-          } else {
-            router.push('/profile')
           }
+          // No redirect for homeowners — they can use the app without a profile
         })
     }
   }, [user, router])
@@ -175,18 +178,25 @@ export default function Home() {
     try { sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(updated)) } catch {}
   }
 
+  const handleSaveGuestEmail = async () => {
+    if (!guestEmail || guestEmailSubmitting) return
+    setGuestEmailSubmitting(true)
+    try {
+      await fetch('/api/save-estimate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: guestEmail, estimateRef: quote?.quoteNumber }),
+      })
+      setGuestEmailSaved(true)
+    } catch {}
+    setGuestEmailSubmitting(false)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Gate 1: guests must sign in — save form first so it survives the redirect
-    if (!user) {
-      try { sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(form)) } catch {}
-      openSignIn({ forceRedirectUrl: '/' })
-      return
-    }
-
-    // Gate 2: over free quota and not subscribed — show paywall
-    if (quotesUsed >= FREE_QUOTA && !isSubscribed) {
+    // Gate: signed-in users over free quota — show paywall
+    if (user && quotesUsed >= FREE_QUOTA && !isSubscribed) {
       setShowPaywall(true)
       return
     }
@@ -194,6 +204,8 @@ export default function Home() {
     setLoading(true)
     setError('')
     setQuote(null)
+    setGuestEmail('')
+    setGuestEmailSaved(false)
     try {
       const res = await fetch('/api/generate-quote', {
         method: 'POST',
@@ -922,13 +934,11 @@ ${biz}`
             <p className="text-gray-700 text-lg sm:text-xl max-w-xl mx-auto mb-8 leading-relaxed">
               Describe your project, get an itemized cost breakdown in seconds. Free to try.
             </p>
-            <SignInButton mode="modal" forceRedirectUrl="/">
-              <button className="inline-flex items-center gap-2 bg-[#991b1b] hover:bg-red-800 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-amber-200 text-sm">
-                Get my estimate
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 3l5 4-5 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </button>
-            </SignInButton>
-            <p className="text-xs text-gray-400 mt-3">Free to try · No credit card · Results in seconds</p>
+            <a href="#estimate-form" className="inline-flex items-center gap-2 bg-[#991b1b] hover:bg-red-800 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-amber-200 text-sm">
+              Get my free estimate
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 3l5 4-5 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </a>
+            <p className="text-xs text-gray-400 mt-3">Free · No account required · Results in seconds</p>
 
             {/* How it works */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 text-left">
@@ -949,6 +959,7 @@ ${biz}`
       )}
 
       {/* ── TAB BAR (signed-in only) ─────────────────────────────────────────── */}
+      <div id="estimate-form" />
       {user && !quote && (
         <div className="relative z-10 border-b border-gray-100 bg-[#faf8f5]">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 flex gap-6">
@@ -959,7 +970,7 @@ ${biz}`
                     ? 'border-[#991b1b] text-[#991b1b]'
                     : 'border-transparent text-gray-400 hover:text-gray-600'
                 }`}>
-                {tab === 'new' ? 'New Quote' : 'Quote History'}
+                {tab === 'new' ? 'New Estimate' : 'Estimate History'}
               </button>
             ))}
           </div>
@@ -972,7 +983,7 @@ ${biz}`
         {activeTab === 'history' && user && !quote ? (
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-semibold text-gray-900">Quote History</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Estimate History</h2>
               {history.length > 0 && (() => {
                 const won = history.filter(q => q.status === 'won').length
                 const lost = history.filter(q => q.status === 'lost').length
@@ -1019,7 +1030,7 @@ ${biz}`
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search by client or address…"
+                    placeholder="Search by name or address…"
                     value={historySearch}
                     onChange={e => setHistorySearch(e.target.value)}
                     className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-xl bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#991b1b] focus:ring-1 focus:ring-[#991b1b]/10 transition-all"
@@ -1063,16 +1074,16 @@ ${biz}`
                     <path d="M9 12h6M9 16h4" stroke="#991b1b" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <p className="text-base font-semibold text-gray-800">No quotes yet — let&apos;s fix that!</p>
+                <p className="text-base font-semibold text-gray-800">No estimates yet — let&apos;s fix that!</p>
                 <p className="text-sm text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
-                  Generate your first AI-powered quote in under a minute. It&apos;ll save here automatically.
+                  Generate your first AI-powered estimate in under a minute. It&apos;ll save here automatically.
                 </p>
                 <button onClick={() => setActiveTab('new')}
                   className="mt-5 inline-flex items-center gap-2 bg-[#991b1b] hover:bg-red-800 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm shadow-sm shadow-amber-200">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M6 1.5L1.5 7h3.5L4 10.5 10.5 5H7V1.5H6z" fill="white"/>
                   </svg>
-                  Generate my first quote
+                  Generate my first estimate
                 </button>
               </div>
             ) : (
@@ -1405,10 +1416,10 @@ ${biz}`
               {/* Section header */}
               <div className="mb-5">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  {profile ? `Quote for ${profile.businessName}` : 'Get your cost estimate'}
+                  {profile ? `Generate estimate` : 'Get your project estimate'}
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  {profile ? 'Calibrated to your rates — describe the job and go.' : 'Describe your project and we\'ll break down what it should cost.'}
+                  {profile ? 'Calibrated to your rates — describe the job and go.' : 'Describe your project and we\'ll break down what it should cost. Free, no account needed.'}
                 </p>
               </div>
 
@@ -1426,28 +1437,28 @@ ${biz}`
 
                 {/* No business/trade section for homeowners — contractor profile handles this for signed-in users */}
 
-                {/* Client info */}
+                {/* Your Details */}
                 <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-4" style={{borderLeft: "3px solid #d97706"}}>
-                  <p className="text-xs font-bold text-amber-600 uppercase tracking-widest">Client</p>
+                  <p className="text-xs font-bold text-amber-600 uppercase tracking-widest">Your Details</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className={lbl}>Client Name</label>
+                      <label className={lbl}>Your Name</label>
                       <input name="clientName" value={form.clientName} onChange={handleChange}
                         placeholder="John Smith" required className={inp} />
                     </div>
                     <div>
-                      <label className={lbl}>Job Address</label>
+                      <label className={lbl}>Project Address</label>
                       <input name="clientAddress" value={form.clientAddress} onChange={handleChange}
                         placeholder="123 Main St, Austin TX" required className={inp} />
                     </div>
                   </div>
                   <div>
                     <label className={lbl}>
-                      Client Email
-                      <span className="ml-1.5 text-[10px] font-normal text-gray-400 normal-case">— pre-fills Email Quote button</span>
+                      Your Email
+                      <span className="ml-1.5 text-[10px] font-normal text-gray-400 normal-case">— optional, to save or share your estimate</span>
                     </label>
                     <input name="clientEmail" value={form.clientEmail} onChange={handleChange}
-                      type="email" placeholder="john@example.com (optional)" className={inp} />
+                      type="email" placeholder="you@example.com (optional)" className={inp} />
                   </div>
                 </div>
 
@@ -1624,16 +1635,9 @@ ${biz}`
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/>
                         <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                       </svg>
-                      Building your quote…
+                      Building your estimate…
                     </>
-                  ) : !user ? (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M7.5 1L2 7.5h4l-1 5.5L13 5.5H9.5V1H7.5z" fill="white"/>
-                      </svg>
-                      Get my estimate
-                    </>
-                  ) : quotesUsed >= FREE_QUOTA && !isSubscribed ? (
+                  ) : user && quotesUsed >= FREE_QUOTA && !isSubscribed ? (
                     <>
                       🔒 Upgrade to Continue
                     </>
@@ -1642,7 +1646,7 @@ ${biz}`
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path d="M7.5 1L2 7.5h4l-1 5.5L13 5.5H9.5V1H7.5z" fill="white"/>
                       </svg>
-                      Get my estimate
+                      Get my estimate — free
                     </>
                   )}
                 </button>
@@ -1689,12 +1693,12 @@ ${biz}`
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">AI is building your quote</p>
+                      <p className="text-sm font-semibold text-gray-900">AI is building your estimate</p>
                       <p className="text-xs text-gray-400">Usually 5–15 seconds</p>
                     </div>
                   </div>
                   <div className="space-y-3.5">
-                    {['Scoping out the job details…', 'Calculating labor hours at your rates…', 'Pricing materials and applying markup…', 'Writing your professional quote…'].map((step, i) => (
+                    {['Scoping out your project details…', 'Researching local labor costs…', 'Pricing materials for your area…', 'Building your itemized estimate…'].map((step, i) => (
                       <div key={i} className={`flex items-center gap-3 transition-all duration-500 ${i <= loadingStep ? 'opacity-100' : 'opacity-25'}`}>
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
                           i < loadingStep ? 'bg-amber-100' : i === loadingStep ? 'bg-amber-100' : 'bg-gray-100'
@@ -1734,21 +1738,21 @@ ${biz}`
                 <div className="bg-[#faf8f5] rounded-2xl border border-gray-100 overflow-hidden shadow-md">
                   <div className="bg-[#1C1917] px-5 py-4 flex justify-between items-center">
                     <div>
-                      <p className="text-white text-sm font-bold">Sample Output</p>
-                      <p className="text-stone-400 text-xs mt-0.5">Roofing Services</p>
+                      <p className="text-white text-sm font-bold">Your Project Estimate</p>
+                      <p className="text-stone-400 text-xs mt-0.5">Roof replacement · 800 sq ft</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-stone-400 text-[10px] uppercase tracking-wide">Quote</p>
-                      <p className="text-amber-500 text-xs font-bold mt-0.5">SB-0142</p>
+                      <p className="text-stone-400 text-[10px] uppercase tracking-wide">Sample</p>
+                      <p className="text-amber-500 text-xs font-bold mt-0.5">What to expect to pay</p>
                     </div>
                   </div>
                   <div className="px-5 py-4 space-y-2.5">
                     {[
-                      { d: 'Tear-off existing shingles (800 sq ft)', t: '$480' },
-                      { d: 'Ice & water shield underlayment', t: '$320' },
-                      { d: 'Architectural shingles installation', t: '$1,560' },
-                      { d: 'Ridge cap & flashing', t: '$280' },
-                      { d: 'Cleanup & debris disposal', t: '$150' },
+                      { d: 'Remove old shingles & prep surface', t: '$400 – $600' },
+                      { d: 'Waterproofing barrier (ice & water shield)', t: '$250 – $400' },
+                      { d: 'New shingle installation', t: '$1,200 – $1,800' },
+                      { d: 'Ridge cap, flashing & sealing', t: '$200 – $350' },
+                      { d: 'Cleanup & haul away old materials', t: '$100 – $200' },
                     ].map((item, i) => (
                       <div key={i} className="flex justify-between text-xs gap-3">
                         <span className="text-gray-500 truncate">{item.d}</span>
@@ -1756,12 +1760,12 @@ ${biz}`
                       </div>
                     ))}
                     <div className="pt-2.5 border-t border-gray-100 flex justify-between items-center">
-                      <span className="text-xs text-gray-400">Total</span>
-                      <span className="text-sm font-bold text-[#991b1b]">$2,843</span>
+                      <span className="text-xs text-gray-400">Estimated total</span>
+                      <span className="text-sm font-bold text-[#991b1b]">$2,150 – $3,350</span>
                     </div>
                   </div>
                   <div className="px-5 pb-3.5">
-                    <p className="text-[10px] text-gray-300 text-center italic">← AI-generated · calibrated to your region</p>
+                    <p className="text-[10px] text-gray-300 text-center italic">← Real output · calibrated to your region & project</p>
                   </div>
                 </div>
               )}
@@ -1810,18 +1814,7 @@ ${biz}`
                 </div>
               )}
 
-              {/* For Contractors callout */}
-              {!user && isLoaded && (
-                <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-2">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">For Contractors</p>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    Are you a contractor? SnapBid also generates professional quotes you can send to clients.
-                  </p>
-                  <a href="/profile" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#991b1b] hover:text-red-800 transition-colors">
-                    Set up your contractor profile →
-                  </a>
-                </div>
-              )}
+              {/* Removed: For Contractors callout (see footer) */}
             </div>
           </div>
 
@@ -1838,16 +1831,16 @@ ${biz}`
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">{quote.tiered ? 'Tiered Quote Ready' : 'Quote Ready'}</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">{quote.tiered ? 'Your Project Estimate' : 'Your Project Estimate'}</h2>
                   <p className="text-xs text-gray-400">#{quote.quoteNumber}</p>
                 </div>
               </div>
-              <button onClick={() => setQuote(null)}
+              <button onClick={() => { setQuote(null); setGuestEmail(''); setGuestEmailSaved(false) }}
                 className="text-sm text-gray-400 hover:text-gray-700 flex items-center gap-1.5 transition-colors">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
                 </svg>
-                New quote
+                New estimate
               </button>
             </div>
 
@@ -1897,7 +1890,7 @@ ${biz}`
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="text-stone-400 text-xs font-medium uppercase tracking-wide">Quote</p>
+                  <p className="text-stone-400 text-xs font-medium uppercase tracking-wide">Estimate</p>
                   <p className="text-amber-500 font-bold text-lg mt-0.5">{quote.quoteNumber}</p>
                   <p className="text-stone-400 text-xs mt-1">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                   <div className="mt-1.5 flex items-center gap-1 justify-end">
@@ -1911,9 +1904,9 @@ ${biz}`
               </div>
 
               <div className="px-5 sm:px-8 py-5 sm:py-6 space-y-6">
-                {/* Bill to */}
+                {/* Prepared for */}
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Prepared For</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{user ? 'Prepared For' : 'Your Project'}</p>
                   <p className="font-semibold text-gray-900">{form.clientName}</p>
                   <p className="text-sm text-gray-500 mt-0.5">{form.clientAddress}</p>
                   {form.clientEmail && (
@@ -2046,7 +2039,7 @@ ${biz}`
 
                 {/* Footer */}
                 <p className="text-center text-xs text-gray-300 pt-2 border-t border-gray-50">
-                  {profile?.businessName || form.businessName} · Professional Estimate
+                  Estimate prepared with SnapBid · AI-powered cost analysis
                 </p>
               </div>
             </div>
@@ -2099,15 +2092,64 @@ ${biz}`
                   </>
                 )}
               </button>
-              <button onClick={() => setQuote(null)}
+              <button onClick={() => { setQuote(null); setGuestEmail(''); setGuestEmailSaved(false) }}
                 className="border border-gray-200 bg-[#faf8f5] hover:bg-gray-50 text-gray-600 font-medium py-3 px-4 rounded-xl transition-colors text-sm flex items-center gap-1.5"
-                title="Start a new quote">
+                title="Start a new estimate">
                 <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/>
                 </svg>
-                New Quote
+                New Estimate
               </button>
             </div>
+
+            {/* Post-result guest email capture (not shown to signed-in users) */}
+            {!user && (
+              <div className="mt-5 bg-amber-50 border border-amber-100 rounded-2xl px-5 py-4">
+                {guestEmailSaved ? (
+                  <div className="flex items-center gap-2.5 text-sm text-amber-800">
+                    <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span><span className="font-semibold">Got it!</span> We'll send your estimate to {guestEmail}. Create an account any time to save unlimited estimates.</span>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">Save this estimate or get matched with local contractors</p>
+                    <p className="text-xs text-gray-500 mb-3">Enter your email to save a copy, get a PDF, or be connected with vetted local pros. Free, no spam.</p>
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        value={guestEmail}
+                        onChange={e => setGuestEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 bg-white focus:border-[#991b1b] focus:ring-2 focus:ring-[#991b1b]/10 outline-none transition-all"
+                        onKeyDown={e => e.key === 'Enter' && handleSaveGuestEmail()}
+                      />
+                      <button
+                        onClick={handleSaveGuestEmail}
+                        disabled={guestEmailSubmitting || !guestEmail}
+                        className="bg-[#991b1b] hover:bg-red-800 disabled:opacity-60 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors flex-shrink-0 flex items-center gap-1.5"
+                      >
+                        {guestEmailSubmitting ? (
+                          <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/>
+                            <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                          </svg>
+                        ) : null}
+                        Save my estimate
+                      </button>
+                    </div>
+                    <div className="mt-2.5 text-center">
+                      <SignInButton mode="modal" forceRedirectUrl="/">
+                        <button className="text-xs text-amber-700 hover:text-red-800 transition-colors font-medium">
+                          Or create a free account to save all your estimates →
+                        </button>
+                      </SignInButton>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Near-quota upgrade nudge (last free quote used) */}
             {user && !isSubscribed && quotesUsed >= FREE_QUOTA - 1 && (

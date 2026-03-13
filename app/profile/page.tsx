@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 
 const TRADES = [
   { value: 'plumbing', label: 'Plumbing' },
@@ -148,12 +149,20 @@ const MOCK_EXCLUSIONS: Record<string, string[]> = {
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { user } = useUser()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [savedOk, setSavedOk] = useState(false)
   const [isNew, setIsNew] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null)
+  // Homeowner mode: true if the user has NOT set a businessName
+  const [isHomeownerMode, setIsHomeownerMode] = useState(false)
+  // Homeowner location fields
+  const [homeCity, setHomeCity] = useState('')
+  const [homeState, setHomeState] = useState('')
+  const [homeSaving, setHomeSaving] = useState(false)
+  const [homeSavedOk, setHomeSavedOk] = useState(false)
 
   const [form, setForm] = useState({
     // Core
@@ -203,7 +212,14 @@ export default function ProfilePage() {
       .then(data => {
         if (data.profile) {
           const p = data.profile
+          // Determine homeowner vs contractor mode
+          if (!p.businessName) {
+            setIsHomeownerMode(true)
+          }
           if (p.logoDataUrl) setLogoDataUrl(p.logoDataUrl)
+          // Load saved homeowner location if present
+          if (p.homeCity) setHomeCity(p.homeCity)
+          if (p.homeState) setHomeState(p.homeState)
           setForm({
             businessName: p.businessName || '',
             trade: p.trade || 'general',
@@ -242,6 +258,7 @@ export default function ProfilePage() {
           })
         } else {
           setIsNew(true)
+          setIsHomeownerMode(true) // New users default to homeowner view
         }
       })
       .finally(() => setLoading(false))
@@ -269,6 +286,8 @@ export default function ProfilePage() {
     const payload = {
       ...form,
       logoDataUrl: logoDataUrl || '',
+      homeCity,
+      homeState,
     }
     await fetch('/api/profile', {
       method: 'POST',
@@ -281,6 +300,18 @@ export default function ProfilePage() {
       setSavedOk(false)
       router.push('/')
     }, 1200)
+  }
+
+  const handleSaveHomeownerLocation = async () => {
+    setHomeSaving(true)
+    await fetch('/api/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form, homeCity, homeState, logoDataUrl: logoDataUrl || '' }),
+    })
+    setHomeSaving(false)
+    setHomeSavedOk(true)
+    setTimeout(() => setHomeSavedOk(false), 2000)
   }
 
   const mockQuote = useMemo(() => {
@@ -328,6 +359,111 @@ export default function ProfilePage() {
   const sectionCls = "bg-[#faf8f5] rounded-2xl border border-gray-100 shadow-md p-6 space-y-5"
   const helperCls = "text-xs text-gray-400 mt-1"
 
+  // ── HOMEOWNER VIEW ──────────────────────────────────────────────────────────
+  if (!loading && isHomeownerMode) {
+    return (
+      <main className="min-h-screen" style={{ background: 'var(--background)' }}>
+        <header className="bg-[#faf8f5] border-b border-gray-100 sticky top-0 z-50">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 py-3.5 flex items-center gap-3">
+            <img src="/logo.svg" alt="SnapBid" className="h-9 w-auto" />
+            <span className="text-gray-300">·</span>
+            <span className="text-gray-400 text-sm">Your Account</span>
+          </div>
+        </header>
+
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-4">
+          <button onClick={() => router.push('/')} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to estimates
+          </button>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-5">
+          {/* Welcome */}
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Your Account</h1>
+            <p className="text-sm text-gray-500 mt-1">Manage your saved estimates and preferences.</p>
+          </div>
+
+          {/* Saved estimates link */}
+          <div className="bg-[#faf8f5] rounded-2xl border border-gray-100 shadow-md p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Your Saved Estimates</p>
+                <p className="text-sm text-gray-600">View your past project estimates and cost breakdowns.</p>
+              </div>
+              <button
+                onClick={() => router.push('/?tab=history')}
+                className="flex-shrink-0 bg-[#991b1b] hover:bg-red-800 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
+              >
+                View history →
+              </button>
+            </div>
+          </div>
+
+          {/* Location preferences */}
+          <div className="bg-[#faf8f5] rounded-2xl border border-gray-100 shadow-md p-5 space-y-4">
+            <div>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Your Location</p>
+              <p className="text-sm text-gray-500">Helps us calibrate cost estimates to your local market.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">City</label>
+                <input
+                  value={homeCity}
+                  onChange={e => setHomeCity(e.target.value)}
+                  placeholder="e.g. Austin"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 bg-white focus:border-[#991b1b] focus:ring-2 focus:ring-[#991b1b]/10 outline-none transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">State</label>
+                <input
+                  value={homeState}
+                  onChange={e => setHomeState(e.target.value)}
+                  placeholder="e.g. TX"
+                  maxLength={2}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 bg-white focus:border-[#991b1b] focus:ring-2 focus:ring-[#991b1b]/10 outline-none transition-all"
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleSaveHomeownerLocation}
+              disabled={homeSaving}
+              className={`text-sm font-semibold px-4 py-2 rounded-xl transition-colors ${
+                homeSavedOk
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-[#991b1b] hover:bg-red-800 text-white disabled:opacity-60'
+              }`}
+            >
+              {homeSavedOk ? '✓ Saved!' : homeSaving ? 'Saving…' : 'Save location'}
+            </button>
+          </div>
+
+          {/* Email */}
+          <div className="bg-[#faf8f5] rounded-2xl border border-gray-100 shadow-md p-5">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Your Email</p>
+            <p className="text-sm text-gray-800">{user?.primaryEmailAddress?.emailAddress || '—'}</p>
+            <p className="text-xs text-gray-400 mt-1">Managed through your account settings.</p>
+          </div>
+
+          {/* Subtle contractor setup link */}
+          <div className="text-center pt-2">
+            <button
+              onClick={() => setIsHomeownerMode(false)}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Are you a contractor? Set up your contractor profile →
+            </button>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="min-h-screen" style={{ background: 'var(--background)' }}>
       <header className="bg-[#faf8f5] border-b border-gray-100 sticky top-0 z-50">
@@ -343,11 +479,24 @@ export default function ProfilePage() {
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
           </svg>
-          Back to quotes
+          Back to estimates
         </button>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+            {/* Contractor profile indicator */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Contractor Profile</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Your rates and settings calibrate every quote you generate.</p>
+              </div>
+              <button
+                onClick={() => setIsHomeownerMode(true)}
+                className="text-xs text-gray-400 hover:text-gray-600 transition-colors border border-gray-200 px-3 py-1.5 rounded-lg"
+              >
+                ← Homeowner view
+              </button>
+            </div>
             {isNew && (
               <div className="bg-gradient-to-r from-[#991b1b] to-[#b45309] rounded-2xl px-6 py-5 text-white">
                 <p className="font-semibold text-base">👋 Welcome to SnapBid!</p>
