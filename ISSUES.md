@@ -4,6 +4,22 @@
 
 ---
 
+### ✅ [UX POLISH] #14 — Paywall modal showed wrong price ($9/mo instead of $59 LTD) + no history search
+**Detected:** 2026-03-12 5:05 PM ET (6h feature pass cron)
+**Status:** Resolved — 2026-03-12 5:30 PM ET (commit `4b8a645`)
+**Severity:** High (paywall showed $9/month → confused users since checkout charges $59 LTD)
+
+**Problem 1:** The paywall modal price display showed `$9/month ($19 crossed out)` with copy reading "Cancel anytime", but the checkout button said "Claim Lifetime Deal — $59" and the actual Stripe checkout charges $59 one-time. This mismatch destroys conversion trust — users see a monthly price, click through, and get charged something different.
+
+**Problem 2:** Quote history had no way to search or filter as history grew — contractors couldn't find past quotes by client name or status without scrolling the whole list.
+
+**Fix applied:**
+- **Paywall price:** Corrected to show `$199 (crossed out) → $59 one-time` with copy "Pay once · Yours forever · Secured by Stripe". Now matches the actual LTD checkout price and framing.
+- **History search:** Added a live search input above the history list that filters by client name, address, quote number, or job description as you type. Includes a clear button.
+- **History status filter:** Added All / Won / Lost / Pending filter chips next to the search bar. Filter and search can be combined. "No quotes match" empty state with a "Clear filters" link.
+
+---
+
 ### ✅ [UX FEATURE] #13 — Advanced Pricing settings silently missing from profile UI
 **Detected:** 2026-03-12 11:05 AM ET (6h feature pass cron)
 **Status:** Resolved — 2026-03-12 11:30 AM ET (commit `31db956`)
