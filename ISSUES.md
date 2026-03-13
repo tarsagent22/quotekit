@@ -4,6 +4,17 @@
 
 ---
 
+### ✅ [MINOR SEO] #18 — `/upgrade` page `<title>` had duplicate "SnapBid" suffix
+**Detected:** 2026-03-13 11:11 AM ET (4h quality check cron)
+**Status:** Resolved — 2026-03-13 11:20 AM ET (commit `9a08694`)
+**Severity:** Low (SEO / UX — duplicate brand name in browser tab and search snippet)
+
+**Problem:** The root `layout.tsx` defines a Next.js metadata template `'%s | SnapBid'`. The upgrade page set `title: 'Upgrade — SnapBid | Lifetime Deal'` as a plain string, so Next.js applied the template on top, producing `"Upgrade — SnapBid | Lifetime Deal | SnapBid"` — duplicate "SnapBid" in tab and search snippet.
+
+**Fix applied:** Changed upgrade page metadata to use `title: { absolute: 'Upgrade — SnapBid | Lifetime Deal' }` which bypasses the root layout template. Live title confirmed clean: `"Upgrade — SnapBid | Lifetime Deal"`.
+
+---
+
 ### ✅ [MINOR SEO] #17 — `/upgrade` page `<title>` is identical to homepage
 **Detected:** 2026-03-13 07:11 AM ET (4h quality check cron)
 **Status:** Resolved — 2026-03-13 11:05 AM ET
