@@ -2,8 +2,16 @@
 // always shows the real "X of 50 claimed" value (fixes Issue #5).
 // Issue #16 fix: counts completed LTD checkout.sessions (mode:payment)
 // instead of subscriptions (which are always empty for one-time purchases).
+// Issue #17 fix: distinct metadata so browser tabs and SEO differentiate this page.
+import type { Metadata } from 'next'
 import UpgradeClient from './UpgradeClient'
 import Stripe from 'stripe'
+
+export const metadata: Metadata = {
+  title: 'Upgrade — SnapBid | Lifetime Deal',
+  description:
+    'Unlimited contractor quotes for a one-time payment of $59. No monthly fees, ever.',
+}
 
 const FOUNDER_SPOTS_TOTAL = 50
 const CACHE_TTL_MS = 5 * 60 * 1000 // 5 min — matches the API route cache
