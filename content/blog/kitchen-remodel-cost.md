@@ -1,17 +1,17 @@
 ---
-title: "How Much Does a Kitchen Remodel Cost? (2025 Complete Guide)"
+title: "How Much Does a Kitchen Remodel Cost? (2026 Complete Guide)"
 date: "2026-03-13"
 description: "Kitchen remodel costs range from $10,000 to $150,000+. Here's exactly what drives the price and how to budget smart."
-keywords: ["how much does a kitchen remodel cost", "kitchen remodel cost", "kitchen renovation cost", "kitchen remodel budget", "kitchen renovation 2025"]
+keywords: ["how much does a kitchen remodel cost", "kitchen remodel cost", "kitchen renovation cost", "kitchen remodel budget", "kitchen renovation 2026"]
 author: "SnapBid"
 readTime: "6 min read"
 ---
 
-# How Much Does a Kitchen Remodel Cost? (2025 Complete Guide)
+# How Much Does a Kitchen Remodel Cost? (2026 Complete Guide)
 
 If you've been Googling "how much does a kitchen remodel cost," you already know you'll find wildly different numbers depending on where you look. Here's the real answer: it depends heavily on your kitchen size, material choices, and how much of the layout you're changing.
 
-The national average kitchen remodel in 2025 runs between **$25,000 and $60,000** for a mid-range project. But costs can go as low as $10,000 for a cosmetic refresh or north of $150,000 for a full custom gut.
+The national average kitchen remodel in 2026 runs between **$25,000 and $60,000** for a mid-range project. But costs can go as low as $10,000 for a cosmetic refresh or north of $150,000 for a full custom gut.
 
 Let's break it all down.
 
@@ -97,20 +97,18 @@ General contractor markup, plumber, electrician, tile setter, painter — labor 
 - Mid-range: 3–8 weeks
 - Major gut/rebuild: 8–16 weeks
 
-Timeline slips are common. Order materials and appliances before demo day — supply chain delays remain a real issue in 2025.
+Timeline slips are common. Order materials and appliances before demo day — supply chain delays remain a real issue in 2026.
 
 ## Is a Kitchen Remodel Worth It?
 
-A mid-range kitchen remodel recoups roughly **70–80% of its cost** at resale according to Remodeling Magazine's 2025 Cost vs. Value Report. A major remodel recoups closer to 50–60%. The best ROI usually comes from mid-range projects that bring the kitchen up to neighborhood standards without over-improving.
+A mid-range kitchen remodel recoups roughly **70–80% of its cost** at resale according to Remodeling Magazine's 2026 Cost vs. Value Report. A major remodel recoups closer to 50–60%. The best ROI usually comes from mid-range projects that bring the kitchen up to neighborhood standards without over-improving.
 
 But for most homeowners, the daily quality-of-life improvement is the real payoff.
 
 ---
 
-## Get Your Kitchen Estimate Before You Talk to Contractors
+## Get a Free Estimate for Your Project
 
-Knowing what your project *should* cost before a contractor walks in the door changes the entire conversation.
+Stop guessing what your project will cost. Use SnapBid's free estimator to get an instant, itemized cost breakdown for your specific project — no account required.
 
-**[Get an instant estimate for your kitchen project → snapbid.app](https://snapbid.app)**
-
-No email required. No contractor calls. Just an honest number so you can plan smart.
+[Get My Free Estimate →](https://snapbid.app)

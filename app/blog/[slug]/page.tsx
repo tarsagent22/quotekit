@@ -26,6 +26,60 @@ function getAllSlugs(): string[] {
     .map(f => f.replace(/\.md$/, ''))
 }
 
+/**
+ * Parse markdown content to extract H2 sections as FAQ Q&A pairs.
+ * Each H2 heading becomes the question; the first non-empty paragraph
+ * immediately following it becomes the answer.
+ */
+function extractFaqEntries(content: string): Array<{ question: string; answer: string }> {
+  const lines = content.split('\n')
+  const entries: Array<{ question: string; answer: string }> = []
+  let i = 0
+
+  while (i < lines.length) {
+    const line = lines[i]
+    // Match H2 headings (## but not ###)
+    const h2Match = line.match(/^##\s+(.+)$/)
+    if (h2Match) {
+      const question = h2Match[1].trim()
+      // Find the first non-empty paragraph after this heading
+      let answer = ''
+      let j = i + 1
+      while (j < lines.length) {
+        const candidate = lines[j].trim()
+        // Stop at the next heading
+        if (candidate.startsWith('#')) break
+        // Skip blank lines until we find content
+        if (candidate.length > 0 && !candidate.startsWith('#')) {
+          // Skip sub-headings (###), blockquote markers, table rows, list items for cleaner answers
+          if (!candidate.startsWith('###') && !candidate.startsWith('|') && !candidate.startsWith('>') && !candidate.startsWith('-') && !candidate.startsWith('*') && !candidate.startsWith('1.')) {
+            answer = candidate
+              .replace(/\*\*/g, '')
+              .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+              .trim()
+            break
+          } else if (candidate.startsWith('>')) {
+            // Use blockquote text as answer if nothing else
+            answer = candidate.replace(/^>\s*\*?\*?/, '').replace(/\*\*/g, '').trim()
+            break
+          } else {
+            // For list items, use the first one as a short answer
+            answer = candidate.replace(/^[-*]\s*/, '').replace(/\*\*/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim()
+            break
+          }
+        }
+        j++
+      }
+      if (question && answer) {
+        entries.push({ question, answer })
+      }
+    }
+    i++
+  }
+
+  return entries
+}
+
 export async function generateStaticParams() {
   return getAllSlugs().map(slug => ({ slug }))
 }
@@ -64,7 +118,8 @@ export default async function BlogPost({ params }: Props) {
   const { frontmatter, content } = post
   const htmlContent = await marked(content)
 
-  const jsonLd = {
+  // Article schema
+  const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: frontmatter.title,
@@ -73,14 +128,14 @@ export default async function BlogPost({ params }: Props) {
     dateModified: frontmatter.date,
     author: {
       '@type': 'Organization',
-      name: frontmatter.author || 'SnapBid',
-      url: 'https://snapbid.app',
+      name: 'SnapBid',
     },
     publisher: {
       '@type': 'Organization',
       name: 'SnapBid',
       url: 'https://snapbid.app',
     },
+    url: `https://snapbid.app/blog/${slug}`,
     keywords: Array.isArray(frontmatter.keywords) ? frontmatter.keywords.join(', ') : frontmatter.keywords,
     mainEntityOfPage: {
       '@type': 'WebPage',
@@ -88,13 +143,37 @@ export default async function BlogPost({ params }: Props) {
     },
   }
 
+  // FAQPage schema — built from H2 sections
+  const faqEntries = extractFaqEntries(content)
+  const faqSchema = faqEntries.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqEntries.map(({ question, answer }) => ({
+          '@type': 'Question',
+          name: question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: answer,
+          },
+        })),
+      }
+    : null
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--background, #faf8f5)' }}>
-      {/* Schema.org JSON-LD */}
+      {/* Article Schema JSON-LD */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      {/* FAQPage Schema JSON-LD */}
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       {/* Header */}
       <header className="bg-[#faf8f5] border-b border-gray-100 sticky top-0 z-50">
@@ -169,17 +248,6 @@ export default async function BlogPost({ params }: Props) {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-100 mt-8">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-gray-400">
-          <span>© {new Date().getFullYear()} SnapBid</span>
-          <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-gray-600 transition-colors">Privacy</Link>
-            <Link href="/blog" className="hover:text-gray-600 transition-colors">All Guides</Link>
-            <Link href="/" className="hover:text-gray-600 transition-colors">Home</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

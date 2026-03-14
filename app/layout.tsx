@@ -124,7 +124,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
           <footer className="border-t border-gray-100 py-6 bg-[#faf8f5]">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-xs text-gray-400">© 2026 SnapBid · Built for tradespeople</p>
+              <p className="text-xs text-gray-400">© 2026 SnapBid · Built to help homeowners understand project costs</p>
               <nav className="flex items-center gap-4 text-xs text-gray-400">
                 {userId && (
                   <a href="/profile" className="hover:text-gray-600 transition-colors">Profile</a>

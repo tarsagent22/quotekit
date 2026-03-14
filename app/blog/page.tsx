@@ -123,16 +123,6 @@ export default function BlogIndex() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-100 mt-8">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-gray-400">
-          <span>© {new Date().getFullYear()} SnapBid</span>
-          <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-gray-600 transition-colors">Privacy</Link>
-            <Link href="/" className="hover:text-gray-600 transition-colors">Home</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

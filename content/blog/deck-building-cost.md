@@ -1,17 +1,17 @@
 ---
-title: "How Much Does It Cost to Build a Deck? (2025 Pricing Guide)"
+title: "How Much Does It Cost to Build a Deck? (2026 Pricing Guide)"
 date: "2026-03-13"
-description: "Deck building costs range from $15 to $55 per sqft depending on material. Here's the full breakdown for wood, composite, and cedar decks in 2025."
-keywords: ["how much does it cost to build a deck", "deck building cost", "deck cost per square foot", "composite deck cost", "wood deck cost 2025"]
+description: "Deck building costs range from $15 to $55 per sqft depending on material. Here's the full breakdown for wood, composite, and cedar decks in 2026."
+keywords: ["how much does it cost to build a deck", "deck building cost", "deck cost per square foot", "composite deck cost", "wood deck cost 2026"]
 author: "SnapBid"
 readTime: "5 min read"
 ---
 
-# How Much Does It Cost to Build a Deck? (2025 Pricing Guide)
+# How Much Does It Cost to Build a Deck? (2026 Pricing Guide)
 
 A well-built deck adds living space, boosts curb appeal, and consistently delivers strong ROI at resale. But before you start dreaming about summer cookouts, you need a realistic sense of what you're about to spend.
 
-The average deck build in 2025 runs between **$15,000 and $35,000** for a 400 sqft ground-level deck, depending heavily on material choice and design complexity. Here's exactly what drives that number.
+The average deck build in 2026 runs between **$15,000 and $35,000** for a 400 sqft ground-level deck, depending heavily on material choice and design complexity. Here's exactly what drives that number.
 
 ## Deck Cost by Material
 
@@ -115,10 +115,8 @@ Order materials ahead of time — lumber and composite can have lead times, espe
 
 ---
 
-## Get Your Deck Estimate Before Contractors Visit
+## Get a Free Estimate for Your Project
 
-Knowing the going rate in your area changes how you evaluate bids. Don't go in blind.
+Stop guessing what your project will cost. Use SnapBid's free estimator to get an instant, itemized cost breakdown for your specific project — no account required.
 
-**[Get a deck building estimate → snapbid.app](https://snapbid.app)**
-
-Tell us your deck size and material preference — we'll give you an instant cost range. Free, no sign-up needed.
+[Get My Free Estimate →](https://snapbid.app)
