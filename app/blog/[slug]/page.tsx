@@ -58,6 +58,26 @@ function extractFaqEntries(content: string): Array<{ question: string; answer: s
   return entries
 }
 
+// Render an array of inline tokens to HTML
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function renderInline(tokens: any[]): string {
+  if (!tokens) return ''
+  return tokens.map((t: any) => {
+    if (t.type === 'text') return t.text
+    if (t.type === 'strong') return `<strong style="font-weight:700;color:#111827">${renderInline(t.tokens)}</strong>`
+    if (t.type === 'em') return `<em style="color:#6b7280;font-style:italic">${renderInline(t.tokens)}</em>`
+    if (t.type === 'link') {
+      const isExternal = t.href?.startsWith('http')
+      return `<a href="${t.href}" style="color:#991b1b;font-weight:600;text-decoration:none;border-bottom:1px solid #fca5a5"${isExternal ? ' target="_blank" rel="noopener noreferrer"' : ''}>${renderInline(t.tokens)}</a>`
+    }
+    if (t.type === 'codespan') return `<code style="background:#f3f0eb;padding:0.15em 0.4em;border-radius:4px;font-size:0.9em;color:#991b1b">${t.text}</code>`
+    if (t.type === 'br') return '<br/>'
+    if (t.type === 'escape') return t.text
+    // fallback — use raw
+    return t.raw || t.text || ''
+  }).join('')
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildRenderer(): any {
   const renderer = new Renderer()
@@ -73,24 +93,26 @@ function buildRenderer(): any {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderer.paragraph = (token: any) => {
-    return `<p style="color:#374151;line-height:1.8;margin:0 0 1.1rem;font-size:1rem">${token.text}</p>`
+    const html = token.tokens ? renderInline(token.tokens) : token.text
+    return `<p style="color:#374151;line-height:1.8;margin:0 0 1.1rem;font-size:1rem">${html}</p>`
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderer.strong = (token: any) => {
-    return `<strong style="font-weight:700;color:#111827">${token.text}</strong>`
+    return `<strong style="font-weight:700;color:#111827">${renderInline(token.tokens)}</strong>`
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderer.em = (token: any) => {
-    return `<em style="color:#6b7280;font-style:italic">${token.text}</em>`
+    return `<em style="color:#6b7280;font-style:italic">${renderInline(token.tokens)}</em>`
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderer.link = (token: any) => {
-    const { href, text } = token
+    const { href, tokens: linkTokens, text } = token
     const isExternal = href?.startsWith('http')
-    return `<a href="${href}" style="color:#991b1b;font-weight:600;text-decoration:none;border-bottom:1px solid #fca5a5"${isExternal ? ' target="_blank" rel="noopener noreferrer"' : ''}>${text}</a>`
+    const inner = linkTokens ? renderInline(linkTokens) : text
+    return `<a href="${href}" style="color:#991b1b;font-weight:600;text-decoration:none;border-bottom:1px solid #fca5a5"${isExternal ? ' target="_blank" rel="noopener noreferrer"' : ''}>${inner}</a>`
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -108,23 +130,35 @@ function buildRenderer(): any {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderer.listitem = (token: any) => {
-    // Get rendered text — handle nested tokens
-    const text = token.tokens
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ? token.tokens.map((t: any) => {
-          if (t.type === 'text') return t.text
-          if (t.type === 'strong') return `<strong style="font-weight:700;color:#111827">${t.text}</strong>`
-          if (t.type === 'link') return `<a href="${t.href}" style="color:#991b1b;font-weight:600;text-decoration:none;border-bottom:1px solid #fca5a5">${t.text}</a>`
-          return t.raw || ''
-        }).join('')
-      : token.text
+    // Walk all inline tokens inside the list item
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const inlineTokens: any[] = []
+    if (token.tokens) {
+      for (const t of token.tokens) {
+        if (t.type === 'text' && t.tokens) inlineTokens.push(...t.tokens)
+        else inlineTokens.push(t)
+      }
+    }
+    const text = inlineTokens.length ? renderInline(inlineTokens) : token.text
     return `<li style="color:#374151;line-height:1.75;margin-bottom:0.5rem;padding-left:1.5rem;position:relative"><span style="position:absolute;left:0;color:#991b1b;font-weight:700">→</span>${text}</li>`
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderer.blockquote = (token: any) => {
-    const text = token.text || token.raw || ''
-    return `<blockquote style="margin:1.5rem 0;padding:1rem 1.25rem;background:#fef9f0;border-left:4px solid #d97706;border-radius:0 8px 8px 0;color:#374151;font-style:normal">${text}</blockquote>`
+    // token.tokens is array of block tokens (paragraphs etc)
+    let inner = ''
+    if (token.tokens) {
+      for (const t of token.tokens) {
+        if (t.type === 'paragraph') {
+          inner += t.tokens ? renderInline(t.tokens) : t.text
+        } else {
+          inner += t.raw || ''
+        }
+      }
+    } else {
+      inner = token.text || token.raw || ''
+    }
+    return `<blockquote style="margin:1.5rem 0;padding:1rem 1.25rem;background:#fef9f0;border-left:4px solid #d97706;border-radius:0 8px 8px 0;color:#374151;font-style:normal">${inner}</blockquote>`
   }
 
   renderer.hr = () => {
@@ -135,7 +169,8 @@ function buildRenderer(): any {
   renderer.table = (token: any) => {
     let thead = '<thead><tr>'
     for (const cell of token.header) {
-      thead += `<th style="text-align:left;padding:0.75rem 1rem;background:#1C1917;color:#e7e5e4;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em">${cell.text}</th>`
+      const cellHtml = cell.tokens ? renderInline(cell.tokens) : cell.text
+      thead += `<th style="text-align:left;padding:0.75rem 1rem;background:#1C1917;color:#e7e5e4;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em">${cellHtml}</th>`
     }
     thead += '</tr></thead>'
     let tbody = '<tbody>'
@@ -143,7 +178,8 @@ function buildRenderer(): any {
       tbody += '<tr style="border-bottom:1px solid #f3f0eb">'
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       for (const cell of row) {
-        tbody += `<td style="padding:0.75rem 1rem;color:#374151;background:#fff">${cell.text}</td>`
+        const cellHtml = cell.tokens ? renderInline(cell.tokens) : cell.text
+        tbody += `<td style="padding:0.75rem 1rem;color:#374151;background:#fff">${cellHtml}</td>`
       }
       tbody += '</tr>'
     }
