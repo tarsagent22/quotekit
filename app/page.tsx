@@ -389,12 +389,252 @@ ${biz}`
     setQuoteDeleting(null)
   }
 
-  const handleDownloadPDF = async () => {
+  // ── Shared PDF helpers ──────────────────────────────────────────────────────
+
+  /** Categorize a line item as labor or materials based on description keywords */
+  const categorizePdfItem = (description: string): 'labor' | 'materials' => {
+    const lower = description.toLowerCase()
+    if (/labor|installation|install|hours|hr\b|haul|demo|removal|prep|service call/.test(lower)) return 'labor'
+    if (/material|supply|supplies|fixture|unit|panel|shingle|plank|tile|paint|pipe|wire|lumber|equipment/.test(lower)) return 'materials'
+    return 'materials'
+  }
+
+  /** Returns true if value is empty/junk (only digits, <5 chars, or blank) */
+  const isPdfJunkField = (value: string | null | undefined): boolean => {
+    if (!value) return true
+    const t = value.trim()
+    if (!t || t.length < 5) return true
+    if (/^\d+$/.test(t)) return true
+    return false
+  }
+
+  // ── Consumer Estimate PDF (jsPDF) ───────────────────────────────────────────
+
+  const buildConsumerPDF = async (
+    doc: any,
+    quoteData: any,
+    clientForm: { clientName: string; clientAddress: string; clientEmail: string; projectLocation?: string; jobDescription?: string }
+  ) => {
     const { jsPDF } = await import('jspdf')
-    const doc = new jsPDF({ unit: 'pt', format: 'letter' })
-    const biz = profile?.businessName || form.businessName
-    const trade = profile?.trade || form.trade
-    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const pageW = doc.internal.pageSize.getWidth()
+    const margin = 48
+    const contentW = pageW - margin * 2
+    let y = margin
+
+    const allItems = (quoteData.lineItems || [])
+    let materialsTotal = 0
+    let laborTotal = 0
+    const categorizedItems: Array<{ description: string; qty: number; unitPrice: number; total: number; category: string }> = []
+    for (const item of allItems) {
+      const cat = categorizePdfItem(item.description)
+      const amt = Number(item.total) || 0
+      if (cat === 'labor') laborTotal += amt
+      else materialsTotal += amt
+      categorizedItems.push({ ...item, category: cat })
+    }
+    const taxAmt = Number(quoteData.tax) || 0
+    const totalAmt = Number(quoteData.total) || 0
+
+    // Validate fields
+    const showClientName = !!(clientForm.clientName?.trim())
+    const locationValue = clientForm.projectLocation || clientForm.clientAddress || ''
+    const showLocation = !isPdfJunkField(locationValue)
+    const showClientEmail = !!(clientForm.clientEmail?.trim())
+
+    // Header bar — maroon for consumer
+    doc.setFillColor(153, 27, 27)
+    doc.rect(0, 0, pageW, 80, 'F')
+
+    // SnapBid logo text
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(26)
+    doc.text('SnapBid', margin, 38)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(255, 200, 200)
+    doc.text('AI-Powered Home Cost Estimates', margin, 54)
+
+    // Title right side
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(18)
+    doc.text('Cost Estimate', pageW - margin, 34, { align: 'right' })
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(255, 200, 200)
+    doc.text('AI-generated · regional pricing data', pageW - margin, 48, { align: 'right' })
+    const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    doc.text(dateStr, pageW - margin, 62, { align: 'right' })
+    y = 100
+
+    // Project info box
+    const projectDesc = clientForm.jobDescription || ''
+    const infoLines: string[] = []
+    if (showClientName) infoLines.push(`For: ${clientForm.clientName}`)
+    if (showLocation) infoLines.push(`Location: ${locationValue}`)
+    if (showClientEmail) infoLines.push(`Email: ${clientForm.clientEmail}`)
+
+    const boxH = 24 + (projectDesc ? 18 : 0) + infoLines.length * 14 + 10
+    doc.setFillColor(254, 242, 242)
+    doc.roundedRect(margin, y, contentW, boxH, 4, 4, 'F')
+    doc.setFillColor(153, 27, 27)
+    doc.rect(margin, y, 3, boxH, 'F')
+    doc.setTextColor(153, 27, 27)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(8)
+    doc.text('PROJECT DETAILS', margin + 10, y + 14)
+    let infoY = y + 26
+    if (projectDesc) {
+      const descWrapped = doc.splitTextToSize(projectDesc, contentW - 20)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(11)
+      doc.setTextColor(55, 65, 81)
+      doc.text(descWrapped.slice(0, 3), margin + 10, infoY)
+      infoY += Math.min(descWrapped.length, 3) * 13 + 4
+    }
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(107, 114, 128)
+    for (const line of infoLines) {
+      doc.text(line, margin + 10, infoY)
+      infoY += 14
+    }
+    y += boxH + 18
+
+    // Summary breakdown header
+    doc.setTextColor(107, 114, 128)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(8)
+    doc.text('ESTIMATED COST BREAKDOWN', margin, y)
+    y += 12
+
+    // Summary rows
+    const summaryRows: Array<{ label: string; amount: number; color: [number,number,number]; dotColor?: [number,number,number] }> = []
+    if (materialsTotal > 0) summaryRows.push({ label: 'Materials & Supplies', amount: materialsTotal, color: [55, 65, 81], dotColor: [22, 163, 74] })
+    if (laborTotal > 0) summaryRows.push({ label: 'Labor & Installation', amount: laborTotal, color: [55, 65, 81], dotColor: [37, 99, 235] })
+    if (taxAmt > 0) summaryRows.push({ label: 'Tax (estimated)', amount: taxAmt, color: [107, 114, 128] })
+
+    for (const row of summaryRows) {
+      doc.setFillColor(249, 250, 251)
+      doc.rect(margin, y, contentW, 26, 'F')
+      doc.setDrawColor(243, 244, 246)
+      doc.line(margin, y + 26, margin + contentW, y + 26)
+
+      // Dot indicator
+      if (row.dotColor) {
+        doc.setFillColor(...row.dotColor)
+        doc.circle(margin + 14, y + 13, 4, 'F')
+        doc.setTextColor(...(row.color as [number,number,number]))
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(12)
+        doc.text(row.label, margin + 24, y + 17)
+      } else {
+        doc.setTextColor(...(row.color as [number,number,number]))
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(12)
+        doc.text(row.label, margin + 10, y + 17)
+      }
+      doc.setFont('helvetica', 'bold')
+      doc.text(`$${row.amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, margin + contentW, y + 17, { align: 'right' })
+      y += 26
+    }
+
+    // Total row
+    doc.setFillColor(153, 27, 27)
+    doc.rect(margin, y + 4, contentW, 36, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(15)
+    doc.text('Total Estimate', margin + 14, y + 27)
+    doc.setFontSize(16)
+    doc.text(`$${totalAmt.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, margin + contentW, y + 27, { align: 'right' })
+    y += 54
+
+    // Itemized detail section
+    if (categorizedItems.length > 0) {
+      y += 10
+      doc.setTextColor(156, 163, 175)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8)
+      doc.text('ITEMIZED DETAIL', margin, y)
+      y += 10
+
+      // Table headers
+      doc.setFillColor(243, 244, 246)
+      doc.rect(margin, y, contentW, 20, 'F')
+      doc.setTextColor(107, 114, 128)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8)
+      doc.text('DESCRIPTION', margin + 8, y + 13)
+      doc.text('TYPE', margin + contentW * 0.58, y + 13, { align: 'right' })
+      doc.text('QTY', margin + contentW * 0.72, y + 13, { align: 'right' })
+      doc.text('UNIT', margin + contentW * 0.86, y + 13, { align: 'right' })
+      doc.text('TOTAL', margin + contentW, y + 13, { align: 'right' })
+      y += 20
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      categorizedItems.forEach((item, i) => {
+        if (i % 2 === 1) { doc.setFillColor(250, 250, 250); doc.rect(margin, y, contentW, 20, 'F') }
+        doc.setTextColor(55, 65, 81)
+        const descLines = doc.splitTextToSize(item.description, contentW * 0.5)
+        doc.text(descLines[0], margin + 8, y + 13)
+        // Category badge text
+        doc.setTextColor(item.category === 'labor' ? 29 : 22, item.category === 'labor' ? 78 : 101, item.category === 'labor' ? 216 : 52)
+        doc.text(item.category === 'labor' ? 'Labor' : 'Material', margin + contentW * 0.58, y + 13, { align: 'right' })
+        doc.setTextColor(107, 114, 128)
+        doc.text(String(item.qty), margin + contentW * 0.72, y + 13, { align: 'right' })
+        doc.text(`$${Number(item.unitPrice).toLocaleString()}`, margin + contentW * 0.86, y + 13, { align: 'right' })
+        doc.setTextColor(17, 24, 39)
+        doc.setFont('helvetica', 'bold')
+        doc.text(`$${Number(item.total).toLocaleString()}`, margin + contentW, y + 13, { align: 'right' })
+        doc.setFont('helvetica', 'normal')
+        y += 20
+      })
+      y += 6
+    }
+
+    // Disclaimer
+    y += 10
+    doc.setDrawColor(229, 231, 235)
+    doc.line(margin, y, margin + contentW, y)
+    y += 14
+    const disclaimerText = 'This is an AI-generated estimate based on regional averages. Actual contractor quotes may vary based on site conditions, materials chosen, and contractor rates.'
+    const disclaimerLines = doc.splitTextToSize(disclaimerText, contentW)
+    doc.setTextColor(156, 163, 175)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8.5)
+    doc.text(disclaimerLines, margin, y)
+    y += disclaimerLines.length * 12 + 8
+
+    // CTA box
+    doc.setFillColor(254, 242, 242)
+    doc.roundedRect(margin, y, contentW, 30, 4, 4, 'F')
+    doc.setTextColor(153, 27, 27)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(10)
+    doc.text('Ready to hire? Get matched with licensed contractors at snapbid.app', margin + 10, y + 19)
+    y += 42
+
+    doc.setTextColor(209, 213, 219)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Generated by SnapBid · AI-powered home cost estimates · snapbid.app', pageW / 2, y, { align: 'center' })
+  }
+
+  // ── Contractor Quote PDF (jsPDF) ─────────────────────────────────────────────
+
+  const buildContractorPDF = async (
+    doc: any,
+    quoteData: any,
+    bizName: string,
+    tradeStr: string,
+    clientForm: { clientName: string; clientAddress: string; clientEmail: string },
+    profileData: any | null,
+    pdfItems: any[],
+    pdfTotals: any
+  ) => {
     const pageW = doc.internal.pageSize.getWidth()
     const margin = 48
     const contentW = pageW - margin * 2
@@ -405,7 +645,7 @@ ${biz}`
     doc.setTextColor(255, 255, 255)
 
     // Logo (if available) — render left side, push text right
-    const logoDataUrl = profile?.logoDataUrl
+    const logoDataUrl = profileData?.logoDataUrl
     let textLeft = margin
     if (logoDataUrl) {
       try {
@@ -417,20 +657,20 @@ ${biz}`
 
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(20)
-    doc.text(biz, textLeft, 36)
+    doc.text(bizName, textLeft, 36)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(11)
-    doc.text(trade ? trade.charAt(0).toUpperCase() + trade.slice(1) + ' Services' : '', textLeft, 54)
+    doc.text(tradeStr ? tradeStr.charAt(0).toUpperCase() + tradeStr.slice(1) + ' Services' : '', textLeft, 54)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(13)
-    doc.text(`Quote ${quote.quoteNumber}`, pageW - margin, 32, { align: 'right' })
+    doc.text(`Quote ${quoteData.quoteNumber}`, pageW - margin, 32, { align: 'right' })
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    doc.text(date, pageW - margin, 48, { align: 'right' })
-    doc.text(`Valid for ${profile?.quoteValidityDays || 30} days`, pageW - margin, 62, { align: 'right' })
+    doc.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), pageW - margin, 48, { align: 'right' })
+    doc.text(`Valid for ${profileData?.quoteValidityDays || 30} days`, pageW - margin, 62, { align: 'right' })
     y = 96
 
-    const pdfClientBoxH = form.clientEmail ? 68 : 56
+    const pdfClientBoxH = clientForm.clientEmail ? 68 : 56
     doc.setFillColor(249, 250, 251)
     doc.roundedRect(margin, y, contentW, pdfClientBoxH, 4, 4, 'F')
     doc.setTextColor(107, 114, 128)
@@ -439,14 +679,14 @@ ${biz}`
     doc.text('PREPARED FOR', margin + 12, y + 16)
     doc.setTextColor(17, 24, 39)
     doc.setFontSize(12)
-    doc.text(form.clientName, margin + 12, y + 32)
+    doc.text(clientForm.clientName, margin + 12, y + 32)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
     doc.setTextColor(107, 114, 128)
-    doc.text(form.clientAddress, margin + 12, y + 46)
-    if (form.clientEmail) {
+    doc.text(clientForm.clientAddress, margin + 12, y + 46)
+    if (clientForm.clientEmail) {
       doc.setFontSize(9)
-      doc.text(form.clientEmail, margin + 12, y + 60)
+      doc.text(clientForm.clientEmail, margin + 12, y + 60)
     }
     y += pdfClientBoxH + 16
 
@@ -463,11 +703,7 @@ ${biz}`
 
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    const showMarkup = profile?.showMarkupOnQuote
-    const pdfItems = (quote.tiered ? (quote.tiers?.[selectedTier]?.lineItems || []) : (quote.lineItems || []))
-      .filter((item: any) => showMarkup || !item.description.toLowerCase().includes('markup'))
-    const pdfTotals = quote.tiered ? quote.tiers?.[selectedTier] : quote
-    ;(pdfItems).forEach((item: any, i: number) => {
+    pdfItems.forEach((item: any, i: number) => {
       if (i % 2 === 1) { doc.setFillColor(249, 250, 251); doc.rect(margin, y, contentW, 24, 'F') }
       doc.setTextColor(55, 65, 81)
       const descLines = doc.splitTextToSize(item.description, contentW * 0.55)
@@ -544,24 +780,23 @@ ${biz}`
       y += boxH + 10
     }
 
-    // Scope of work — after totals
-    if (quote.scopeOfWork) {
-      const rawParts = quote.scopeOfWork.split(/\n/).map((s: string) => s.trim()).filter(Boolean)
+    // Scope of work
+    if (quoteData.scopeOfWork) {
+      const rawParts = quoteData.scopeOfWork.split(/\n/).map((s: string) => s.trim()).filter(Boolean)
       const scopeParts = rawParts.length > 1
         ? rawParts
-        : quote.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
+        : quoteData.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
       renderSectionBox('SCOPE OF WORK', scopeParts, '-', [255,251,235], [180,83,9], [120,53,15])
     }
 
-    // Inclusions & Exclusions — stacked vertically, full width
-    const pdfInclusions: string[] = quote.inclusions || []
-    const pdfExclusions: string[] = quote.exclusions || []
+    const pdfInclusions: string[] = quoteData.inclusions || []
+    const pdfExclusions: string[] = quoteData.exclusions || []
     renderSectionBox("WHAT'S INCLUDED", pdfInclusions, '-', [240,253,244], [22,101,52], [20,83,45])
     renderSectionBox('NOT INCLUDED', pdfExclusions, '-', [255,251,235], [146,64,14], [120,53,15])
 
-    if (quote.notes) {
+    if (quoteData.notes) {
       doc.setFillColor(255, 251, 235)
-      const noteLines = doc.splitTextToSize(quote.notes, contentW - 24)
+      const noteLines = doc.splitTextToSize(quoteData.notes, contentW - 24)
       const noteH = noteLines.length * 14 + 28
       doc.roundedRect(margin, y, contentW, noteH, 4, 4, 'F')
       doc.setTextColor(180, 83, 9)
@@ -584,8 +819,43 @@ ${biz}`
     doc.setTextColor(156, 163, 175)
     doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
-    doc.text(`${biz} · Estimate prepared with SnapBid`, pageW / 2, y + 22, { align: 'center' })
-    doc.save(`snapbid-${quote.quoteNumber}-${form.clientName.replace(/\s+/g, '-')}.pdf`)
+    doc.text(`${bizName} · Estimate prepared with SnapBid`, pageW / 2, y + 22, { align: 'center' })
+  }
+
+  // ── Main PDF download handler ────────────────────────────────────────────────
+
+  const handleDownloadPDF = async () => {
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' })
+    const isConsumer = !profile?.businessName
+
+    if (isConsumer) {
+      // Consumer estimate
+      await buildConsumerPDF(doc, quote, {
+        clientName: form.clientName,
+        clientAddress: form.clientAddress,
+        clientEmail: form.clientEmail,
+        projectLocation: form.projectLocation,
+        jobDescription: form.jobDescription,
+      })
+      const safeName = form.clientName?.replace(/\s+/g, '-') || 'estimate'
+      doc.save(`snapbid-estimate-${quote.quoteNumber}-${safeName}.pdf`)
+    } else {
+      // Contractor quote
+      const biz = profile?.businessName || form.businessName
+      const trade = profile?.trade || form.trade
+      const showMarkup = profile?.showMarkupOnQuote
+      const pdfItems = (quote.tiered ? (quote.tiers?.[selectedTier]?.lineItems || []) : (quote.lineItems || []))
+        .filter((item: any) => showMarkup || !item.description.toLowerCase().includes('markup'))
+      const pdfTotals = quote.tiered ? quote.tiers?.[selectedTier] : quote
+      await buildContractorPDF(doc, quote, biz, trade, {
+        clientName: form.clientName,
+        clientAddress: form.clientAddress,
+        clientEmail: form.clientEmail,
+      }, profile, pdfItems, pdfTotals)
+      const safeName = form.clientName?.replace(/\s+/g, '-') || 'client'
+      doc.save(`snapbid-${quote.quoteNumber}-${safeName}.pdf`)
+    }
   }
 
   const handleDownloadHistoryPDF = async (q: any) => {
@@ -593,193 +863,33 @@ ${biz}`
     try {
       const { jsPDF } = await import('jspdf')
       const doc = new jsPDF({ unit: 'pt', format: 'letter' })
-      const biz = profile?.businessName || q.businessName || 'My Business'
-      const trade = profile?.trade || ''
-      const date = new Date(q.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-      const pageW = doc.internal.pageSize.getWidth()
-      const margin = 48
-      const contentW = pageW - margin * 2
-      let y = margin
+      const isConsumer = !profile?.businessName
 
-      doc.setFillColor(28, 25, 23)
-      doc.rect(0, 0, pageW, 72, 'F')
-      doc.setTextColor(255, 255, 255)
-
-      const logoDataUrl = profile?.logoDataUrl
-      let textLeft = margin
-      if (logoDataUrl) {
-        try {
-          const fmt = logoDataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG'
-          doc.addImage(logoDataUrl, fmt, margin, 10, 52, 52)
-          textLeft = margin + 62
-        } catch {}
-      }
-
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(20)
-      doc.text(biz, textLeft, 36)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(11)
-      doc.text(trade ? trade.charAt(0).toUpperCase() + trade.slice(1) + ' Services' : '', textLeft, 54)
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(13)
-      doc.text(`Quote ${q.quoteNumber}`, pageW - margin, 32, { align: 'right' })
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(10)
-      doc.text(date, pageW - margin, 48, { align: 'right' })
-      doc.text(`Valid for ${profile?.quoteValidityDays || 30} days`, pageW - margin, 62, { align: 'right' })
-      y = 96
-
-      const histClientBoxH = q.clientEmail ? 68 : 56
-      doc.setFillColor(249, 250, 251)
-      doc.roundedRect(margin, y, contentW, histClientBoxH, 4, 4, 'F')
-      doc.setTextColor(107, 114, 128)
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'bold')
-      doc.text('PREPARED FOR', margin + 12, y + 16)
-      doc.setTextColor(17, 24, 39)
-      doc.setFontSize(12)
-      doc.text(q.clientName || '—', margin + 12, y + 32)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(10)
-      doc.setTextColor(107, 114, 128)
-      doc.text(q.clientAddress || '', margin + 12, y + 46)
-      if (q.clientEmail) {
-        doc.setFontSize(9)
-        doc.text(q.clientEmail, margin + 12, y + 60)
-      }
-      y += histClientBoxH + 16
-
-      doc.setFillColor(243, 244, 246)
-      doc.rect(margin, y, contentW, 22, 'F')
-      doc.setTextColor(107, 114, 128)
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'bold')
-      doc.text('DESCRIPTION', margin + 8, y + 15)
-      doc.text('QTY', margin + contentW * 0.62, y + 15, { align: 'right' })
-      doc.text('UNIT PRICE', margin + contentW * 0.78, y + 15, { align: 'right' })
-      doc.text('TOTAL', margin + contentW, y + 15, { align: 'right' })
-      y += 22
-
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(10)
-      const histShowMarkup = profile?.showMarkupOnQuote
-      const items = (q.lineItems || []).filter((item: any) => histShowMarkup || !item.description.toLowerCase().includes('markup'))
-      items.forEach((item: any, i: number) => {
-        if (i % 2 === 1) { doc.setFillColor(249, 250, 251); doc.rect(margin, y, contentW, 24, 'F') }
-        doc.setTextColor(55, 65, 81)
-        const descLines = doc.splitTextToSize(item.description, contentW * 0.55)
-        doc.text(descLines, margin + 8, y + 16)
-        doc.setTextColor(107, 114, 128)
-        doc.text(String(item.qty), margin + contentW * 0.62, y + 16, { align: 'right' })
-        doc.text(`$${Number(item.unitPrice).toLocaleString()}`, margin + contentW * 0.78, y + 16, { align: 'right' })
-        doc.setTextColor(17, 24, 39)
-        doc.setFont('helvetica', 'bold')
-        doc.text(`$${Number(item.total).toLocaleString()}`, margin + contentW, y + 16, { align: 'right' })
-        doc.setFont('helvetica', 'normal')
-        y += Math.max(24, descLines.length * 14)
-      })
-
-      doc.setDrawColor(229, 231, 235)
-      doc.line(margin, y + 4, pageW - margin, y + 4)
-      y += 16
-      const totalsX = pageW - margin - 200
-      doc.setTextColor(107, 114, 128)
-      doc.setFontSize(10)
-      doc.text('Subtotal', totalsX, y + 14)
-      doc.text(`$${(q.subtotal ?? 0).toLocaleString()}`, pageW - margin, y + 14, { align: 'right' })
-      const hasTax2 = (q.tax ?? 0) > 0
-      if (hasTax2) {
-        doc.text('Tax (est.)', totalsX, y + 30)
-        doc.text(`$${(q.tax ?? 0).toLocaleString()}`, pageW - margin, y + 30, { align: 'right' })
-      }
-      const lineY2 = hasTax2 ? y + 36 : y + 20
-      const totalY2 = hasTax2 ? y + 52 : y + 36
-      doc.setDrawColor(229, 231, 235)
-      doc.line(totalsX, lineY2, pageW - margin, lineY2)
-      doc.setTextColor(217, 119, 6)
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(13)
-      doc.text('TOTAL', totalsX, totalY2)
-      doc.text(`$${(q.total ?? 0).toLocaleString()}`, pageW - margin, totalY2, { align: 'right' })
-      y += hasTax2 ? 72 : 56
-
-      // Reusable section renderer for history PDF
-      const renderHistSection = (
-        label: string,
-        items: string[],
-        bgColor: [number,number,number],
-        labelColor: [number,number,number],
-        textColor: [number,number,number]
-      ) => {
-        if (items.length === 0) return
-        const LINE_SIZE = 10
-        const LINE_H = 14
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(LINE_SIZE)
-        const wrapped = items.map((s: string) => doc.splitTextToSize(`- ${s}`, contentW - 28))
-        let boxH = 22
-        wrapped.forEach((lines: string[]) => { boxH += lines.length * LINE_H + 3 })
-        boxH += 8
-        doc.setFillColor(...bgColor)
-        doc.roundedRect(margin, y, contentW, boxH, 4, 4, 'F')
-        doc.setTextColor(...labelColor)
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(8)
-        doc.text(label, margin + 12, y + 14)
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(LINE_SIZE)
-        doc.setTextColor(...textColor)
-        let itemY = y + 24
-        wrapped.forEach((lines: string[]) => {
-          doc.text(lines, margin + 12, itemY)
-          itemY += lines.length * LINE_H + 3
+      if (isConsumer) {
+        // Consumer estimate template
+        await buildConsumerPDF(doc, q, {
+          clientName: q.clientName || '',
+          clientAddress: q.clientAddress || '',
+          clientEmail: q.clientEmail || '',
+          projectLocation: q.projectLocation || '',
+          jobDescription: q.jobDescription || '',
         })
-        y += boxH + 10
+        const safeName = (q.clientName || 'estimate').replace(/\s+/g, '-')
+        doc.save(`snapbid-estimate-${q.quoteNumber || 'quote'}-${safeName}.pdf`)
+      } else {
+        // Contractor quote template
+        const biz = profile?.businessName || q.businessName || 'My Business'
+        const trade = profile?.trade || ''
+        const histShowMarkup = profile?.showMarkupOnQuote
+        const items = (q.lineItems || []).filter((item: any) => histShowMarkup || !item.description.toLowerCase().includes('markup'))
+        await buildContractorPDF(doc, q, biz, trade, {
+          clientName: q.clientName || '—',
+          clientAddress: q.clientAddress || '',
+          clientEmail: q.clientEmail || '',
+        }, profile, items, q)
+        const safeName = (q.clientName || 'client').replace(/\s+/g, '-')
+        doc.save(`snapbid-${q.quoteNumber || 'quote'}-${safeName}.pdf`)
       }
-
-      // Scope of work — after totals
-      if (q.scopeOfWork) {
-        const rawParts = q.scopeOfWork.split(/\n/).map((s: string) => s.trim()).filter(Boolean)
-        const scopeParts = rawParts.length > 1
-          ? rawParts
-          : q.scopeOfWork.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean)
-        renderHistSection('SCOPE OF WORK', scopeParts, [255,251,235], [180,83,9], [120,53,15])
-      }
-
-      // Inclusions & Exclusions — stacked vertically, full width
-      const histInclusions: string[] = q.inclusions || []
-      const histExclusions: string[] = q.exclusions || []
-      renderHistSection("WHAT'S INCLUDED", histInclusions, [240,253,244], [22,101,52], [20,83,45])
-      renderHistSection('NOT INCLUDED', histExclusions, [255,251,235], [146,64,14], [120,53,15])
-
-      if (q.notes) {
-        doc.setFillColor(255, 251, 235)
-        const noteLines = doc.splitTextToSize(q.notes, contentW - 24)
-        const noteH = noteLines.length * 14 + 28
-        doc.roundedRect(margin, y, contentW, noteH, 4, 4, 'F')
-        doc.setTextColor(180, 83, 9)
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(9)
-        doc.text('NOTES', margin + 12, y + 16)
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(10)
-        doc.setTextColor(55, 65, 81)
-        let histNoteItemY = y + 30
-        noteLines.forEach((line: string) => {
-          doc.text(line, margin + 12, histNoteItemY)
-          histNoteItemY += 14
-        })
-        y += noteH + 16
-      }
-
-      doc.setDrawColor(229, 231, 235)
-      doc.line(margin, y + 8, pageW - margin, y + 8)
-      doc.setTextColor(156, 163, 175)
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'normal')
-      doc.text(`${biz} · Estimate prepared with SnapBid`, pageW / 2, y + 22, { align: 'center' })
-      doc.save(`snapbid-${q.quoteNumber || 'quote'}-${(q.clientName || 'client').replace(/\s+/g, '-')}.pdf`)
     } finally {
       setHistoryPdfDownloading(null)
     }
