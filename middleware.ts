@@ -14,6 +14,8 @@ const isPublicRoute = createRouteMatcher([
   '/api/stripe/webhook',
   '/api/founder-count',
   '/privacy',
+  '/pinterest-demo',
+  '/api/pinterest/callback',
   '/opengraph-image',
   '/sitemap.xml',
   '/robots.txt',
