@@ -7,6 +7,9 @@ import matter from 'gray-matter'
 export const metadata: Metadata = {
   title: 'Home Improvement Cost Guides | SnapBid',
   description: 'Free cost guides and pricing breakdowns for common home improvement projects. Know what to pay before you hire a contractor.',
+  other: {
+    'fo-verify': 'd9bdd49e-fed0-46ec-bbdb-a4793f4c4ebe',
+  },
 }
 
 interface PostMeta {
