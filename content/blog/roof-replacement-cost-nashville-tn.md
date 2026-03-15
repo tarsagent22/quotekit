@@ -92,7 +92,7 @@ The biggest mistake homeowners make is calling one contractor and going with it.
 5. **Don't pay more than 30% upfront** — balance due on completion after inspection
 6. Get a **lien waiver** at the end — protects you if they stiff their material supplier
 
-Not sure what a fair number looks like for your specific job? [Get a free AI-generated estimate from SnapBid →](https://snapbid.app) before you call anyone.
+Not sure what a fair number looks like for your specific job? [Get a free AI-generated estimate from SnapBid →](https://snapbid.app) before you call anyone. When you're ready to find vetted Nashville roofers, [Angi](ANGI_LINK) and [Thumbtack](THUMBTACK_LINK) both let you compare local pros for free.
 
 ---
 
@@ -133,3 +133,5 @@ Yes. It's noisy and there may be some debris, but roof replacement doesn't requi
 Stop guessing what your roof replacement should cost. Use SnapBid's free estimator to get an instant, itemized cost breakdown for your specific project — no account required.
 
 [Get My Free Estimate →](https://snapbid.app)
+
+*We may earn a commission when you click affiliate links on this page. This doesn't affect our editorial independence — we only recommend services we'd genuinely suggest to a friend.*

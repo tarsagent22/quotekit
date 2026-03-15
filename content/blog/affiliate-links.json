@@ -1,0 +1,44 @@
+{
+  "_comment": "Affiliate link registry for SnapBid blog posts. Add approved links here — publish-blog-post.sh injects them automatically. Placeholders marked with PENDING until approved.",
+  "_disclosure": "Posts must include FTC disclosure footer. See writing-standards.md.",
+
+  "angi": {
+    "general": "PENDING — add CJ Affiliate approved link here",
+    "roofing": "PENDING",
+    "bathroom": "PENDING",
+    "kitchen": "PENDING",
+    "hvac": "PENDING",
+    "plumbing": "PENDING",
+    "deck": "PENDING",
+    "flooring": "PENDING",
+    "painting": "PENDING",
+    "electrical": "PENDING"
+  },
+
+  "homeadvisor": {
+    "general": "PENDING — add CJ Affiliate approved link here",
+    "roofing": "PENDING",
+    "bathroom": "PENDING",
+    "kitchen": "PENDING",
+    "hvac": "PENDING",
+    "plumbing": "PENDING"
+  },
+
+  "thumbtack": {
+    "general": "PENDING — add FlexOffers approved link here",
+    "roofing": "PENDING",
+    "bathroom": "PENDING",
+    "kitchen": "PENDING",
+    "hvac": "PENDING",
+    "plumbing": "PENDING"
+  },
+
+  "amazon": {
+    "_note": "Amazon links are product-specific. Add as needed per post. Use SiteStripe to generate.",
+    "cordless_drill": "PENDING",
+    "tile_saw": "PENDING",
+    "caulk_gun": "PENDING",
+    "paint_sprayer": "PENDING",
+    "roofing_nailer": "PENDING"
+  }
+}

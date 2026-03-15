@@ -57,6 +57,31 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "▶ Publishing: $TITLE"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+# ── Step 0: Inject affiliate links ───────────────────────────────────────────
+AFFILIATE_FILE="content/blog/affiliate-links.json"
+if [ -f "$AFFILIATE_FILE" ]; then
+  echo ""
+  echo "▶ Step 0/5: Injecting affiliate links..."
+  ANGI_LINK=$(python3 -c "import json; d=json.load(open('$AFFILIATE_FILE')); print(d['angi'].get('$PROJECT_TYPE') or d['angi']['general'])" 2>/dev/null || echo "PENDING")
+  THUMBTACK_LINK=$(python3 -c "import json; d=json.load(open('$AFFILIATE_FILE')); print(d['thumbtack'].get('$PROJECT_TYPE') or d['thumbtack']['general'])" 2>/dev/null || echo "PENDING")
+  HOMEADVISOR_LINK=$(python3 -c "import json; d=json.load(open('$AFFILIATE_FILE')); print(d['homeadvisor'].get('$PROJECT_TYPE') or d['homeadvisor']['general'])" 2>/dev/null || echo "PENDING")
+
+  if [ "$ANGI_LINK" != "PENDING" ]; then
+    sed -i "s|ANGI_LINK|$ANGI_LINK|g" "$POST_FILE"
+    echo "  ✓ Injected Angi affiliate link"
+  else
+    echo "  ⚠ Angi link pending — placeholder left in post"
+  fi
+  if [ "$THUMBTACK_LINK" != "PENDING" ]; then
+    sed -i "s|THUMBTACK_LINK|$THUMBTACK_LINK|g" "$POST_FILE"
+    echo "  ✓ Injected Thumbtack affiliate link"
+  fi
+  if [ "$HOMEADVISOR_LINK" != "PENDING" ]; then
+    sed -i "s|HOMEADVISOR_LINK|$HOMEADVISOR_LINK|g" "$POST_FILE"
+    echo "  ✓ Injected HomeAdvisor affiliate link"
+  fi
+fi
+
 # ── Step 1: Verify post exists ────────────────────────────────────────────────
 echo ""
 echo "▶ Step 1/5: Checking post file..."
