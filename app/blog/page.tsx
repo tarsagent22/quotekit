@@ -25,7 +25,8 @@ function getPosts(): PostMeta[] {
   const blogDir = path.join(process.cwd(), 'content/blog')
   if (!fs.existsSync(blogDir)) return []
 
-  const files = fs.readdirSync(blogDir).filter(f => f.endsWith('.md'))
+  const EXCLUDED = ['keyword-tracker.md', 'queue.md']
+  const files = fs.readdirSync(blogDir).filter(f => f.endsWith('.md') && !EXCLUDED.includes(f))
 
   const posts = files.map(filename => {
     const slug = filename.replace(/\.md$/, '')
