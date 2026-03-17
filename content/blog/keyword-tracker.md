@@ -7,6 +7,7 @@ Check this before starting any new post. A post is not complete until both Publi
 
 | Keyword | URL | Publish Date | Word Count | Pin Published |
 |---------|-----|--------------|------------|---------------|
+| Bathroom Remodel Cost in Austin, TX (2026) | /blog/bathroom-remodel-cost-austin-tx | 2026-03-15 | 1420 | 2026-03-15 |
 
 ## Queued / Scheduled
 
