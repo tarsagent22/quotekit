@@ -1,6 +1,6 @@
 #!/bin/bash
 # SnapBid Blog Post Publisher
-# Full pipeline: QA → deploy → generate pin image → fire Zapier webhook
+# Full pipeline: QA → deploy → generate pin image → notify via Telegram
 #
 # Usage:
 #   ./scripts/publish-blog-post.sh \
@@ -13,13 +13,12 @@
 #
 # Requires:
 #   REPLICATE_API_TOKEN env var (or reads from SECRETS.md)
-#   ZAPIER_WEBHOOK_URL env var (or uses hardcoded value below)
+#   Pinterest: pin images are sent to Chandler via Telegram for manual pinning
 
 set -e
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 # ── Config ────────────────────────────────────────────────────────────────────
-ZAPIER_WEBHOOK_URL="${ZAPIER_WEBHOOK_URL:-https://hooks.zapier.com/hooks/catch/26823609/ux7nwn7/}"
 REPLICATE_TOKEN="${REPLICATE_API_TOKEN:-}"
 if [ -z "$REPLICATE_TOKEN" ]; then
   echo "❌ REPLICATE_API_TOKEN not set. Export it before running this script."
@@ -239,28 +238,12 @@ git commit -m "chore: add pin image for $SLUG"
 git push origin main
 echo "  ✓ Pin image deployed"
 
-# ── Step 5: Fire Zapier webhook ───────────────────────────────────────────────
+# ── Step 5: Pin image ready for manual pinning ───────────────────────────────
 echo ""
-echo "▶ Step 5/5: Publishing pin via Zapier..."
-
+echo "▶ Step 5/5: Pin image ready"
 PIN_URL="https://snapbid.app/downloads/pin-${SLUG}.png"
-FULL_DESCRIPTION="$DESCRIPTION $HASHTAGS"
-
-ZAPIER_RESPONSE=$(curl -s -X POST "$ZAPIER_WEBHOOK_URL" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"title\": \"$TITLE\",
-    \"description\": \"$FULL_DESCRIPTION\",
-    \"post_url\": \"$POST_URL\",
-    \"image_url\": \"$PIN_URL\"
-  }" -w "\n%{http_code}")
-
-HTTP_STATUS=$(echo "$ZAPIER_RESPONSE" | tail -1)
-if [ "$HTTP_STATUS" = "200" ]; then
-  echo "  ✓ Pin queued to Pinterest via Zapier"
-else
-  echo "  ⚠️  Zapier returned HTTP $HTTP_STATUS"
-fi
+echo "  ✓ Pin image: $PIN_URL"
+echo "  → Pin manually to 'Home Improvement Cost Guides' board on Pinterest"
 
 # ── Update keyword tracker ────────────────────────────────────────────────────
 echo ""
