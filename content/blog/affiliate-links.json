@@ -1,44 +1,56 @@
 {
-  "_comment": "Affiliate link registry for SnapBid blog posts. Add approved links here — publish-blog-post.sh injects them automatically. Placeholders marked with PENDING until approved.",
+  "_comment": "Affiliate link registry for SnapBid blog posts. publish-blog-post.sh injects these automatically at publish time.",
   "_disclosure": "Posts must include FTC disclosure footer. See writing-standards.md.",
+  "_updated": "2026-03-17",
 
   "angi": {
-    "general": "PENDING — add CJ Affiliate approved link here",
-    "roofing": "PENDING",
-    "bathroom": "PENDING",
-    "kitchen": "PENDING",
-    "hvac": "PENDING",
-    "plumbing": "PENDING",
-    "deck": "PENDING",
-    "flooring": "PENDING",
-    "painting": "PENDING",
-    "electrical": "PENDING"
+    "general": "https://www.angi.com",
+    "_note": "CJ Affiliate application submitted 2026-03-17 — replace with affiliate URL when approved",
+    "roofing": "https://www.angi.com",
+    "bathroom": "https://www.angi.com",
+    "kitchen": "https://www.angi.com",
+    "hvac": "https://www.angi.com",
+    "plumbing": "https://www.angi.com",
+    "deck": "https://www.angi.com",
+    "flooring": "https://www.angi.com",
+    "painting": "https://www.angi.com",
+    "electrical": "https://www.angi.com"
   },
 
   "homeadvisor": {
-    "general": "PENDING — add CJ Affiliate approved link here",
-    "roofing": "PENDING",
-    "bathroom": "PENDING",
-    "kitchen": "PENDING",
-    "hvac": "PENDING",
-    "plumbing": "PENDING"
+    "_note": "Not on CJ — check Impact.com or direct program",
+    "general": "https://www.homeadvisor.com",
+    "roofing": "https://www.homeadvisor.com",
+    "bathroom": "https://www.homeadvisor.com",
+    "kitchen": "https://www.homeadvisor.com",
+    "hvac": "https://www.homeadvisor.com",
+    "plumbing": "https://www.homeadvisor.com"
   },
 
   "thumbtack": {
-    "general": "PENDING — add FlexOffers approved link here",
-    "roofing": "PENDING",
-    "bathroom": "PENDING",
-    "kitchen": "PENDING",
-    "hvac": "PENDING",
-    "plumbing": "PENDING"
+    "_note": "FlexOffers application pending — replace with affiliate URL when approved",
+    "general": "https://www.thumbtack.com",
+    "roofing": "https://www.thumbtack.com",
+    "bathroom": "https://www.thumbtack.com",
+    "kitchen": "https://www.thumbtack.com",
+    "hvac": "https://www.thumbtack.com",
+    "plumbing": "https://www.thumbtack.com"
+  },
+
+  "lowes": {
+    "_note": "Not on CJ — check Impact.com or lowes.com/affiliate",
+    "general": "https://www.lowes.com"
   },
 
   "amazon": {
-    "_note": "Amazon links are product-specific. Add as needed per post. Use SiteStripe to generate.",
-    "cordless_drill": "PENDING",
-    "tile_saw": "PENDING",
-    "caulk_gun": "PENDING",
-    "paint_sprayer": "PENDING",
-    "roofing_nailer": "PENDING"
+    "_note": "Amazon Associates — active. 3% home improvement category. Links generated via SiteStripe.",
+    "cordless_drill": "https://amzn.to/4uyfFZR",
+    "toilet_repair_kit": "https://amzn.to/4lzMzoZ",
+    "thermostat_hvac": "https://amzn.to/4sarwf7",
+    "roofing_shingles": "https://amzn.to/4uygl1l",
+    "kitchen_faucet": "https://amzn.to/4rAilmU",
+    "bathroom_faucet": "https://amzn.to/4rAireg",
+    "cabinet_pulls_black": "https://amzn.to/4cXXDtT",
+    "cabinet_pulls_bronze": "https://amzn.to/4bwVCT0"
   }
 }
