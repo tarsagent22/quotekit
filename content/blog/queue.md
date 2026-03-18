@@ -6,7 +6,7 @@
 
 ## Queue (next up → bottom)
 
-- [ ] kitchen-remodel-cost-phoenix-az | Kitchen Remodel Cost in Phoenix, AZ (2026) | Structure C — Market Report | AZ housing boom, desert heat affects materials, high snowbird remodel season
+- [x] kitchen-remodel-cost-phoenix-az | published 2026-03-17
 - [ ] roof-replacement-cost-chicago-il | Roof Replacement Cost in Chicago, IL (2026) | Structure E — Walkthrough | Freeze-thaw cycles, flat roof prevalence in city, ice dam context
 - [ ] bathroom-remodel-cost-charlotte-nc | Bathroom Remodel Cost in Charlotte, NC (2026) | Structure B — Decision Guide | Fast-growing market, Duke Energy rebates, older ranch homes
 - [ ] hvac-replacement-cost-houston-tx | HVAC Replacement Cost in Houston, TX (2026) | Structure D — Myth Buster | Humidity, AC-heavy (minimal heat), flood risk affects installs
