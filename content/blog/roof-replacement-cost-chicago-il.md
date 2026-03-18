@@ -11,7 +11,7 @@ wordCount: 1450
 
 # Roof Replacement Cost in Chicago, IL (2026)
 
-**Chicago homeowners typically spend <span style="color: #0d9488; font-weight: 600;">$12,000–$22,000</span> for a full roof replacement in 2026.** That range reflects the city's unique mix of pitched residential roofs and the flat roofs common on bungalows, two-flats, and graystones throughout neighborhoods like Logan Square, Pilsen, and Bridgeport.
+**Chicago homeowners typically spend $12,000–$22,000 for a full roof replacement in 2026.** That range reflects the city's unique mix of pitched residential roofs and the flat roofs common on bungalows, two-flats, and graystones throughout neighborhoods like Logan Square, Pilsen, and Bridgeport.
 
 What pushes your project toward the high end? Flat roof membrane systems, ice dam prevention work, and the structural repairs Chicago's brutal freeze-thaw cycles often demand. This guide walks you through exactly what to expect — from first inspection to final nail — so you're not blindsided when estimates land in your inbox.
 
@@ -32,9 +32,7 @@ Before you call anyone, spend 15 minutes assessing what you're dealing with. Chi
 → Water stains on rafters or insulation
 → Frost on the underside of the roof deck in winter (ventilation failure)
 
-<div style="border-left: 4px solid #2563eb; background: rgba(37,99,235,0.06); padding: 16px 20px; border-radius: 8px; margin: 24px 0;">
-<strong>Chicago-specific:</strong> Ice dams don't just damage shingles — they force water under your roofing material and into the deck. If your attic shows any frost buildup, you're likely already dealing with deck rot you can't see from outside.
-</div>
+> **Chicago-specific:** Ice dams don't just damage shingles — they force water under your roofing material and into the deck. If your attic shows any frost buildup, you're likely already dealing with deck rot you can't see from outside.
 
 Say you have a 1920s brick bungalow in Jefferson Park. The pitched front section might look fine, but that flat rear addition? Flat roofs in Chicago take a beating. Ponding water from summer storms, ice expansion cracking the membrane in winter — these require different materials and expertise than a standard shingle job.
 
@@ -46,7 +44,7 @@ Here's where your project gets real numbers attached. In Chicago, expect to coll
 
 ### What legitimate Chicago roofers include in their estimates:
 
-1. **Tear-off and disposal** — <span style="color: #0d9488; font-weight: 600;">$1,500–$3,000</span> depending on layers and accessibility. City disposal fees add up fast.
+1. **Tear-off and disposal** — $1,500–$3,000 depending on layers and accessibility. City disposal fees add up fast.
 
 2. **Deck inspection and repair** — Good contractors won't quote this blind. They'll estimate a range (usually $500–$2,500) and finalize after tear-off reveals the actual condition.
 
@@ -54,11 +52,9 @@ Here's where your project gets real numbers attached. In Chicago, expect to coll
 
 4. **Ice and water shield** — In Chicago, this isn't optional. Code requires it along eaves, and smart contractors extend it 3–6 feet up the roof.
 
-5. **Permit fees** — Chicago requires permits for roof replacement. Budget <span style="color: #0d9488; font-weight: 600;">$250–$500</span>.
+5. **Permit fees** — Chicago requires permits for roof replacement. Budget $250–$500.
 
-<div style="border-left: 4px solid #d97706; background: rgba(217,119,6,0.06); padding: 16px 20px; border-radius: 8px; margin: 24px 0;">
-<strong>Red flag:</strong> Any contractor who quotes a firm price without seeing your roof — or who "doesn't bother with permits" — is either inexperienced or planning to cut corners. Chicago's Department of Buildings does inspect, and unpermitted work creates problems when you sell.
-</div>
+> **Red flag:** Any contractor who quotes a firm price without seeing your roof — or who "doesn't bother with permits" — is either inexperienced or planning to cut corners. Chicago's Department of Buildings does inspect, and unpermitted work creates problems when you sell.
 
 ### The flat roof question
 
@@ -83,29 +79,17 @@ This is where you lock in the biggest variable in your budget. Let's break it do
 
 ### Pitched roofs (most common in neighborhoods like Beverly, Edison Park, Mount Greenwood)
 
-**Architectural asphalt shingles** remain the default choice — <span style="color: #0d9488; font-weight: 600;">$4.50–$7.00 per square foot installed</span>. For a 2,000 sq ft roof, that's $9,000–$14,000 for materials and labor.
+**Architectural asphalt shingles** remain the default choice — $4.50–$7.00 per square foot installed. For a 2,000 sq ft roof, that's $9,000–$14,000 for materials and labor.
 
 **Impact-resistant shingles** add 15–20% to your cost but qualify for insurance discounts. Given Chicago's hail exposure (remember that 2024 storm that hit the Northwest Side?), the math often works in your favor over 10+ years.
 
 **Metal roofing** has gained traction in Chicago — especially standing seam systems at $12–$18 per square foot. They handle snow load beautifully and eliminate ice dam risk when installed with proper underlayment. Total cost: $24,000–$36,000 for a 2,000 sq ft home.
 
-<div style="display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap;">
-<div style="flex: 1; min-width: 200px; background: #f9fafb; border-radius: 12px; padding: 20px; border: 1px solid #e5e7eb;">
-<div style="font-weight: 700; color: #991b1b; margin-bottom: 8px;">Budget Tier</div>
-<div style="font-size: 1.5rem; font-weight: 600; color: #111827;">$9,000–$13,000</div>
-<div style="font-size: 0.875rem; color: #6b7280; margin-top: 8px;">3-tab or basic architectural shingles. 15–20 year warranty. Gets the job done.</div>
-</div>
-<div style="flex: 1; min-width: 200px; background: #f9fafb; border-radius: 12px; padding: 20px; border: 1px solid #e5e7eb;">
-<div style="font-weight: 700; color: #991b1b; margin-bottom: 8px;">Mid-Range</div>
-<div style="font-size: 1.5rem; font-weight: 600; color: #111827;">$14,000–$19,000</div>
-<div style="font-size: 0.875rem; color: #6b7280; margin-top: 8px;">Quality architectural shingles, enhanced ice/water shield, full deck inspection. 25–30 year warranty.</div>
-</div>
-<div style="flex: 1; min-width: 200px; background: #f9fafb; border-radius: 12px; padding: 20px; border: 1px solid #e5e7eb;">
-<div style="font-weight: 700; color: #991b1b; margin-bottom: 8px;">Premium</div>
-<div style="font-size: 1.5rem; font-weight: 600; color: #111827;">$22,000–$35,000+</div>
-<div style="font-size: 0.875rem; color: #6b7280; margin-top: 8px;">Impact-resistant shingles, metal, or synthetic slate. 40–50 year warranties. Full ventilation upgrade.</div>
-</div>
-</div>
+| Tier | Price Range | Description |
+|------|-------------|-------------|
+| Budget | $9,000–$13,000 | 3-tab or basic architectural shingles. 15–20 year warranty. Gets the job done. |
+| Mid-Range | $14,000–$19,000 | Quality architectural shingles, enhanced ice/water shield, full deck inspection. 25–30 year warranty. |
+| Premium | $22,000–$35,000+ | Impact-resistant shingles, metal, or synthetic slate. 40–50 year warranties. Full ventilation upgrade. |
 
 ---
 
@@ -143,29 +127,11 @@ Why does the same roof cost $4,000 more in Chicago than downstate? Several facto
 
 Here's how Chicago stacks up against the national average:
 
-<div style="margin: 24px 0;">
-<div style="display: flex; align-items: center; margin-bottom: 12px;">
-<div style="width: 140px; font-weight: 600;">National Avg</div>
-<div style="flex: 1; background: #e5e7eb; border-radius: 4px; height: 24px; position: relative;">
-<div style="background: #6b7280; height: 100%; border-radius: 4px; width: 65%;"></div>
-</div>
-<div style="width: 100px; text-align: right; font-weight: 600;">$9,500</div>
-</div>
-<div style="display: flex; align-items: center; margin-bottom: 12px;">
-<div style="width: 140px; font-weight: 600;">Chicago</div>
-<div style="flex: 1; background: #e5e7eb; border-radius: 4px; height: 24px; position: relative;">
-<div style="background: #991b1b; height: 100%; border-radius: 4px; width: 85%;"></div>
-</div>
-<div style="width: 100px; text-align: right; font-weight: 600;">$16,500</div>
-</div>
-<div style="display: flex; align-items: center;">
-<div style="width: 140px; font-weight: 600;">Chicago (flat)</div>
-<div style="flex: 1; background: #e5e7eb; border-radius: 4px; height: 24px; position: relative;">
-<div style="background: #0d9488; height: 100%; border-radius: 4px; width: 95%;"></div>
-</div>
-<div style="width: 100px; text-align: right; font-weight: 600;">$19,000</div>
-</div>
-</div>
+| Location | Price |
+|----------|-------|
+| National Avg | $9,500 |
+| Chicago | $16,500 |
+| Chicago (flat) | $19,000 |
 
 *Averages based on 1,800–2,200 sq ft homes with standard complexity.*
 
@@ -189,7 +155,7 @@ Your roof is done. Here's how to make it last in Chicago's climate:
 
 **Does insurance cover roof replacement in Chicago?**
 
-Depends on the cause. Storm damage (hail, wind, fallen trees) typically qualifies for claims after your deductible. Normal wear and age? That's on you. If you're filing a claim, get your own estimate first — insurance adjusters work for the insurance company, not you. The gap between adjuster estimates and actual replacement cost averages <span style="color: #dc2626; font-weight: 600;">$2,000–$5,000</span> in Chicago.
+Depends on the cause. Storm damage (hail, wind, fallen trees) typically qualifies for claims after your deductible. Normal wear and age? That's on you. If you're filing a claim, get your own estimate first — insurance adjusters work for the insurance company, not you. The gap between adjuster estimates and actual replacement cost averages $2,000–$5,000 in Chicago.
 
 **When's the best time to replace a roof in Chicago?**
 
