@@ -46,6 +46,18 @@ if [ ${#MD_FILES[@]} -eq 0 ]; then
   exit 0
 fi
 
+# ─── Check 1b: Frontmatter code fence detection ─────────────────────────────
+echo ""
+echo "▶ Checking for malformed frontmatter..."
+for f in "${MD_FILES[@]}"; do
+  slug=$(basename "$f" .md)
+  first_line=$(head -1 "$f")
+  if [[ "$first_line" == '```'* ]]; then
+    fail "$slug: Frontmatter wrapped in code fence (starts with \`\`\`) — must start with bare ---"
+  fi
+done
+info "Frontmatter format checks complete"
+
 # ─── Check 2: Year accuracy ─────────────────────────────────────────────────
 echo ""
 echo "▶ Checking year references..."
