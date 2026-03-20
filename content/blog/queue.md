@@ -8,7 +8,7 @@
 
 - [x] kitchen-remodel-cost-phoenix-az | published 2026-03-17
 - [x] roof-replacement-cost-chicago-il | published 2026-03-18
-- [ ] bathroom-remodel-cost-charlotte-nc | Bathroom Remodel Cost in Charlotte, NC (2026) | Structure B — Decision Guide | Fast-growing market, Duke Energy rebates, older ranch homes
+- [x] bathroom-remodel-cost-charlotte-nc | published 2026-03-20
 - [ ] hvac-replacement-cost-houston-tx | HVAC Replacement Cost in Houston, TX (2026) | Structure D — Myth Buster | Humidity, AC-heavy (minimal heat), flood risk affects installs
 - [ ] deck-addition-cost-seattle-wa | Deck Addition Cost in Seattle, WA (2026) | Structure A — Deep Dive | Rain-resistant materials, composite vs cedar, permit complexity
 - [ ] roof-replacement-cost-miami-fl | Roof Replacement Cost in Miami, FL (2026) | Structure C — Market Report | Hurricane codes, impact-resistant requirement, insurance angle
