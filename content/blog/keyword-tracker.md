@@ -12,6 +12,7 @@ Check this before starting any new post. A post is not complete until both Publi
 | Kitchen Remodel Cost in Phoenix, AZ (2026) | /blog/kitchen-remodel-cost-phoenix-az | 2026-03-17 | 1400 | 2026-03-17 |
 | Roof Replacement Cost in Chicago, IL (2026) | /blog/roof-replacement-cost-chicago-il | 2026-03-18 | 1990 | 2026-03-18 |
 | Bathroom Remodel Cost in Charlotte, NC (2026) | /blog/bathroom-remodel-cost-charlotte-nc | 2026-03-20 | 1722 | 2026-03-20 |
+| HVAC Replacement Cost in Houston, TX (2026) | /blog/hvac-replacement-cost-houston-tx | 2026-03-21 | 1729 | 2026-03-21 |
 
 ## Queued / Scheduled
 
