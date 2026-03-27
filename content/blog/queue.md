@@ -10,7 +10,7 @@
 - [x] roof-replacement-cost-chicago-il | published 2026-03-18
 - [x] bathroom-remodel-cost-charlotte-nc | published 2026-03-20
 - [x] hvac-replacement-cost-houston-tx | published 2026-03-21
-- [ ] deck-addition-cost-seattle-wa | Deck Addition Cost in Seattle, WA (2026) | Structure A — Deep Dive | Rain-resistant materials, composite vs cedar, permit complexity
+- [x] deck-addition-cost-seattle-wa | published 2026-03-25
 - [ ] roof-replacement-cost-miami-fl | Roof Replacement Cost in Miami, FL (2026) | Structure C — Market Report | Hurricane codes, impact-resistant requirement, insurance angle
 - [ ] kitchen-remodel-cost-denver-co | Kitchen Remodel Cost in Denver, CO (2026) | Structure B — Decision Guide | Altitude dryness affects cabinetry, luxury ski market vs starter homes
 - [ ] bathroom-remodel-cost-dallas-tx | Bathroom Remodel Cost in Dallas, TX (2026) | Structure E — Walkthrough | DFW growth, water softener angle, permit timelines
